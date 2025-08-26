@@ -1,19 +1,20 @@
 package com.rapidobackup.console.agent.service;
 
-import com.rapidobackup.console.agent.entity.Agent;
-import com.rapidobackup.console.agent.repository.AgentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.rapidobackup.console.agent.entity.Agent;
+import com.rapidobackup.console.agent.repository.AgentRepository;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.UUID;
-import java.security.SecureRandom;
-import java.util.Base64;
 
 /**
  * Reactive service for Agent management demonstrating R2DBC benefits:
@@ -29,7 +30,6 @@ public class ReactiveAgentService {
     private final AgentRepository agentRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    @Autowired
     public ReactiveAgentService(AgentRepository agentRepository) {
         this.agentRepository = agentRepository;
     }
@@ -171,7 +171,7 @@ public class ReactiveAgentService {
 
     public Flux<Agent> cleanupExpiredApiKeys() {
         return agentRepository.findExpiredApiKeys(Instant.now())
-                .flatMap(this::rotateApiKey);
+                .flatMap(agent -> rotateApiKey(agent.getId()));
     }
 
     // Performance testing helpers

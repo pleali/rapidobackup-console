@@ -1,16 +1,17 @@
 package com.rapidobackup.console.agent.repository;
 
-import com.rapidobackup.console.agent.entity.Agent;
-import org.springframework.data.domain.Pageable;
+import java.time.Instant;
+import java.util.UUID;
+
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.rapidobackup.console.agent.entity.Agent;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Reactive R2DBC repository for Agent entities
@@ -78,11 +79,6 @@ public interface AgentRepository extends R2dbcRepository<Agent, UUID> {
     @Query("SELECT COUNT(*) FROM agents")
     Mono<Long> countAll();
     
-    @Query("""
-        SELECT status, COUNT(*) as count 
-        FROM agents 
-        GROUP BY status
-        """)
     @Query("SELECT status FROM agents GROUP BY status")
     Flux<String> findAllStatuses();
     

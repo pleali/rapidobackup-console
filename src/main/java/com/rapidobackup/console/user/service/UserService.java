@@ -11,6 +11,7 @@ import com.rapidobackup.console.user.repository.UserRepository;
 @Transactional
 public class UserService {
 
+  @SuppressWarnings("unused")
   private final UserRepository userRepository;
 
   public UserService(UserRepository userRepository) {

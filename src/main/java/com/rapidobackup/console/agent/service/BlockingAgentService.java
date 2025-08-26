@@ -33,7 +33,6 @@ public class BlockingAgentService {
     private final AgentJpaRepository agentJpaRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    @Autowired
     public BlockingAgentService(AgentJpaRepository agentJpaRepository) {
         this.agentJpaRepository = agentJpaRepository;
     }

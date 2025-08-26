@@ -22,7 +22,6 @@ public class ReactiveAgentController {
 
     private final ReactiveAgentService agentService;
 
-    @Autowired
     public ReactiveAgentController(ReactiveAgentService agentService) {
         this.agentService = agentService;
     }

@@ -1,28 +1,28 @@
 package com.rapidobackup.console.agent.performance;
 
-import com.rapidobackup.console.agent.entity.Agent;
-import com.rapidobackup.console.agent.entity.AgentJpa;
-import com.rapidobackup.console.agent.service.BlockingAgentService;
-import com.rapidobackup.console.agent.service.ReactiveAgentService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import com.rapidobackup.console.agent.entity.Agent;
+import com.rapidobackup.console.agent.entity.AgentJpa;
+import com.rapidobackup.console.agent.service.BlockingAgentService;
+import com.rapidobackup.console.agent.service.ReactiveAgentService;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 /**
  * Comprehensive performance comparison between JPA and R2DBC for Agent operations
@@ -268,7 +268,7 @@ public class AgentPerformanceComparisonTest {
                     .mapToObj(i -> reactiveAgentService.getStatistics())
                     .toList();
             
-            StepVerifier.create(Flux.merge(reactiveOps, 10)) // Concurrency of 10
+            StepVerifier.create(Flux.merge(reactiveOps).limitRate(10)) // Concurrency of 10
                     .expectNextCount(loadLevel)
                     .verifyComplete();
             long reactiveEndTime = System.currentTimeMillis();

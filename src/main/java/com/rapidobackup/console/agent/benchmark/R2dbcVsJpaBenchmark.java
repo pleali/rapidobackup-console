@@ -109,7 +109,8 @@ public class R2dbcVsJpaBenchmark implements CommandLineRunner {
                     .mapToObj(i -> reactiveAgentService.getStatistics())
                     .toList();
             
-            Flux.merge(reactiveRequests, 50) // Limit concurrency to 50
+            Flux.merge(reactiveRequests)
+                    .limitRate(50) // Limit concurrency to 50
                     .collectList()
                     .block();
             

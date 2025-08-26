@@ -25,7 +25,6 @@ public class BlockingAgentController {
 
     private final BlockingAgentService agentService;
 
-    @Autowired
     public BlockingAgentController(BlockingAgentService agentService) {
         this.agentService = agentService;
     }
