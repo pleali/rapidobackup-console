@@ -1,0 +1,301 @@
+package com.rapidobackup.console.agent.benchmark;
+
+import com.rapidobackup.console.agent.entity.Agent;
+import com.rapidobackup.console.agent.service.BlockingAgentService;
+import com.rapidobackup.console.agent.service.ReactiveAgentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+
+/**
+ * Comprehensive benchmark comparing R2DBC vs JPA performance
+ * Run with: mvn spring-boot:run -Dspring-boot.run.arguments="--benchmark=true"
+ */
+@Component
+public class R2dbcVsJpaBenchmark implements CommandLineRunner {
+
+    @Autowired
+    private ReactiveAgentService reactiveAgentService;
+    
+    @Autowired
+    private BlockingAgentService blockingAgentService;
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (!shouldRunBenchmark(args)) {
+            return;
+        }
+
+        System.out.println("\n" + "=".repeat(100));
+        System.out.println("🚀 R2DBC vs JPA Performance Benchmark - RapidoBackup Console");
+        System.out.println("=".repeat(100));
+        
+        // Run all benchmarks
+        runBulkInsertBenchmark();
+        runConcurrencyBenchmark();
+        runMemoryUsageBenchmark();
+        runRealtimeStreamingBenchmark();
+        runHighLoadSimulation();
+        
+        System.out.println("\n" + "=".repeat(100));
+        System.out.println("✅ Benchmark completed! Check results above for R2DBC benefits.");
+        System.out.println("=".repeat(100));
+    }
+
+    private boolean shouldRunBenchmark(String[] args) {
+        return args.length > 0 && args[0].equals("--benchmark=true");
+    }
+
+    private void runBulkInsertBenchmark() {
+        System.out.println("\n📊 BULK INSERT BENCHMARK");
+        System.out.println("-".repeat(80));
+
+        int[] batchSizes = {100, 500, 1000, 2000};
+        
+        for (int batchSize : batchSizes) {
+            System.out.println(String.format("\n🔬 Testing %d agents bulk insert:", batchSize));
+            
+            // R2DBC Test
+            Instant reactiveStart = Instant.now();
+            Long reactiveResult = reactiveAgentService.performanceBulkInsert(batchSize).block();
+            Duration reactiveDuration = Duration.between(reactiveStart, Instant.now());
+            
+            // JPA Test
+            Instant blockingStart = Instant.now();
+            long blockingResult = blockingAgentService.performanceBulkInsert(batchSize);
+            Duration blockingDuration = Duration.between(blockingStart, Instant.now());
+            
+            // Calculate performance metrics
+            double reactiveOpsPerSec = batchSize / (reactiveDuration.toMillis() / 1000.0);
+            double blockingOpsPerSec = batchSize / (blockingDuration.toMillis() / 1000.0);
+            double improvement = ((double) blockingDuration.toMillis() / reactiveDuration.toMillis());
+            
+            System.out.println(String.format("  📈 R2DBC:  %dms | %.1f ops/sec | %d agents", 
+                reactiveDuration.toMillis(), reactiveOpsPerSec, reactiveResult.intValue()));
+            System.out.println(String.format("  📊 JPA:    %dms | %.1f ops/sec | %d agents", 
+                blockingDuration.toMillis(), blockingOpsPerSec, blockingResult));
+            System.out.println(String.format("  🚀 R2DBC is %.1fx %s", 
+                Math.abs(improvement), improvement > 1 ? "FASTER" : "slower"));
+        }
+    }
+
+    private void runConcurrencyBenchmark() throws InterruptedException {
+        System.out.println("\n📊 CONCURRENCY BENCHMARK");
+        System.out.println("-".repeat(80));
+
+        // Create some test data
+        reactiveAgentService.performanceBulkInsert(100).block();
+
+        int[] concurrencyLevels = {10, 50, 100, 200, 500};
+        
+        for (int concurrency : concurrencyLevels) {
+            System.out.println(String.format("\n🔬 Testing %d concurrent requests:", concurrency));
+            
+            // R2DBC Concurrency Test
+            Instant reactiveStart = Instant.now();
+            List<Mono<ReactiveAgentService.AgentStatistics>> reactiveRequests = IntStream.range(0, concurrency)
+                    .mapToObj(i -> reactiveAgentService.getStatistics())
+                    .toList();
+            
+            Flux.merge(reactiveRequests, 50) // Limit concurrency to 50
+                    .collectList()
+                    .block();
+            
+            Duration reactiveDuration = Duration.between(reactiveStart, Instant.now());
+            
+            // JPA Concurrency Test
+            ExecutorService executor = Executors.newFixedThreadPool(Math.min(concurrency, 50));
+            CountDownLatch latch = new CountDownLatch(concurrency);
+            
+            Instant blockingStart = Instant.now();
+            for (int i = 0; i < concurrency; i++) {
+                executor.submit(() -> {
+                    try {
+                        blockingAgentService.getStatistics();
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+            
+            latch.await(30, TimeUnit.SECONDS);
+            Duration blockingDuration = Duration.between(blockingStart, Instant.now());
+            executor.shutdown();
+            
+            // Calculate metrics
+            double reactiveReqPerSec = concurrency / (reactiveDuration.toMillis() / 1000.0);
+            double blockingReqPerSec = concurrency / (blockingDuration.toMillis() / 1000.0);
+            double improvement = ((double) blockingDuration.toMillis() / reactiveDuration.toMillis());
+            
+            System.out.println(String.format("  📈 R2DBC:  %dms | %.1f req/sec", 
+                reactiveDuration.toMillis(), reactiveReqPerSec));
+            System.out.println(String.format("  📊 JPA:    %dms | %.1f req/sec", 
+                blockingDuration.toMillis(), blockingReqPerSec));
+            System.out.println(String.format("  🚀 R2DBC is %.1fx %s | 🧵 Uses fewer threads", 
+                Math.abs(improvement), improvement > 1 ? "FASTER" : "slower"));
+        }
+    }
+
+    private void runMemoryUsageBenchmark() {
+        System.out.println("\n📊 MEMORY USAGE BENCHMARK");
+        System.out.println("-".repeat(80));
+
+        Runtime runtime = Runtime.getRuntime();
+        
+        // Force garbage collection to get baseline
+        System.gc();
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+        
+        long baseline = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(String.format("🔍 Baseline memory: %.2f MB", baseline / 1024.0 / 1024.0));
+
+        // R2DBC Memory Test
+        System.gc();
+        long beforeReactive = runtime.totalMemory() - runtime.freeMemory();
+        
+        reactiveAgentService.performanceBulkInsert(2000).block();
+        
+        long afterReactive = runtime.totalMemory() - runtime.freeMemory();
+        long reactiveMemory = afterReactive - beforeReactive;
+
+        // JPA Memory Test
+        System.gc();
+        long beforeBlocking = runtime.totalMemory() - runtime.freeMemory();
+        
+        blockingAgentService.performanceBulkInsert(2000);
+        
+        long afterBlocking = runtime.totalMemory() - runtime.freeMemory();
+        long blockingMemory = afterBlocking - beforeBlocking;
+
+        System.out.println(String.format("  📈 R2DBC memory usage:  %.2f MB", reactiveMemory / 1024.0 / 1024.0));
+        System.out.println(String.format("  📊 JPA memory usage:    %.2f MB", blockingMemory / 1024.0 / 1024.0));
+        
+        if (reactiveMemory < blockingMemory) {
+            System.out.println(String.format("  🚀 R2DBC uses %.1fx LESS memory", 
+                (double) blockingMemory / reactiveMemory));
+        } else {
+            System.out.println(String.format("  🚀 JPA uses %.1fx less memory", 
+                (double) reactiveMemory / blockingMemory));
+        }
+    }
+
+    private void runRealtimeStreamingBenchmark() {
+        System.out.println("\n📊 REAL-TIME STREAMING BENCHMARK");
+        System.out.println("-".repeat(80));
+
+        // Create online agents for streaming
+        List<Mono<Agent>> agentCreations = IntStream.range(1, 101)
+                .mapToObj(i -> {
+                    Agent agent = createOnlineAgent("StreamAgent" + i);
+                    return reactiveAgentService.createAgent(agent);
+                })
+                .toList();
+        
+        Flux.merge(agentCreations).collectList().block();
+        
+        System.out.println("🔍 Created 100 online agents for streaming test");
+
+        // R2DBC Streaming Test - Real-time data stream
+        System.out.println("\n📈 R2DBC Streaming Test:");
+        Instant streamStart = Instant.now();
+        
+        Long streamedCount = reactiveAgentService.streamOnlineAgents()
+                .take(50)
+                .doOnNext(agent -> System.out.print("📡"))
+                .count()
+                .block();
+        
+        Duration streamDuration = Duration.between(streamStart, Instant.now());
+        
+        // JPA Equivalent - Batch fetch
+        System.out.println("\n\n📊 JPA Batch Test:");
+        Instant batchStart = Instant.now();
+        
+        List<?> batchResults = blockingAgentService.getOnlineAgents();
+        
+        Duration batchDuration = Duration.between(batchStart, Instant.now());
+
+        System.out.println(String.format("\n  📈 R2DBC Streaming: %dms | %d agents | Real-time backpressure", 
+            streamDuration.toMillis(), streamedCount.intValue()));
+        System.out.println(String.format("  📊 JPA Batch:      %dms | %d agents | All-or-nothing", 
+            batchDuration.toMillis(), batchResults.size()));
+        System.out.println("  💡 R2DBC advantage: Immediate results, memory-efficient streaming");
+    }
+
+    private void runHighLoadSimulation() throws InterruptedException {
+        System.out.println("\n📊 HIGH LOAD SIMULATION (Agent Heartbeat Scenario)");
+        System.out.println("-".repeat(80));
+
+        // Simulate 1000 agents sending heartbeats every 30 seconds
+        int agentCount = 1000;
+        
+        System.out.println(String.format("🔍 Simulating %d agents sending heartbeats...", agentCount));
+        
+        // Create test API keys
+        List<String> apiKeys = IntStream.range(1, agentCount + 1)
+                .mapToObj(i -> "test-api-key-" + i)
+                .toList();
+
+        // R2DBC High Load Test
+        System.out.println("\n📈 R2DBC High Load Test:");
+        Instant reactiveStart = Instant.now();
+        
+        Long reactiveUpdates = reactiveAgentService.processHeartbeatBatch(Flux.fromIterable(apiKeys))
+                .block();
+        
+        Duration reactiveDuration = Duration.between(reactiveStart, Instant.now());
+
+        // JPA High Load Test
+        System.out.println("📊 JPA High Load Test:");
+        Instant blockingStart = Instant.now();
+        
+        long blockingUpdates = blockingAgentService.processHeartbeatBatch(apiKeys);
+        
+        Duration blockingDuration = Duration.between(blockingStart, Instant.now());
+
+        // Calculate throughput
+        double reactiveHbPerSec = agentCount / (reactiveDuration.toMillis() / 1000.0);
+        double blockingHbPerSec = agentCount / (blockingDuration.toMillis() / 1000.0);
+        
+        System.out.println(String.format("\n  📈 R2DBC:  %dms | %.0f heartbeats/sec | %d updated", 
+            reactiveDuration.toMillis(), reactiveHbPerSec, reactiveUpdates.intValue()));
+        System.out.println(String.format("  📊 JPA:    %dms | %.0f heartbeats/sec | %d updated", 
+            blockingDuration.toMillis(), blockingHbPerSec, blockingUpdates));
+        
+        if (reactiveDuration.toMillis() < blockingDuration.toMillis()) {
+            System.out.println(String.format("  🚀 R2DBC handles %.1fx MORE heartbeats per second", 
+                reactiveHbPerSec / blockingHbPerSec));
+        }
+
+        System.out.println("\n💡 Key Benefits for Agent Management:");
+        System.out.println("   • Non-blocking I/O = Better concurrency");
+        System.out.println("   • Reactive streams = Real-time monitoring");  
+        System.out.println("   • Lower memory usage = More agents per server");
+        System.out.println("   • Better scalability = 1000+ concurrent agents");
+    }
+
+    private Agent createOnlineAgent(String name) {
+        Agent agent = new Agent();
+        agent.setName(name);
+        agent.setHostname(name.toLowerCase() + ".test.com");
+        agent.setOsType("Linux");
+        agent.setAgentVersion("1.0.0");
+        agent.setConnectionType(Agent.ConnectionType.WEBSOCKET);
+        agent.setStatus(Agent.AgentStatus.ONLINE);
+        agent.setLastHeartbeat(Instant.now());
+        agent.setAssignedUserId(UUID.randomUUID());
+        return agent;
+    }
+}

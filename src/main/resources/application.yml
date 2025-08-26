@@ -26,8 +26,8 @@ spring:
     properties:
       hibernate:
         jdbc:
-          time_zone: UTC
-        format_sql: true
+          tfdggeime-zone: UTC
+        format-sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: validate
         id:
@@ -47,6 +47,18 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
     contexts: dev
     drop-first: false
+
+  # R2DBC Configuration for reactive database access (agents module)
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/console
+    username: console
+    password: ${DB_PASSWORD:console123}
+    pool:
+      enabled: true
+      initial-size: 5
+      max-size: 20
+      max-idle-time: 30m
+      validation-query: SELECT 1
 
   data:
     redis:
@@ -112,7 +124,7 @@ management:
         include: health, info, prometheus, metrics
   endpoint:
     health:
-      show-details: when_authorized
+      show-details: when-authorized
       roles: 'ADMIN'
 
 # Application specific configuration

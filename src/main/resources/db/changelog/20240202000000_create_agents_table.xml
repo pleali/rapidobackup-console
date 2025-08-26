@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="20240202000000-1" author="console">
+        <createTable tableName="agents">
+            <column name="id" type="${uuidType}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hostname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ip_address" type="varchar(45)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="os_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="os_version" type="varchar(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="agent_version" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="api_key" type="varchar(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="api_key_created_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="api_key_expires_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="connection_type" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_heartbeat" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_seen" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="assigned_user_id" type="${uuidType}">
+                <constraints nullable="true"/>
+            </column>
+            <column name="configuration" type="${clobType}">
+                <constraints nullable="true"/>
+            </column>
+            <column name="tags" type="varchar(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_modified_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint baseColumnNames="assigned_user_id"
+                                 baseTableName="agents"
+                                 constraintName="fk_agent_assigned_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="console_users"/>
+    </changeSet>
+
+    <changeSet id="20240202000000-2" author="console">
+        <createIndex indexName="idx_agent_api_key" tableName="agents">
+            <column name="api_key"/>
+        </createIndex>
+        <createIndex indexName="idx_agent_assigned_user" tableName="agents">
+            <column name="assigned_user_id"/>
+        </createIndex>
+        <createIndex indexName="idx_agent_status" tableName="agents">
+            <column name="status"/>
+        </createIndex>
+        <createIndex indexName="idx_agent_hostname" tableName="agents">
+            <column name="hostname"/>
+        </createIndex>
+        <createIndex indexName="idx_agent_last_heartbeat" tableName="agents">
+            <column name="last_heartbeat"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

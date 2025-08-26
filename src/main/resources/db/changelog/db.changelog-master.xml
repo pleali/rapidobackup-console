@@ -17,5 +17,6 @@
     <include file="db/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/20240101000000_create_users_table.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/20240101000001_create_refresh_tokens_table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/20240202000000_create_agents_table.xml" relativeToChangelogFile="false"/>
     
 </databaseChangeLog>
