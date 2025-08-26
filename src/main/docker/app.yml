@@ -29,11 +29,13 @@ services:
     extends:
       file: ./postgresql.yml
       service: postgresql
-  consul:
-    extends:
-      file: ./consul.yml
-      service: consul
-  consul-config-loader:
-    extends:
-      file: ./consul.yml
-      service: consul-config-loader
+  # PLEASE UNCOMMENT THE FOLLOWING LINES TO ENABLE CONSUL SERVICE DISCOVERY
+  # AND COMMENT THE SPRING_CLOUD_CONSUL_* ENVIRONMENT VARIABLES IN THE app
+  # consul:
+  #   extends:
+  #     file: ./consul.yml
+  #     service: consul
+  # consul-config-loader:
+  #   extends:
+  #     file: ./consul.yml
+  #     service: consul-config-loader
