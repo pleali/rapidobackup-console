@@ -26,8 +26,8 @@ spring:
     properties:
       hibernate:
         jdbc:
-          tfdggeime-zone: UTC
-        format-sql: true
+          time-zone: UTC
+        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: validate
         id:
@@ -109,7 +109,7 @@ server:
 logging:
   level:
     ROOT: INFO
-    com.monentreprise.console: DEBUG
+    com.rapidobackup.console: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
   pattern:
@@ -180,7 +180,7 @@ spring:
 
 logging:
   level:
-    com.monentreprise.console: DEBUG
+    com.rapidobackup.console: DEBUG
     org.springframework.web: INFO
     org.springframework.security: INFO
 
@@ -203,7 +203,7 @@ spring:
 logging:
   level:
     ROOT: INFO
-    com.monentreprise.console: INFO
+    com.rapidobackup.console: INFO
     org.springframework.security: WARN
   file:
     name: logs/console.log
@@ -212,4 +212,4 @@ logging:
 
 console:
   cors:
-    allowed-origins: "https://yourdomain.com"
+    allowed-origins: "https://secure.rapidobackup.com"
