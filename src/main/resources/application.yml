@@ -1,0 +1,203 @@
+spring:
+  application:
+    name: backup-console
+  
+  profiles:
+    active: dev
+    
+  datasource:
+    url: jdbc:postgresql://localhost:5432/console
+    username: console
+    password: ${DB_PASSWORD:console123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+
+  jpa:
+    database: POSTGRESQL
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: validate
+        id:
+          new_generator_mappings: true
+        connection:
+          provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: true
+          use_query_cache: false
+          region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+    hibernate:
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: dev
+    drop-first: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      key-prefix: "console:"
+      use-key-prefix: true
+      cache-null-values: false
+
+  security:
+    user:
+      name: admin
+      password: ${ADMIN_PASSWORD:admin123}
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  web:
+    locale: en
+    locale-resolver: fixed
+
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    cache-duration: 3600
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+  forward-headers-strategy: native
+
+logging:
+  level:
+    ROOT: INFO
+    com.monentreprise.console: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n%wEx"
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ADMIN'
+
+# Application specific configuration
+console:
+  version: @project.version@
+  
+  auth:
+    jwt:
+      secret: ${JWT_SECRET:MySecretKeyForJWTTokenGenerationThatShouldBeVeryLongAndSecureInProduction}
+      expiration: 3600000 # 1 hour in milliseconds
+      refresh-expiration: 86400000 # 24 hours in milliseconds
+      
+  agent:
+    heartbeat-interval: 30s
+    command-timeout: 5m
+    max-concurrent-connections: 1000
+    long-polling:
+      timeout: 30000 # 30 seconds
+      max-queue-size: 100
+      
+  backup:
+    max-concurrent-jobs: 10
+    default-retention-days: 30
+    
+  cors:
+    allowed-origins: "http://localhost:3000,http://localhost:3001"
+    allowed-methods: "*"
+    allowed-headers: "*"
+    exposed-headers: "Authorization,Link,X-Total-Count"
+    allow-credentials: true
+    max-age: 1800
+
+  internationalization:
+    default-locale: en
+    supported-locales: en,fr,es
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  h2:
+    console:
+      enabled: false
+      
+  devtools:
+    restart:
+      enabled: true
+      exclude: static/**,public/**
+    livereload:
+      enabled: false
+
+logging:
+  level:
+    com.monentreprise.console: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+console:
+  cors:
+    allowed-origins: "*"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+      
+  jpa:
+    show-sql: false
+    
+  liquibase:
+    contexts: prod
+    
+logging:
+  level:
+    ROOT: INFO
+    com.monentreprise.console: INFO
+    org.springframework.security: WARN
+  file:
+    name: logs/console.log
+    max-size: 100MB
+    max-history: 30
+
+console:
+  cors:
+    allowed-origins: "https://yourdomain.com"

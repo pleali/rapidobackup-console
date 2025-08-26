@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: console-postgres
+    environment:
+      POSTGRES_DB: console
+      POSTGRES_USER: console
+      POSTGRES_PASSWORD: console123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgresql/init:/docker-entrypoint-initdb.d
+    networks:
+      - console-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: console-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - console-network
+
+  console-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: console-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_PASSWORD=console123
+      - JWT_SECRET=MyVerySecretJWTKeyForProductionThatShouldBeLongAndSecure123456789
+      - REDIS_PASSWORD=
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - console-network
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  console-network:
+    driver: bridge

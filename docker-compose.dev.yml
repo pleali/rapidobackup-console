@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: console-postgres-dev
+    environment:
+      POSTGRES_DB: console
+      POSTGRES_USER: console
+      POSTGRES_PASSWORD: console123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - console-dev-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: console-redis-dev
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - console-dev-network
+
+  adminer:
+    image: adminer:latest
+    container_name: console-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      - console-dev-network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: console-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis
+    networks:
+      - console-dev-network
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  console-dev-network:
+    driver: bridge

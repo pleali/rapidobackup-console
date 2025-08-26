@@ -1,0 +1,142 @@
+package com.rapidobackup.console.auth.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.rapidobackup.console.auth.jwt.JwtAuthenticationFilter;
+import com.rapidobackup.console.auth.security.JwtAuthenticationEntryPoint;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+public class SecurityConfig {
+
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+  public SecurityConfig(
+      JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+      JwtAuthenticationFilter jwtAuthenticationFilter) {
+    this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(12);
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(
+      AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
+  }
+
+  @Bean
+  @Order(1)
+  public SecurityFilterChain agentApiSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.securityMatcher("/api/agent-polling/**", "/ws/agent/**")
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/api/agent-polling/**", "/ws/agent/**")
+                    .permitAll() // Agent authentication handled separately
+            )
+        .build();
+  }
+
+  @Bean
+  @Order(2)
+  public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.securityMatcher("/api/**")
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        "/api/auth/login",
+                        "/api/auth/refresh",
+                        "/api/public/**",
+                        "/api/actuator/health/**")
+                    .permitAll()
+                    .requestMatchers("/api/admin/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/api/management/**")
+                    .hasAnyRole("ADMIN", "GROSSISTE")
+                    .requestMatchers("/api/partner/**")
+                    .hasAnyRole("ADMIN", "GROSSISTE", "PARTENAIRE")
+                    .anyRequest()
+                    .authenticated())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
+
+  @Bean
+  @Order(3)
+  public SecurityFilterChain webSocketSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.securityMatcher("/ws/**")
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth.requestMatchers("/ws/**").authenticated())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
+
+  @Bean
+  @Order(4)
+  public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        "/",
+                        "/static/**",
+                        "/favicon.ico",
+                        "/manifest.json",
+                        "/actuator/health/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .build();
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    
+    // Allow specific origins in production, * for development
+    configuration.addAllowedOriginPattern("*");
+    
+    configuration.addAllowedMethod("*");
+    configuration.addAllowedHeader("*");
+    configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    
+    return source;
+  }
+}

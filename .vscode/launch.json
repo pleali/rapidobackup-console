@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ConsoleApplication<backup-console>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.monentreprise.console.ConsoleApplication",
+            "projectName": "backup-console",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
