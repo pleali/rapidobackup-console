@@ -6,8 +6,8 @@ spring:
     active: dev
     
   datasource:
-    url: jdbc:postgresql://localhost:5432/console
-    username: console
+    url: jdbc:postgresql://localhost:5432/rb-console
+    username: rb-console
     password: ${DB_PASSWORD:console123}
     driver-class-name: org.postgresql.Driver
     hikari:
@@ -98,6 +98,12 @@ spring:
     basename: i18n/messages
     encoding: UTF-8
     cache-duration: 3600
+
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start-only
+      file: src/main/docker/services.yml
 
 server:
   port: 8080
