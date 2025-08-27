@@ -1,15 +1,5 @@
 package com.rapidobackup.console.agent.service;
 
-import com.rapidobackup.console.agent.entity.Agent;
-import com.rapidobackup.console.agent.entity.AgentJpa;
-import com.rapidobackup.console.agent.repository.AgentJpaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,6 +9,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.rapidobackup.console.agent.entity.Agent;
+import com.rapidobackup.console.agent.entity.AgentJpa;
+import com.rapidobackup.console.agent.repository.AgentJpaRepository;
 
 /**
  * Traditional blocking service for Agent management using JPA
@@ -118,7 +118,7 @@ public class BlockingAgentService {
         Pageable pageable = PageRequest.of(page, size);
         
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            List<AgentJpa> agents = agentJpaRepository.findByAssignedUserId(userId);
+//            List<AgentJpa> agents = agentJpaRepository.findByAssignedUserId(userId);
             return Page.empty(pageable);
         }
         

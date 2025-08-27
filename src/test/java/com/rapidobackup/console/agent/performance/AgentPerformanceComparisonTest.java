@@ -62,7 +62,7 @@ public class AgentPerformanceComparisonTest {
         System.out.println("-".repeat(50));
 
         // Test different batch sizes
-        int[] batchSizes = {SMALL_BATCH_SIZE, MEDIUM_BATCH_SIZE};
+        int[] batchSizes = {SMALL_BATCH_SIZE, MEDIUM_BATCH_SIZE, LARGE_BATCH_SIZE};
         
         for (int batchSize : batchSizes) {
             System.out.println(String.format("\n📊 Testing bulk insert with %d agents:", batchSize));
