@@ -6,7 +6,8 @@ services:
     # volumes:
     #   - ~/volumes/jhipster/rapidobackup/postgresql/:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=rapidobackup
+      - POSTGRES_DB=rb-console
+      - POSTGRES_USER=rb-console-admin
       - POSTGRES_HOST_AUTH_METHOD=trust
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER}']
