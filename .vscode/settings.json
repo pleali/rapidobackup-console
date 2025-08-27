@@ -1,4 +1,5 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
-    "spring-boot.ls.problem.application-yaml.YAML_SHOULD_ESCAPE": "IGNORE"
+    "spring-boot.ls.problem.application-yaml.YAML_SHOULD_ESCAPE": "IGNORE",
+
 }
