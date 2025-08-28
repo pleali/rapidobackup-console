@@ -1,0 +1,10 @@
+
+  ${AnsiColor.YELLOW}██████╗  █████╗ ██████╗ ██╗██████╗  ██████╗ ${AnsiColor.BLUE}██████╗  █████╗  ██████╗██╗  ██╗██╗   ██╗██████╗ 
+  ${AnsiColor.YELLOW}██╔══██╗██╔══██╗██╔══██╗██║██╔══██╗██╔═══██╗${AnsiColor.BLUE}██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗
+  ${AnsiColor.YELLOW}██████╔╝███████║██████╔╝██║██║  ██║██║   ██║${AnsiColor.BLUE}██████╔╝███████║██║     █████╔╝ ██║   ██║██████╔╝
+  ${AnsiColor.YELLOW}██╔══██╗██╔══██║██╔═══╝ ██║██║  ██║██║   ██║${AnsiColor.BLUE}██╔══██╗██╔══██║██║     ██╔═██╗ ██║   ██║██╔═══╝ 
+  ${AnsiColor.YELLOW}██║  ██║██║  ██║██║     ██║██████╔╝╚██████╔╝${AnsiColor.BLUE}██████╔╝██║  ██║╚██████╗██║  ██╗╚██████╔╝██║     
+  ${AnsiColor.YELLOW}╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═════╝  ╚═════╝ ${AnsiColor.BLUE}╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝
+
+${AnsiColor.BRIGHT_BLUE}:: RapidoBackup 🚀 :: Running Spring Boot ${spring-boot.version} :: Startup profile(s) ${spring.profiles.active} ::
+:: https://www.rapidobackup.com ::${AnsiColor.DEFAULT}
