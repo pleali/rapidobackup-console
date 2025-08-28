@@ -26,6 +26,7 @@ public class User {
 
   @Id
   @GeneratedValue
+  // TODO  Use UUID V7 when supported by Hibernate
   private UUID id;
 
   @NotBlank

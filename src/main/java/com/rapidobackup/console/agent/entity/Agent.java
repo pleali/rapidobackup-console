@@ -20,6 +20,7 @@ import java.util.UUID;
 public class Agent {
 
     @Id
+    // TODO  Use UUID V7 when supported by java and R2DBC
     private UUID id;
 
     @NotBlank
