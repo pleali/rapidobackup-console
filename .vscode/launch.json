@@ -6,16 +6,7 @@
             "request": "launch",
             "mainClass": "com.rapidobackup.console.ConsoleApplication",
             "projectName": "backup-console"
-        },
-        {
-            "type": "java",
-            "name": "Spring Boot-ConsoleApplication<backup-console>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "com.monentreprise.console.ConsoleApplication",
-            "projectName": "backup-console",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
         }
+       
     ]
 }

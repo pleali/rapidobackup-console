@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvnw.cmd compile:*)",
+      "Bash(powershell:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
