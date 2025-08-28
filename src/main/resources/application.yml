@@ -28,7 +28,6 @@ spring:
         jdbc:
           time-zone: UTC
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: validate
         id:
           new_generator_mappings: true
@@ -50,9 +49,9 @@ spring:
 
   # R2DBC Configuration for reactive database access (agents module)
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/console
-    username: console
-    password: ${DB_PASSWORD:console123}
+    url: r2dbc:postgresql://localhost:5432/rb-console
+    username: rb-console-admin
+    password: ${DB_PASSWORD:}
     pool:
       enabled: true
       initial-size: 5
