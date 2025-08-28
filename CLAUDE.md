@@ -4,7 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cloud administration console for online/local backup services, remote desktop, and Office 365 backup. The system manages agents installed on target workstations/servers with bidirectional secure communication.
+Cloud administration console for RapidoBackup - online/local backup services, remote desktop, and Office 365 backup. The system manages agents installed on target workstations/servers with bidirectional secure communication.
+
+**Company:** RapidoBackup  
+**Product:** RapidoBackup Console
 
 ## Architecture - Monolithic Modular (Evolutive)
 
@@ -15,7 +18,7 @@ Frontend (React + ShadCN UI)
 Spring Boot Monolithic Backend
 ├── Auth Module (Integrated Spring Security + JWT)
 ├── User Module (Hierarchical management)
-├── Agent Module (WebSocket + Long Polling)
+├── Agent Module (R2DBC Reactive + WebSocket + Long Polling)
 ├── Backup Module (Integration with existing Delphi/Java)
 └── Monitor Module (Metrics and alerts)
     ↓
@@ -31,8 +34,8 @@ PostgreSQL + Redis
 
 **Backend:**
 - Spring Boot 3.x with Spring Security
-- Spring WebFlux (reactive)
-- Hibernate + Liquibase (DB migrations)
+- Spring WebFlux (reactive) + R2DBC for agent module
+- JPA/Hibernate for other modules + Liquibase (DB migrations)
 - JWT authentication (integrated, no external OAuth)
 - WebSocket + Long Polling for agent communication
 - MapStruct for DTOs
@@ -59,45 +62,55 @@ PostgreSQL + Redis
 - **Fallback**: Automatic WebSocket → Long Polling
 - **Security**: mTLS + API keys with rotation
 
-## Development Commands (Windows)
+**Agent Module Architecture:**
+- Uses R2DBC for reactive database access
+- Separate from JPA configuration used by other modules
+- Spring Boot auto-configuration handles JPA via `application.yml`
+
+## Development Commands
+
+**Command Line Preference:** Use PowerShell for Windows commands
 
 **Initial Setup:**
-```cmd
+```powershell
 # Clone and setup
 git clone <repo>
-cd testjdl
+cd rb-console
 
 # Install dependencies
-mvnw.cmd install
+.\mvnw.cmd install
 cd frontend && npm install
 
 # Start infrastructure
 docker-compose up -d postgres redis
 
 # Database migration
-mvnw.cmd flyway:migrate
+.\mvnw.cmd liquibase:update
 ```
 
 **Development:**
-```cmd
+```powershell
 # Start backend (from root)
-mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:run
 
 # Start frontend (from frontend folder)
 npm start
 
 # Run tests
-mvnw.cmd test
+.\mvnw.cmd test
 
 # Build
-mvnw.cmd clean package
+.\mvnw.cmd clean package
 
 # Format code
-mvnw.cmd spotless:apply
+.\mvnw.cmd spotless:apply
+
+# Java compilation only (skip frontend)
+.\mvnw.cmd compiler:compile
 ```
 
 **Docker Development:**
-```cmd
+```powershell
 # Full stack
 docker-compose -f docker-compose.dev.yml up
 
@@ -108,39 +121,33 @@ docker-compose up postgres redis
 ## Project Structure
 
 ```
-testjdl/
-├── src/main/java/com/company/console/
-│   ├── auth/                    # Authentication module
+rb-console/
+├── src/main/java/com/rapidobackup/console/
+│   ├── auth/                    # Authentication module (JPA)
 │   │   ├── config/SecurityConfig.java
-│   │   ├── service/AuthService.java
+│   │   ├── service/AuthenticationService.java
 │   │   ├── controller/AuthController.java
 │   │   └── jwt/JwtTokenProvider.java
 │   │
-│   ├── user/                    # User management module
+│   ├── user/                    # User management module (JPA)
 │   │   ├── entity/User.java
 │   │   ├── service/UserService.java
-│   │   ├── controller/UserController.java
 │   │   └── repository/UserRepository.java
 │   │
-│   ├── agent/                   # Agent management module
-│   │   ├── websocket/AgentWebSocketHandler.java
-│   │   ├── polling/LongPollingController.java
-│   │   ├── service/AgentCommandQueue.java
+│   ├── agent/                   # Agent management module (R2DBC)
+│   │   ├── config/R2dbcConfig.java
 │   │   ├── entity/Agent.java
-│   │   └── manager/UnifiedAgentManager.java
+│   │   ├── repository/AgentRepository.java
+│   │   ├── service/ReactiveAgentService.java
+│   │   ├── controller/ReactiveAgentController.java
+│   │   └── benchmark/R2dbcVsJpaBenchmark.java
 │   │
-│   ├── backup/                  # Backup operations module
-│   │   ├── entity/BackupJob.java
-│   │   ├── service/BackupService.java
-│   │   ├── controller/BackupController.java
+│   ├── backup/                  # Backup operations module (JPA)
 │   │   └── integration/DelphiService.java
 │   │
 │   ├── common/                  # Shared components
-│   │   ├── event/InternalEventBus.java
-│   │   ├── security/
-│   │   ├── exception/
 │   │   ├── dto/
-│   │   └── config/
+│   │   └── exception/
 │   │
 │   └── ConsoleApplication.java
 │
@@ -160,6 +167,18 @@ testjdl/
 └── README.md
 ```
 
+## Database Configuration
+
+**Configuration Strategy:**
+- **JPA/Hibernate**: Auto-configured via `application.yml` for user, auth, backup modules
+- **R2DBC**: Explicitly configured via `R2dbcConfig.java` for agent module (reactive)
+- **No manual EntityManagerFactory**: Spring Boot auto-configuration handles JPA setup
+- **Separate transaction managers**: JPA and R2DBC have independent transaction handling
+
+**Key Configuration Files:**
+- `src/main/resources/application.yml`: Main configuration with JPA and R2DBC properties
+- `src/main/java/.../agent/config/R2dbcConfig.java`: Reactive database configuration
+
 ## Core Requirements
 
 **Agent Management:**
@@ -167,6 +186,7 @@ testjdl/
 - API key authentication with revocation
 - Hierarchical agent management
 - Extensible for remote desktop and telemetry
+- Reactive database access for performance
 
 **Backup Integration:**
 - Integration with existing Delphi backup software
@@ -227,10 +247,10 @@ testjdl/
 
 ## Testing Strategy
 
-```cmd
+```powershell
 # Backend tests
-mvnw.cmd test                    # Unit tests
-mvnw.cmd integration-test        # Integration tests
+.\mvnw.cmd test                    # Unit tests
+.\mvnw.cmd integration-test        # Integration tests
 
 # Frontend tests
 cd frontend
@@ -256,4 +276,11 @@ npm run test:e2e                 # Playwright E2E
 - Spring Cloud Gateway
 - Service discovery (Consul)
 - Load balancing and circuit breakers
-- mon entreprise s'appelle rapidobackup et le logiciel de sauvegarde s'appelle aussi rapidobackup
+
+## Important Instructions
+
+1. **Command Line**: Use PowerShell for Windows development commands
+2. **Configuration**: Avoid manual JPA configuration - use Spring Boot auto-configuration via `application.yml`
+3. **Database Access**: Agent module uses R2DBC (reactive), other modules use JPA
+4. **Language**: All rules and documentation must be written in English
+5. **Company**: RapidoBackup is both the company name and the backup software name
