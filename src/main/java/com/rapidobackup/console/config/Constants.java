@@ -6,9 +6,11 @@ package com.rapidobackup.console.config;
 public interface Constants {
 
     // Regex for acceptable logins
-    LOGIN_REGEX = "^(?>[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)|(?>[_.@A-Za-z0-9-]+)$";
-    SYSTEM = "system";
-    DEFAULT_LANGUAGE = "en";
+    String LOGIN_REGEX = "^(?>[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)|(?>[_.@A-Za-z0-9-]+)$";
+
+    String SYSTEM = "system";
+    String DEFAULT_LANGUAGE = "en";
+
 
     // Spring profiles for development, test and production, 
     /** Constant <code>SPRING_PROFILE_DEVELOPMENT="dev"</code> */
