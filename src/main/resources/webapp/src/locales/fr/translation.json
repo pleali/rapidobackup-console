@@ -1,0 +1,38 @@
+{
+  "signup": {
+    "title": "S'inscrire",
+    "description": "Créez un compte pour continuer.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "Entrez votre adresse e-mail",
+    "passwordLabel": "Mot de passe",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "genericError": "Échec de l'inscription. Veuillez réessayer.",
+    "signingUp": "Inscription...",
+    "signUpButton": "S'inscrire",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "signInLink": "Se connecter",
+    "tooShort": "Trop court",
+    "weak": "Faible",
+    "medium": "Moyen",
+    "strong": "Fort",
+    "veryStrong": "Très fort"
+  },
+  "login": {
+    "noAccount": "Vous n'avez pas de compte ?",
+    "signUpLink": "S'inscrire"
+  },
+  "common": {
+    "requiredField": "Ce champ est obligatoire"
+  },
+  "loginPage": {
+    "title": "Connexion",
+    "description": "Entrez vos informations d'identification pour continuer.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "Entrez votre adresse e-mail",
+    "passwordLabel": "Mot de passe",
+    "signInButton": "Se connecter",
+    "loginAttemptMessage": "Tentative de connexion",
+    "forgotPassword": "Mot de passe oublié ?"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "signup": {
+    "title": "Sign Up",
+    "description": "Create an account to continue.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordMismatch": "Passwords do not match",
+    "genericError": "Failed to sign up. Please try again.",
+    "signingUp": "Signing Up...",
+    "signUpButton": "Sign Up",
+    "hasAccount": "Already have an account?",
+    "signInLink": "Sign In",
+    "tooShort": "Too short",
+    "weak": "Weak",
+    "medium": "Medium",
+    "strong": "Strong",
+    "veryStrong": "Very strong"
+  },
+  "login": {
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign Up"
+  },
+  "common": {
+    "requiredField": "This field is required"
+  },
+  "loginPage": {
+    "title": "Login",
+    "description": "Enter your credentials to continue.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "signInButton": "Sign In",
+    "loginAttemptMessage": "Login attempt",
+    "forgotPassword": "Forgot password?"
+  }
+}

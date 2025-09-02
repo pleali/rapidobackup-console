@@ -1,0 +1,38 @@
+{
+  "signup": {
+    "title": "Regístrate",
+    "description": "Crea una cuenta para continuar.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Introduce tu correo electrónico",
+    "passwordLabel": "Contraseña",
+    "confirmPasswordLabel": "Confirmar contraseña",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "genericError": "Error al registrarse. Por favor, inténtalo de nuevo.",
+    "signingUp": "Registrando...",
+    "signUpButton": "Regístrate",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "signInLink": "Iniciar sesión",
+    "tooShort": "Demasiado corta",
+    "weak": "Débil",
+    "medium": "Media",
+    "strong": "Fuerte",
+    "veryStrong": "Muy fuerte"
+  },
+  "login": {
+    "noAccount": "¿No tienes una cuenta?",
+    "signUpLink": "Regístrate"
+  },
+  "common": {
+    "requiredField": "Este campo es obligatorio"
+  },
+  "loginPage": {
+    "title": "Iniciar sesión",
+    "description": "Introduce tus credenciales para continuar.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Introduce tu correo electrónico",
+    "passwordLabel": "Contraseña",
+    "signInButton": "Iniciar sesión",
+    "loginAttemptMessage": "Intento de inicio de sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?"
+  }
+}
