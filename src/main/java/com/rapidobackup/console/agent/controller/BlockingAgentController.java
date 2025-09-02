@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+//import org.springframework.web.bind.annotation.RestController;
 
 import com.rapidobackup.console.agent.entity.Agent;
 import com.rapidobackup.console.agent.entity.AgentJpa;
@@ -26,7 +26,7 @@ import com.rapidobackup.console.agent.service.BlockingAgentService;
  * 
  * Each request consumes a thread until completion
  */
-@RestController
+// @RestController
 @RequestMapping("/api/blocking/agents")
 public class BlockingAgentController {
 

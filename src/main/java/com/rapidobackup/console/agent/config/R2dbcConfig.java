@@ -1,7 +1,9 @@
 package com.rapidobackup.console.agent.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.R2dbcTransactionManager;
@@ -14,7 +16,8 @@ import io.r2dbc.spi.ConnectionFactory;
  * for the Agent module while maintaining JPA for other modules
  */
 @Configuration
-@EnableR2dbcRepositories(basePackages = "com.rapidobackup.console.agent.repository")
+@EnableR2dbcRepositories(basePackages = "com.rapidobackup.console.agent.repository", 
+                        excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*JpaRepository"))
 @EnableR2dbcAuditing
 public class R2dbcConfig  {
 
