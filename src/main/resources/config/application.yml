@@ -43,9 +43,8 @@ spring:
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
 
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
-    contexts: dev
-    drop-first: false
+    change-log: classpath:config/liquibase/changelog/master.xml
+
 
   # R2DBC Configuration for reactive database access (agents module)
   r2dbc:
