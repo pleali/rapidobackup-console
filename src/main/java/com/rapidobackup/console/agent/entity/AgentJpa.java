@@ -3,12 +3,14 @@ package com.rapidobackup.console.agent.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.sql.Types;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -83,7 +85,8 @@ public class AgentJpa {
     private UUID assignedUserId;
 
     @Lob
-    @Column(name = "configuration")
+    // Large text field configuration for postgresql to fix issue with TEXT storage and CLOB mapping while DDL validiation
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String configuration;
 
     @Size(max = 500)
