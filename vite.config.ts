@@ -13,7 +13,8 @@ export default defineConfig({
   root: "./src/main/resources/webapp",
   publicDir: "./public",
   build: {
-    outDir: "../../../../target/classes/static",
+    emptyOutDir: true,
+    outDir: "./target/classes/static",
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'src/main/resources/webapp/index.html')
