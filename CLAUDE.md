@@ -42,7 +42,7 @@ PostgreSQL + Redis
 
 **Frontend:**
 - React 18 + TypeScript
-- ShadCN UI + Tailwind CSS
+- ShadCN UI + Tailwind CSS V4
 - React Query for state management
 - i18next for internationalization
 - Recharts for dashboards
@@ -123,48 +123,27 @@ docker-compose up postgres redis
 ```
 rb-console/
 ├── src/main/java/com/rapidobackup/console/
-│   ├── auth/                    # Authentication module (JPA)
-│   │   ├── config/SecurityConfig.java
-│   │   ├── service/AuthenticationService.java
-│   │   ├── controller/AuthController.java
-│   │   └── jwt/JwtTokenProvider.java
-│   │
-│   ├── user/                    # User management module (JPA)
-│   │   ├── entity/User.java
-│   │   ├── service/UserService.java
-│   │   └── repository/UserRepository.java
-│   │
-│   ├── agent/                   # Agent management module (R2DBC)
-│   │   ├── config/R2dbcConfig.java
-│   │   ├── entity/Agent.java
-│   │   ├── repository/AgentRepository.java
-│   │   ├── service/ReactiveAgentService.java
-│   │   ├── controller/ReactiveAgentController.java
-│   │   └── benchmark/R2dbcVsJpaBenchmark.java
-│   │
-│   ├── backup/                  # Backup operations module (JPA)
-│   │   └── integration/DelphiService.java
-│   │
-│   ├── common/                  # Shared components
-│   │   ├── dto/
-│   │   └── exception/
-│   │
+│   ├── agent/                   # Agent management module (R2DBC reactive)
+│   ├── auth/                    # Authentication & JWT (JPA)
+│   ├── user/                    # User management (JPA)
+│   ├── common/                  # Shared utilities & DTOs
+│   ├── config/                  # Application configuration
 │   └── ConsoleApplication.java
 │
-├── frontend/
+├── src/main/webapp/             # Frontend integrated in Maven build
 │   ├── src/
-│   │   ├── components/          # Reusable UI components
-│   │   ├── pages/               # Route components
+│   │   ├── components/          # React components (ShadCN UI)
+│   │   ├── features/            # Feature modules (agents, auth, dashboard, etc.)
 │   │   ├── hooks/               # React hooks
-│   │   ├── services/            # API calls
-│   │   ├── store/               # State management
-│   │   └── i18n/                # Internationalization
+│   │   └── locales/             # i18n (en, fr, es)
 │   └── package.json
 │
-├── docker-compose.yml           # Production
-├── docker-compose.dev.yml       # Development
-├── pom.xml
-└── README.md
+├── src/main/resources/
+│   └── config/liquibase/        # Database migrations
+│
+├── docker-compose*.yml          # Development & production Docker
+├── pom.xml                      # Maven configuration
+└── package.json                 # Frontend build integration
 ```
 
 ## Database Configuration
