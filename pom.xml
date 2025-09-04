@@ -617,10 +617,7 @@
                                 <goals>
                                     <goal>npm</goal>
                                 </goals>
-                                <!-- TODO: enable when frontend is begun
                                 <phase>generate-resources</phase> 
-                                -->
-                                <phase>none</phase>
                                 <configuration>
                                     <arguments>run webapp:build</arguments>
                                     <environmentVariables>

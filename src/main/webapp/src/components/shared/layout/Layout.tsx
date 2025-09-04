@@ -29,7 +29,7 @@ interface LayoutProps {
 // };
 
 
-const Layout: React.FC<LayoutProps> = ({ children, userName }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
   <div className="[--header-height:calc(theme(spacing.14))]">
       <SidebarProvider className="flex flex-col">

@@ -18,7 +18,8 @@
       "Read(/E:\\Documents\\Developpement\\rb-console\\src\\main\\webapp\\src\\features\\auth\\routes/**)",
       "Read(/E:\\Documents\\Developpement\\rb-console\\src\\main\\webapp\\src\\features\\auth\\routes/**)",
       "Bash(npm run build:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Read(/E:\\Documents\\Developpement\\rb-console/**)"
     ],
     "deny": [],
     "ask": []
