@@ -1,4 +1,6 @@
 {
+  "include": ["src/main/webapp/**/*", "src/main/webapp/app/**/*.vue"],
+  "exclude": ["src/main/webapp/app/**/*.spec.ts"],
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -18,12 +20,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  },
-  "include": ["src/main/resources/webapp/src"],
-  "baseUrl": "src/main/resources/webapp",
-  "paths": {
-      "@/*": ["src/main/resources/webapp/src/*"]
+    "noFallthroughCasesInSwitch": true,
+
+    "composite": true,
+    "baseUrl": "src/main/webapp/src",
+    "outDir": "target/out-tsc/dist",
+    "paths": {
+      "@/*": ["./*"]
     }
-  
+  }  
 }

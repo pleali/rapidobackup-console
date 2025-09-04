@@ -7,10 +7,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src/main/resources/webapp/src"),
+      "@": path.resolve(__dirname, "src/main/webapp/src"),
     },
   },
-  root: path.resolve(__dirname,"src/main/resources/webapp"),
+  root: path.resolve(__dirname,"src/main/webapp"),
   publicDir: path.resolve(__dirname, "target/classes/static/public"),
   cacheDir: path.resolve(__dirname,'target/.vite-cache'),
 
@@ -18,7 +18,7 @@ export default defineConfig({
     outDir: path.resolve(__dirname, "target/classes/static/public"),
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'src/main/resources/webapp/index.html')
+        main: path.resolve(__dirname, 'src/main/webapp/index.html')
       }
     }
   },
