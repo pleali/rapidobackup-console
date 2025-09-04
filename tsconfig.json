@@ -7,5 +7,11 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+    "compilerOptions": {
+    "baseUrl": "src/main/resources/webapp",
+    "paths": {
+      "@/*": ["src/main/resources/webapp/src/*"]
+    }
+  }
 }

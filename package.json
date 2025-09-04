@@ -63,5 +63,11 @@
     "*.{json,md,css}": [
       "prettier --write"
     ]
-  }
+  },
+   "engines": {
+    "node": ">=22.15.0"
+  },
+  "cacheDirectories": [
+    "node_modules"
+  ]
 }

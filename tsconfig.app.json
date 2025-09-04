@@ -20,5 +20,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/main/resources/webapp/src"]
+  "include": ["src/main/resources/webapp/src"],
+  "baseUrl": "src/main/resources/webapp",
+  "paths": {
+      "@/*": ["src/main/resources/webapp/src/*"]
+    }
+  
 }

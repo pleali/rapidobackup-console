@@ -7,14 +7,15 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src/main/resources/webapp/src"),
+      "@": path.resolve(__dirname, "src/main/resources/webapp/src"),
     },
   },
-  root: "./src/main/resources/webapp",
-  publicDir: "./public",
+  root: path.resolve(__dirname,"src/main/resources/webapp"),
+  publicDir: path.resolve(__dirname, "target/classes/static/public"),
+  cacheDir: path.resolve(__dirname,'target/.vite-cache'),
+
   build: {
-    emptyOutDir: true,
-    outDir: "./target/classes/static",
+    outDir: path.resolve(__dirname, "target/classes/static/public"),
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'src/main/resources/webapp/index.html')

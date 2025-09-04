@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signupUser } from '@/lib/api';
-import { useTranslation } from 'node_modules/react-i18next';
+import { useTranslation } from 'react-i18next';
 import { getPasswordStrength } from '../../../passwordStrength';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Link, useNavigate } from 'react-router-dom';
