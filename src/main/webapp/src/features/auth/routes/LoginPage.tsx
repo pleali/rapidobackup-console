@@ -5,20 +5,33 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useLogin } from '@/hooks/useAuth';
 
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
-  const [password, setPassword] = useState("")
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  
+  const loginMutation = useLogin();
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Mock login logic
-    console.log('Login attempt');
-    // In a real app, you would set some auth state here
-    // For now, we'll just log and imagine navigation or state change
-    alert(t('loginPage.loginAttemptMessage')); 
+
+    if (!email || !password) {
+      return;
+    }
+
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          navigate('/dashboard');
+        },
+      }
+    );
   };
 
   return (
@@ -45,7 +58,15 @@ const LoginPage: React.FC = () => {
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">{t('loginPage.emailLabel')}</Label>
-              <Input id="email" type="email" autoComplete="email" placeholder={t('loginPage.emailPlaceholder')} required />
+              <Input 
+                id="email" 
+                type="email" 
+                autoComplete="email" 
+                placeholder={t('loginPage.emailPlaceholder')} 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required 
+              />
             </div>
             <div className="grid gap-2">
               <div className="flex justify-between items-center">
@@ -56,9 +77,16 @@ const LoginPage: React.FC = () => {
               </div>
               <PasswordInput id="password" peekOnly={true} autoComplete="current-password" placeholder="********" required onChange={(e) => setPassword(e.target.value)} value={password} />
             </div>
+            {loginMutation.error && (
+              <p className="text-sm text-destructive">
+                {loginMutation.error.message || t('loginPage.genericError')}
+              </p>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4 mt-8">
-            <Button type="submit" className="w-full">{t('loginPage.signInButton')}</Button>
+            <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+              {loginMutation.isPending ? t('loginPage.signingIn') : t('loginPage.signInButton')}
+            </Button>
             <div className="text-center text-sm text-muted-foreground">
               {t("login.noAccount")}{" "}
               <Link to="/signup" className="font-medium text-primary underline-offset-4 hover:underline">

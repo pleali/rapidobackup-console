@@ -44,6 +44,7 @@ PostgreSQL + Redis
 - React 18 + TypeScript
 - ShadCN UI + Tailwind CSS V4
 - React Query for state management
+- axios for API requests
 - i18next for internationalization
 - Recharts for dashboards
 

@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signupUser } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { getPasswordStrength } from '../../../passwordStrength';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSignup } from '@/hooks/useAuth';
 
 export function SignupPage() {
   const { t } = useTranslation();
@@ -18,8 +18,9 @@ export function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const signupMutation = useSignup();
 
   const passwordStrength = getPasswordStrength(password);
   const strengthLabels = [
@@ -33,27 +34,26 @@ export function SignupPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
+    setLocalError(null);
 
     if (!email || !password || !confirmPassword) {
-      setError(t('common.requiredField'));
+      setLocalError(t('common.requiredField'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError(t('signup.passwordMismatch'));
+      setLocalError(t('signup.passwordMismatch'));
       return;
     }
 
-    setIsLoading(true);
-    try {
-      await signupUser(email, password);
-      navigate({ to: '/login', search: { signedUp: true } });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('signup.genericError'));
-    } finally {
-      setIsLoading(false);
-    }
+    signupMutation.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          navigate('/login?signedUp=true');
+        },
+      }
+    );
   };
 
   return (
@@ -114,11 +114,15 @@ export function SignupPage() {
                 required
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {(localError || signupMutation.error) && (
+              <p className="text-sm text-destructive">
+                {localError || signupMutation.error?.message || t('signup.genericError')}
+              </p>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4 mt-8">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? t('signup.signingUp') : t('signup.signUpButton')}
+            <Button type="submit" className="w-full" disabled={signupMutation.isPending}>
+              {signupMutation.isPending ? t('signup.signingUp') : t('signup.signUpButton')}
             </Button>
             <div className="text-center text-sm text-muted-foreground">
               {t('signup.hasAccount')}{' '}

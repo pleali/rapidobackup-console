@@ -1,21 +1,26 @@
 package com.rapidobackup.console.user.service;
 
+import java.time.Instant;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rapidobackup.console.user.dto.UserDto;
 import com.rapidobackup.console.user.entity.User;
+import com.rapidobackup.console.user.entity.UserRole;
 import com.rapidobackup.console.user.repository.UserRepository;
 
 @Service
 @Transactional
 public class UserService {
 
-  @SuppressWarnings("unused")
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public UserDto toDto(User user) {
@@ -39,5 +44,23 @@ public class UserService {
     }
 
     return dto;
+  }
+
+  public User createUser(String login, String email, String password, String firstName, String lastName, String langKey) {
+    User user = new User();
+    user.setLogin(login);
+    user.setEmail(email);
+    user.setPassword(passwordEncoder.encode(password));
+    user.setFirstName(firstName);
+    user.setLastName(lastName);
+    user.setLangKey(langKey != null ? langKey : "en");
+    user.setRole(UserRole.CLIENT);
+    user.setActivated(true);
+    user.setCreatedBy("system");
+    user.setCreatedDate(Instant.now());
+    user.setLastModifiedBy("system");
+    user.setLastModifiedDate(Instant.now());
+    
+    return userRepository.save(user);
   }
 }

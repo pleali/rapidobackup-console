@@ -15,6 +15,7 @@ import com.rapidobackup.console.auth.dto.AuthResponse;
 import com.rapidobackup.console.auth.dto.LoginRequest;
 import com.rapidobackup.console.auth.dto.PasswordChangeRequest;
 import com.rapidobackup.console.auth.dto.RefreshTokenRequest;
+import com.rapidobackup.console.auth.dto.SignupRequest;
 import com.rapidobackup.console.auth.service.AuthenticationService;
 import com.rapidobackup.console.common.dto.MessageResponse;
 
@@ -42,6 +43,20 @@ public class AuthController {
     logger.info("Successful login for user: {}", loginRequest.getLogin());
     
     return ResponseEntity.ok(authResponse);
+  }
+
+  @PostMapping("/signup")
+  public ResponseEntity<MessageResponse> signup(
+      @Valid @RequestBody SignupRequest signupRequest, HttpServletRequest request) {
+    
+    logger.info("Signup attempt for user: {} from IP: {}", 
+        signupRequest.getLogin(), getClientIp(request));
+    
+    authenticationService.registerUser(signupRequest);
+    
+    logger.info("Successful registration for user: {}", signupRequest.getLogin());
+    
+    return ResponseEntity.ok(new MessageResponse("User registered successfully"));
   }
 
   @PostMapping("/refresh")

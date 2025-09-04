@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.rapidobackup.console.auth.dto.AuthResponse;
 import com.rapidobackup.console.auth.dto.LoginRequest;
+import com.rapidobackup.console.auth.dto.SignupRequest;
 import com.rapidobackup.console.auth.jwt.JwtTokenProvider;
 import com.rapidobackup.console.common.exception.AuthenticationException;
 import com.rapidobackup.console.common.exception.TokenRefreshException;
@@ -194,6 +195,27 @@ public class AuthenticationService {
     userRepository.save(user);
 
     logger.info("Password changed for user: {}", username);
+  }
+
+  public void registerUser(SignupRequest signupRequest) {
+    if (userRepository.findByLogin(signupRequest.getLogin()).isPresent()) {
+      throw new AuthenticationException("Username is already taken");
+    }
+    
+    if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+      throw new AuthenticationException("Email is already registered");
+    }
+    
+    userService.createUser(
+        signupRequest.getLogin(),
+        signupRequest.getEmail(),
+        signupRequest.getPassword(),
+        signupRequest.getFirstName(),
+        signupRequest.getLastName(),
+        signupRequest.getLangKey()
+    );
+    
+    logger.info("User registered successfully: {}", signupRequest.getLogin());
   }
 
   @Transactional

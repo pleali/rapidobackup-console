@@ -1,47 +1,109 @@
-// Simulate API calls to a Spring Boot backend
+import { apiClient } from './axios';
 
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    // other user properties
-  };
+export interface UserDto {
+  id: string;
+  login: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  activated: boolean;
+  langKey?: string;
+  imageUrl?: string;
+  role: string;
+  parentId?: string;
+  parentLogin?: string;
+  createdDate?: string;
+  lastModifiedDate?: string;
+  lastLogin?: string;
 }
 
-export const loginUser = (email?: string, password?: string): Promise<AuthResponse> => {
-  console.log("Attempting login for:", email); // Keep for debugging, remove password log
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email === "user@example.com" && password === "password123") {
-        resolve({
-          token: "fake-jwt-token",
-          user: { id: "1", email: "user@example.com" },
-        });
-      } else {
-        reject(new Error("Invalid credentials"));
-      }
-    }, 1000);
-  });
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: UserDto;
+}
+
+export interface LoginRequest {
+  login: string;
+  password: string;
+  rememberMe?: boolean;
+}
+
+export interface SignupRequest {
+  login: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  langKey?: string;
+}
+
+export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
+  try {
+    const response = await apiClient.post<AuthResponse>('/auth/login', {
+      login: email,
+      password: password,
+      rememberMe: false
+    } as LoginRequest);
+
+    // Store tokens after successful login
+    const { accessToken, refreshToken } = response.data;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Invalid credentials';
+    throw new Error(message);
+  }
 };
 
-export const signupUser = (email?: string, _password?: string): Promise<{ message: string }> => {
-  console.log("Attempting signup for:", email); // Keep for debugging, remove password log
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email && email.includes("@")) {
-        resolve({ message: "User registered successfully" });
-      } else {
-        reject(new Error("Signup failed"));
-      }
-    }, 1000);
-  });
+export const signupUser = async (email: string, password: string): Promise<{ message: string }> => {
+  try {
+    const response = await apiClient.post<{ message: string }>('/auth/signup', {
+      login: email,
+      email: email,
+      password: password,
+      langKey: 'en'
+    } as SignupRequest);
+
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Registration failed';
+    throw new Error(message);
+  }
 };
 
-export const logoutUser = (): Promise<{ message: string }> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ message: "Logged out successfully" });
-    }, 500);
-  });
+export const logoutUser = async (refreshToken: string): Promise<{ message: string }> => {
+  try {
+    const response = await apiClient.post<{ message: string }>('/auth/logout', {
+      refreshToken
+    });
+
+    // Clear tokens after successful logout
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Logout failed';
+    throw new Error(message);
+  }
+};
+
+export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
+  try {
+    const response = await apiClient.post<AuthResponse>('/auth/refresh', {
+      refreshToken
+    });
+
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Token refresh failed';
+    throw new Error(message);
+  }
 };

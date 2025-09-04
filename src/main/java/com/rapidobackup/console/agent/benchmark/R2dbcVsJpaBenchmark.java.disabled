@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
  * Comprehensive benchmark comparing R2DBC vs JPA performance
  * Run with: mvn spring-boot:run -Dspring-boot.run.arguments="--benchmark=true"
  */
-@Component
+// @Component
 public class R2dbcVsJpaBenchmark implements CommandLineRunner {
 
     @Autowired
@@ -73,10 +73,10 @@ public class R2dbcVsJpaBenchmark implements CommandLineRunner {
             Long reactiveResult = reactiveAgentService.performanceBulkInsert(batchSize).block();
             Duration reactiveDuration = Duration.between(reactiveStart, Instant.now());
             
-            // JPA Test
-            Instant blockingStart = Instant.now();
-            long blockingResult = blockingAgentService.performanceBulkInsert(batchSize);
-            Duration blockingDuration = Duration.between(blockingStart, Instant.now());
+            // JPA Test (disabled)
+            // Instant blockingStart = Instant.now();
+            // long blockingResult = blockingAgentService.performanceBulkInsert(batchSize);
+            // Duration blockingDuration = Duration.between(blockingStart, Instant.now());
             
             // Calculate performance metrics
             double reactiveOpsPerSec = batchSize / (reactiveDuration.toMillis() / 1000.0);
@@ -125,7 +125,7 @@ public class R2dbcVsJpaBenchmark implements CommandLineRunner {
             for (int i = 0; i < concurrency; i++) {
                 executor.submit(() -> {
                     try {
-                        blockingAgentService.getStatistics();
+                        // blockingAgentService.getStatistics();
                     } finally {
                         latch.countDown();
                     }
@@ -176,7 +176,7 @@ public class R2dbcVsJpaBenchmark implements CommandLineRunner {
         System.gc();
         long beforeBlocking = runtime.totalMemory() - runtime.freeMemory();
         
-        blockingAgentService.performanceBulkInsert(2000);
+        // blockingAgentService.performanceBulkInsert(2000);
         
         long afterBlocking = runtime.totalMemory() - runtime.freeMemory();
         long blockingMemory = afterBlocking - beforeBlocking;
@@ -263,7 +263,7 @@ public class R2dbcVsJpaBenchmark implements CommandLineRunner {
         System.out.println("📊 JPA High Load Test:");
         Instant blockingStart = Instant.now();
         
-        long blockingUpdates = blockingAgentService.processHeartbeatBatch(apiKeys);
+        // long blockingUpdates = blockingAgentService.processHeartbeatBatch(apiKeys);
         
         Duration blockingDuration = Duration.between(blockingStart, Instant.now());
 
