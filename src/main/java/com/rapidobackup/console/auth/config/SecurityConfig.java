@@ -118,6 +118,7 @@ public class SecurityConfig {
                         "/",
                         "/index.html",
                         "/static/**",
+                        "/assets/**",
                         "/favicon.ico",
                         "/manifest.json",
                         "/actuator/health/**")
