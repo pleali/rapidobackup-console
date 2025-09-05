@@ -116,6 +116,7 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers(
                         "/",
+                        "/*.svg",
                         "/index.html",
                         "/static/**",
                         "/assets/**",
