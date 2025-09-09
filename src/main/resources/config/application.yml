@@ -1,6 +1,6 @@
 spring:
   application:
-    name: backup-console
+    name: rapidbackup-console
   
   profiles:
     active: dev
