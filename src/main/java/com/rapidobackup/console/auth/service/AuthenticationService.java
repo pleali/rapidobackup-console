@@ -75,7 +75,7 @@ public class AuthenticationService {
 
     List<String> authorities = List.of(user.getRole().getAuthority());
     String accessToken =
-        tokenProvider.generateAccessToken(user.getLogin(), authorities, user.getId().toString());
+        tokenProvider.generateAccessToken(user.getId().toString(), authorities);
     String refreshToken = createRefreshToken(user);
 
     return new AuthResponse(
@@ -96,7 +96,7 @@ public class AuthenticationService {
 
     List<String> authorities = List.of(user.getRole().getAuthority());
     String accessToken =
-        tokenProvider.generateAccessToken(user.getLogin(), authorities, user.getId().toString());
+        tokenProvider.generateAccessToken(user.getId().toString(), authorities);
 
     refreshToken.setLastUsed(Instant.now());
     refreshTokenRepository.save(refreshToken);
@@ -121,7 +121,7 @@ public class AuthenticationService {
   }
 
   private String createRefreshToken(User user) {
-    String tokenValue = tokenProvider.generateRefreshToken(user.getLogin());
+    String tokenValue = tokenProvider.generateRefreshToken(user.getId().toString());
 
     Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
     if (existingToken.isPresent()) {

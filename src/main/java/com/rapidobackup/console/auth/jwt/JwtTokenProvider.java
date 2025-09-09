@@ -26,7 +26,6 @@ public class JwtTokenProvider {
   private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
   private static final String AUTHORITIES_KEY = "auth";
-  private static final String USER_ID_KEY = "userId";
 
   private final SecretKey key;
   private final long jwtExpirationMs;
@@ -59,24 +58,23 @@ public class JwtTokenProvider {
         .compact();
   }
 
-  public String generateAccessToken(String username, List<String> authorities, String userId) {
+  public String generateAccessToken(String userId, List<String> authorities) {
     Date expiryDate = Date.from(Instant.now().plus(jwtExpirationMs, ChronoUnit.MILLIS));
 
     return Jwts.builder()
-        .subject(username)
+        .subject(userId)
         .claim(AUTHORITIES_KEY, authorities)
-        .claim(USER_ID_KEY, userId)
         .issuedAt(new Date())
         .expiration(expiryDate)
         .signWith(key)
         .compact();
   }
 
-  public String generateRefreshToken(String username) {
+  public String generateRefreshToken(String userId) {
     Date expiryDate = Date.from(Instant.now().plus(refreshExpirationMs, ChronoUnit.MILLIS));
 
     return Jwts.builder()
-        .subject(username)
+        .subject(userId)
         .claim("tokenType", "refresh")
         .issuedAt(new Date())
         .expiration(expiryDate)
@@ -84,14 +82,9 @@ public class JwtTokenProvider {
         .compact();
   }
 
-  public String getUsernameFromToken(String token) {
-    Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
-    return claims.getSubject();
-  }
-
   public String getUserIdFromToken(String token) {
     Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
-    return claims.get(USER_ID_KEY, String.class);
+    return claims.getSubject();
   }
 
   @SuppressWarnings("unchecked")
