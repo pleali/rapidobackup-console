@@ -9,6 +9,14 @@ Cloud administration console for RapidoBackup - online/local backup services, re
 **Company:** RapidoBackup  
 **Product:** RapidoBackup Console
 
+## Development 
+
+**IMPORTANT - Shell Configuration when the development environment is Windows:**
+- Operating System: Windows
+- Required Shell: PowerShell ONLY
+- Do NOT use bash, sh, or Unix commands
+- All commands must be PowerShell compatible
+
 ## Architecture - Monolithic Modular (Evolutive)
 
 **Current Architecture:**
@@ -68,9 +76,6 @@ PostgreSQL + Redis
 - Separate from JPA configuration used by other modules
 - Spring Boot auto-configuration handles JPA via `application.yml`
 
-## Development Commands
-
-**Command Line Preference:** Use PowerShell for Windows commands
 
 **Initial Setup:**
 ```powershell
