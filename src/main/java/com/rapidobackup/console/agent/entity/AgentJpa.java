@@ -94,18 +94,16 @@ public class AgentJpa {
     private String tags;
 
     @CreatedBy
-    @Size(max = 50)
-    @Column(name = "created_by", length = 50)
-    private String createdBy;
+    @Column(name = "created_by")
+    private UUID createdBy;
 
     @CreatedDate
     @Column(name = "created_date", nullable = false)
     private Instant createdDate = Instant.now();
 
     @LastModifiedBy
-    @Size(max = 50)
-    @Column(name = "last_modified_by", length = 50)
-    private String lastModifiedBy;
+    @Column(name = "last_modified_by")
+    private UUID lastModifiedBy;
 
     @LastModifiedDate
     @Column(name = "last_modified_date")
@@ -177,14 +175,14 @@ public class AgentJpa {
     public String getTags() { return tags; }
     public void setTags(String tags) { this.tags = tags; }
 
-    public String getCreatedBy() { return createdBy; }
-    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+    public UUID getCreatedBy() { return createdBy; }
+    public void setCreatedBy(UUID createdBy) { this.createdBy = createdBy; }
 
     public Instant getCreatedDate() { return createdDate; }
     public void setCreatedDate(Instant createdDate) { this.createdDate = createdDate; }
 
-    public String getLastModifiedBy() { return lastModifiedBy; }
-    public void setLastModifiedBy(String lastModifiedBy) { this.lastModifiedBy = lastModifiedBy; }
+    public UUID getLastModifiedBy() { return lastModifiedBy; }
+    public void setLastModifiedBy(UUID lastModifiedBy) { this.lastModifiedBy = lastModifiedBy; }
 
     public Instant getLastModifiedDate() { return lastModifiedDate; }
     public void setLastModifiedDate(Instant lastModifiedDate) { this.lastModifiedDate = lastModifiedDate; }

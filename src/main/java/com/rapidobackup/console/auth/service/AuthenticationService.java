@@ -190,8 +190,6 @@ public class AuthenticationService {
     }
 
     user.setPassword(passwordEncoder.encode(newPassword));
-    user.setLastModifiedDate(Instant.now());
-    user.setLastModifiedBy(username);
     userRepository.save(user);
 
     logger.info("Password changed for user: {}", username);

@@ -56,9 +56,11 @@ public class UserService {
     user.setLangKey(langKey != null ? langKey : "en");
     user.setRole(UserRole.CLIENT);
     user.setActivated(true);
-    user.setCreatedBy("system");
     user.setCreatedDate(Instant.now());
-    user.setLastModifiedBy("system");
+    // lastModifiedBy and lastModifiedDate are set by JPA Auditing
+    // user.setLastModifiedBy("system");
+    // user.setCreatedBy("system");
+
     user.setLastModifiedDate(Instant.now());
     
     return userRepository.save(user);

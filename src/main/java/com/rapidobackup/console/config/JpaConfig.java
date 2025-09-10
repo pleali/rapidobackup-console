@@ -30,7 +30,7 @@ import jakarta.persistence.EntityManagerFactory;
     "com.rapidobackup.console.agent.repository"
 }, entityManagerFactoryRef = "entityManagerFactory",
    transactionManagerRef = "transactionManager")
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 public class JpaConfig {
 
     @Value("${spring.datasource.url}")

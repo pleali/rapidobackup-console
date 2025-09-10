@@ -88,16 +88,14 @@ public class User {
   @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
   private Set<User> children = new HashSet<>();
 
-  @Size(max = 50)
-  @Column(name = "created_by", length = 50)
-  private String createdBy;
+  @Column(name = "created_by")
+  private UUID createdBy;
 
   @Column(name = "created_date", nullable = false)
   private Instant createdDate = Instant.now();
 
-  @Size(max = 50)
-  @Column(name = "last_modified_by", length = 50)
-  private String lastModifiedBy;
+  @Column(name = "last_modified_by")
+  private UUID lastModifiedBy;
 
   @Column(name = "last_modified_date")
   private Instant lastModifiedDate = Instant.now();
@@ -242,11 +240,11 @@ public class User {
     this.children = children;
   }
 
-  public String getCreatedBy() {
+  public UUID getCreatedBy() {
     return createdBy;
   }
 
-  public void setCreatedBy(String createdBy) {
+  public void setCreatedBy(UUID createdBy) {
     this.createdBy = createdBy;
   }
 
@@ -258,11 +256,11 @@ public class User {
     this.createdDate = createdDate;
   }
 
-  public String getLastModifiedBy() {
+  public UUID getLastModifiedBy() {
     return lastModifiedBy;
   }
 
-  public void setLastModifiedBy(String lastModifiedBy) {
+  public void setLastModifiedBy(UUID lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
   }
 
