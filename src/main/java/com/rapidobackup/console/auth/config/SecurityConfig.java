@@ -12,7 +12,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -41,7 +45,24 @@ public class SecurityConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(12);
+    Map<String, PasswordEncoder> encoders = new HashMap<>();
+    
+    // Primary encoder for new passwords
+    BCryptPasswordEncoder bcryptEncoder = new BCryptPasswordEncoder(12);
+    encoders.put("bcrypt", bcryptEncoder);
+    
+    // Legacy MD5 encoder for migration (deprecated, security warning suppressed for migration purpose)
+    @SuppressWarnings("deprecation")
+    MessageDigestPasswordEncoder md5Encoder = new MessageDigestPasswordEncoder("MD5");
+    encoders.put("md5", md5Encoder);
+    
+    // Create delegating encoder with bcrypt as default
+    DelegatingPasswordEncoder delegatingEncoder = new DelegatingPasswordEncoder("bcrypt", encoders);
+    
+    // Allow legacy passwords without prefix to be treated as MD5 during migration
+    delegatingEncoder.setDefaultPasswordEncoderForMatches(md5Encoder);
+    
+    return delegatingEncoder;
   }
 
   @Bean
@@ -78,6 +99,7 @@ public class SecurityConfig {
                 auth.requestMatchers(
                         "/api/auth/login",
                         "/api/auth/refresh",
+                        "/api/auth/signup",
                         "/api/public/**",
                         "/api/actuator/health/**")
                     .permitAll()

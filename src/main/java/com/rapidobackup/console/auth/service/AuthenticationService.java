@@ -71,6 +71,11 @@ public class AuthenticationService {
       throw new AuthenticationException("Invalid credentials");
     }
 
+    // Check if password needs upgrade from MD5 to BCrypt
+    if (needsPasswordUpgrade(user.getPassword())) {
+      upgradePassword(user, loginRequest.getPassword());
+    }
+
     handleSuccessfulLogin(user);
 
     List<String> authorities = List.of(user.getRole().getAuthority());
@@ -220,5 +225,24 @@ public class AuthenticationService {
   public void cleanupExpiredTokens() {
     refreshTokenRepository.deleteAllExpiredTokens(Instant.now());
     logger.debug("Cleaned up expired refresh tokens");
+  }
+
+  private boolean needsPasswordUpgrade(String storedPassword) {
+    // Password needs upgrade if it doesn't start with {bcrypt} or has no algorithm prefix
+    return !storedPassword.startsWith("{bcrypt}");
+  }
+
+  private void upgradePassword(User user, String plainTextPassword) {
+    try {
+      // Re-encode with BCrypt (DelegatingPasswordEncoder will add {bcrypt} prefix)
+      String upgradedPassword = passwordEncoder.encode(plainTextPassword);
+      user.setPassword(upgradedPassword);
+      userRepository.save(user);
+      
+      logger.info("Password upgraded from legacy format to BCrypt for user: {}", user.getLogin());
+    } catch (Exception e) {
+      logger.error("Failed to upgrade password for user: {}", user.getLogin(), e);
+      // Don't throw exception to avoid breaking login flow
+    }
   }
 }
