@@ -269,3 +269,4 @@ npm run test:e2e                 # Playwright E2E
 3. **Database Access**: Agent module uses R2DBC (reactive), other modules use JPA
 4. **Language**: All rules and documentation must be written in English
 5. **Company**: RapidoBackup is both the company name and the backup software name
+- frontend path is @src\main\webapp\
