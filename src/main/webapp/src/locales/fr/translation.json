@@ -30,9 +30,33 @@
     "description": "Entrez vos informations d'identification pour continuer.",
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "Entrez votre adresse e-mail",
+    "usernamePlaceholder": "Entrez votre nom d'utilisateur ou e-mail",
     "passwordLabel": "Mot de passe",
     "signInButton": "Se connecter",
+    "signingIn": "Connexion en cours...",
     "loginAttemptMessage": "Tentative de connexion",
-    "forgotPassword": "Mot de passe oublié ?"
+    "forgotPassword": "Mot de passe oublié ?",
+    "genericError": "Échec de la connexion. Vérifiez vos identifiants et réessayez."
+  },
+  "changePasswordPage": {
+    "title": "Changer le mot de passe",
+    "requiredTitle": "Changement de mot de passe requis",
+    "description": "Mettez à jour votre mot de passe pour renforcer la sécurité.",
+    "requiredDescription": "Vous devez changer votre mot de passe avant de continuer.",
+    "currentPasswordLabel": "Mot de passe actuel",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "newPasswordPlaceholder": "Entrez votre nouveau mot de passe",
+    "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+    "changePasswordButton": "Changer le mot de passe",
+    "changingPassword": "Changement du mot de passe...",
+    "cancelButton": "Annuler",
+    "passwordChangeRequired": "Votre mot de passe doit être changé avant de pouvoir continuer à utiliser le système.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 4 caractères.",
+    "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",
+    "newPasswordSameAsCurrent": "Le nouveau mot de passe doit être différent de votre mot de passe actuel.",
+    "allFieldsRequired": "Tous les champs sont obligatoires.",
+    "genericError": "Échec du changement de mot de passe. Veuillez réessayer.",
+    "successMessage": "Mot de passe changé avec succès ! Redirection en cours..."
   }
 }

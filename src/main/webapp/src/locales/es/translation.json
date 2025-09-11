@@ -30,9 +30,33 @@
     "description": "Introduce tus credenciales para continuar.",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "Introduce tu correo electrónico",
+    "usernamePlaceholder": "Introduce tu nombre de usuario o correo",
     "passwordLabel": "Contraseña",
     "signInButton": "Iniciar sesión",
+    "signingIn": "Iniciando sesión...",
     "loginAttemptMessage": "Intento de inicio de sesión",
-    "forgotPassword": "¿Olvidaste tu contraseña?"
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "genericError": "Error de inicio de sesión. Verifica tus credenciales e inténtalo de nuevo."
+  },
+  "changePasswordPage": {
+    "title": "Cambiar contraseña",
+    "requiredTitle": "Cambio de contraseña requerido",
+    "description": "Actualiza tu contraseña para mejorar la seguridad.",
+    "requiredDescription": "Debes cambiar tu contraseña antes de continuar.",
+    "currentPasswordLabel": "Contraseña actual",
+    "newPasswordLabel": "Nueva contraseña",
+    "newPasswordPlaceholder": "Introduce tu nueva contraseña",
+    "confirmPasswordLabel": "Confirmar nueva contraseña",
+    "confirmPasswordPlaceholder": "Confirma tu nueva contraseña",
+    "changePasswordButton": "Cambiar contraseña",
+    "changingPassword": "Cambiando contraseña...",
+    "cancelButton": "Cancelar",
+    "passwordChangeRequired": "Tu contraseña debe ser cambiada antes de poder continuar usando el sistema.",
+    "passwordTooShort": "La contraseña debe tener al menos 4 caracteres.",
+    "passwordsDoNotMatch": "La nueva contraseña y su confirmación no coinciden.",
+    "newPasswordSameAsCurrent": "La nueva contraseña debe ser diferente de tu contraseña actual.",
+    "allFieldsRequired": "Todos los campos son obligatorios.",
+    "genericError": "Error al cambiar la contraseña. Por favor, inténtalo de nuevo.",
+    "successMessage": "¡Contraseña cambiada exitosamente! Redirigiendo..."
   }
 }
