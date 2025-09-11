@@ -278,3 +278,4 @@ npm run test:e2e                 # Playwright E2E
 - **Language**: All rules and documentation must be written in English
 - **Company**: RapidoBackup is both the company name and the backup software name
 - **frontend**: path is @src/main/webapp/
+- **frontend**: use mcp server Shadcn for ui
