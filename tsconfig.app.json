@@ -24,10 +24,12 @@
     "noFallthroughCasesInSwitch": true,
 
     "composite": true,
-    "baseUrl": "src/main/webapp/src",
+   "baseUrl": "src/main/webapp",
     "outDir": "target/out-tsc/dist",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   }  
 }
