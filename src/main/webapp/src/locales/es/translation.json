@@ -30,12 +30,14 @@
     "description": "Introduce tus credenciales para continuar.",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "Introduce tu correo electrónico",
+    "usernameLabel": "Identificador",
     "usernamePlaceholder": "Introduce tu nombre de usuario o correo",
     "passwordLabel": "Contraseña",
     "signInButton": "Iniciar sesión",
     "signingIn": "Iniciando sesión...",
     "loginAttemptMessage": "Intento de inicio de sesión",
     "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme",
     "genericError": "Error de inicio de sesión. Verifica tus credenciales e inténtalo de nuevo."
   },
   "changePasswordPage": {

@@ -30,12 +30,14 @@
     "description": "Entrez vos informations d'identification pour continuer.",
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "Entrez votre adresse e-mail",
+    "usernameLabel": "Identifiant",
     "usernamePlaceholder": "Entrez votre nom d'utilisateur ou e-mail",
     "passwordLabel": "Mot de passe",
     "signInButton": "Se connecter",
     "signingIn": "Connexion en cours...",
     "loginAttemptMessage": "Tentative de connexion",
     "forgotPassword": "Mot de passe oublié ?",
+    "rememberMe": "Se souvenir de moi",
     "genericError": "Échec de la connexion. Vérifiez vos identifiants et réessayez."
   },
   "changePasswordPage": {

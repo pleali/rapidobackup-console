@@ -41,10 +41,10 @@ export interface SignupRequest {
   langKey?: string;
 }
 
-export const loginUser = async (email: string, password: string, rememberMe: boolean = false): Promise<AuthResponse> => {
+export const loginUser = async (username: string, password: string, rememberMe: boolean = false): Promise<AuthResponse> => {
   try {
     const response = await apiClient.post<AuthResponse>('/auth/login', {
-      login: email,
+      login: username,
       password: password,
       rememberMe: rememberMe
     } as LoginRequest);

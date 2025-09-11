@@ -30,12 +30,14 @@
     "description": "Enter your credentials to continue.",
     "emailLabel": "Email",
     "emailPlaceholder": "Enter your email",
+    "usernameLabel": "Username",
     "usernamePlaceholder": "Enter your username or email",
     "passwordLabel": "Password",
     "signInButton": "Sign In",
     "signingIn": "Signing in...",
     "loginAttemptMessage": "Login attempt",
     "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember me",
     "genericError": "Login failed. Please check your credentials and try again."
   },
   "changePasswordPage": {

@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
         <form onSubmit={handleLogin}>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">{t('loginPage.emailLabel')}</Label>
+              <Label htmlFor="email">{t('loginPage.usernameLabel')}</Label>
               <Input 
                 id="username" 
                 type="text" 

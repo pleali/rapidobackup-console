@@ -12,8 +12,8 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, password, rememberMe = false }: { email: string; password: string; rememberMe?: boolean }) =>
-      loginUser(email, password, rememberMe),
+    mutationFn: ({ username, password, rememberMe = false }: { username: string; password: string; rememberMe?: boolean }) =>
+      loginUser(username, password, rememberMe),
     onSuccess: (data: AuthResponse) => {
       // Update the user cache with the new user data
       queryClient.setQueryData(authKeys.user, data.user);
