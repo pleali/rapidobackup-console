@@ -109,6 +109,9 @@ public class User {
   @Column(name = "account_locked_until")
   private Instant accountLockedUntil;
 
+  @Column(name = "password_change_required", nullable = false)
+  private boolean passwordChangeRequired = false;
+
   public User() {}
 
   public User(String login, String password, String email, UserRole role) {
@@ -298,6 +301,14 @@ public class User {
 
   public boolean isAccountLocked() {
     return accountLockedUntil != null && Instant.now().isBefore(accountLockedUntil);
+  }
+
+  public boolean isPasswordChangeRequired() {
+    return passwordChangeRequired;
+  }
+
+  public void setPasswordChangeRequired(boolean passwordChangeRequired) {
+    this.passwordChangeRequired = passwordChangeRequired;
   }
 
   public String getFullName() {

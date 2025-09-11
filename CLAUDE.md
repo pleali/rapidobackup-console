@@ -146,6 +146,10 @@ rb-console/
 │
 ├── src/main/resources/
 │   └── config/liquibase/        # Database migrations
+│       └── changelog/
+│           ├── master.xml       # Main changelog file
+│           ├── schema/          # Table definitions and structure
+│           └── data/            # Data inserts and reference data
 │
 ├── docker-compose*.yml          # Development & production Docker
 ├── pom.xml                      # Maven configuration
@@ -163,6 +167,11 @@ rb-console/
 **Key Configuration Files:**
 - `src/main/resources/application.yml`: Main configuration with JPA and R2DBC properties
 - `src/main/java/.../agent/config/R2dbcConfig.java`: Reactive database configuration
+
+**Liquibase Organization:**
+- **Schema separation**: Table definitions in `schema/`, data inserts in `data/`
+- **Execution order**: Schema first (structure), then data (inserts)
+- **Default admin user**: `admin@console.local` / `admin` (password change required on first login)
 
 ## Core Requirements
 
@@ -238,7 +247,6 @@ rb-console/
 .\mvnw.cmd integration-test        # Integration tests
 
 # Frontend tests
-cd frontend
 npm test                         # Jest tests
 npm run test:e2e                 # Playwright E2E
 ```
@@ -264,9 +272,9 @@ npm run test:e2e                 # Playwright E2E
 
 ## Important Instructions
 
-1. **Command Line**: Use PowerShell for Windows development commands
-2. **Configuration**: Avoid manual JPA configuration - use Spring Boot auto-configuration via `application.yml`
-3. **Database Access**: Agent module uses R2DBC (reactive), other modules use JPA
-4. **Language**: All rules and documentation must be written in English
-5. **Company**: RapidoBackup is both the company name and the backup software name
-- frontend path is @src\main\webapp\
+- **Command Line**: Use PowerShell for Windows development commands
+- **Configuration**: Avoid manual JPA configuration - use Spring Boot auto-configuration via `application.yml`
+- **Database Access**: Agent module uses R2DBC (reactive), other modules use JPA
+- **Language**: All rules and documentation must be written in English
+- **Company**: RapidoBackup is both the company name and the backup software name
+- **frontend**: path is @src/main/webapp/

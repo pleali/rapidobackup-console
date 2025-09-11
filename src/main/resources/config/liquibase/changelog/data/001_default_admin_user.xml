@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!-- Create default admin user -->
+    <changeSet id="20240101000000-2" author="console">
+        <insert tableName="console_users">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="login" value="admin"/>
+            <!-- default password is 'admin', bcrypt hashed -->  
+            <column name="password_hash" value="$2a$10$DowJones93Y8tR6.iPFLmruT6EMnKOdmjUlTqTFWLKPJGRcT8sRn."/>
+            <column name="first_name" value="Administrator"/>
+            <column name="last_name" value="Console"/>
+            <column name="email" value="admin@console.local"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="role" value="ADMIN"/>
+            <column name="password_change_required" valueBoolean="true"/>
+            <column name="created_by" valueComputed="gen_random_uuid()"/>
+            <column name="created_date" valueDate="${now}"/>
+            <column name="last_modified_by" valueComputed="gen_random_uuid()"/>
+            <column name="last_modified_date" valueDate="${now}"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

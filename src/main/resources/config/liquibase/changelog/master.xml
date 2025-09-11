@@ -15,8 +15,13 @@
     <property name="uuidType" value="uuid" dbms="h2, postgresql"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20240101000000_create_users_table.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20240101000001_create_refresh_tokens_table.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20240202000000_create_agents_table.xml" relativeToChangelogFile="false"/>
+    
+    <!-- Schema definitions -->
+    <include file="config/liquibase/changelog/schema/001_create_users_table.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/schema/002_create_refresh_tokens_table.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/schema/003_create_agents_table.xml" relativeToChangelogFile="false"/>
+    
+    <!-- Data inserts -->
+    <include file="config/liquibase/changelog/data/001_default_admin_user.xml" relativeToChangelogFile="false"/>
     
 </databaseChangeLog>
