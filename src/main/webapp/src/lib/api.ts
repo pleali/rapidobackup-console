@@ -15,6 +15,7 @@ export interface UserDto {
   createdDate?: string;
   lastModifiedDate?: string;
   lastLogin?: string;
+  passwordChangeRequired: boolean;
 }
 
 export interface AuthResponse {
@@ -40,12 +41,12 @@ export interface SignupRequest {
   langKey?: string;
 }
 
-export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
+export const loginUser = async (email: string, password: string, rememberMe: boolean = false): Promise<AuthResponse> => {
   try {
     const response = await apiClient.post<AuthResponse>('/auth/login', {
       login: email,
       password: password,
-      rememberMe: false
+      rememberMe: rememberMe
     } as LoginRequest);
 
     // Store tokens after successful login
@@ -104,6 +105,20 @@ export const refreshToken = async (refreshToken: string): Promise<AuthResponse> 
     return response.data;
   } catch (error: any) {
     const message = error.response?.data?.message || 'Token refresh failed';
+    throw new Error(message);
+  }
+};
+
+export const changePassword = async (currentPassword: string, newPassword: string): Promise<{ message: string }> => {
+  try {
+    const response = await apiClient.post<{ message: string }>('/auth/change-password', {
+      currentPassword,
+      newPassword
+    });
+
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Password change failed';
     throw new Error(message);
   }
 };

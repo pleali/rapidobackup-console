@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLogin } from '@/hooks/useAuth';
 
@@ -14,6 +15,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   
   const loginMutation = useLogin();
 
@@ -25,10 +27,15 @@ const LoginPage: React.FC = () => {
     }
 
     loginMutation.mutate(
-      { email, password },
+      { email, password, rememberMe },
       {
-        onSuccess: () => {
-          navigate('/dashboard');
+        onSuccess: (data) => {
+          // Check if password change is required
+          if (data.user.passwordChangeRequired) {
+            navigate('/change-password');
+          } else {
+            navigate('/dashboard');
+          }
         },
       }
     );
@@ -59,10 +66,10 @@ const LoginPage: React.FC = () => {
             <div className="grid gap-2">
               <Label htmlFor="email">{t('loginPage.emailLabel')}</Label>
               <Input 
-                id="email" 
-                type="email" 
-                autoComplete="email" 
-                placeholder={t('loginPage.emailPlaceholder')} 
+                id="username" 
+                type="text" 
+                autoComplete="username" 
+                placeholder={t('loginPage.usernamePlaceholder')} 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required 
@@ -76,6 +83,16 @@ const LoginPage: React.FC = () => {
                 </Link>
               </div>
               <PasswordInput id="password" peekOnly={true} autoComplete="current-password" placeholder="********" required onChange={(e) => setPassword(e.target.value)} value={password} />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="remember-me" 
+                checked={rememberMe}
+                onCheckedChange={(checked: boolean) => setRememberMe(checked)}
+              />
+              <Label htmlFor="remember-me" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {t('loginPage.rememberMe')}
+              </Label>
             </div>
             {loginMutation.error && (
               <p className="text-sm text-destructive">

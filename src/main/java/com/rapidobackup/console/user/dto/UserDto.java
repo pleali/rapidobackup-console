@@ -21,6 +21,7 @@ public class UserDto {
   private Instant createdDate;
   private Instant lastModifiedDate;
   private Instant lastLogin;
+  private boolean passwordChangeRequired;
 
   public UserDto() {}
 
@@ -134,6 +135,14 @@ public class UserDto {
 
   public void setLastLogin(Instant lastLogin) {
     this.lastLogin = lastLogin;
+  }
+
+  public boolean isPasswordChangeRequired() {
+    return passwordChangeRequired;
+  }
+
+  public void setPasswordChangeRequired(boolean passwordChangeRequired) {
+    this.passwordChangeRequired = passwordChangeRequired;
   }
 
   public String getFullName() {

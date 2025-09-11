@@ -36,6 +36,7 @@ public class AuthenticationService {
   private final JwtTokenProvider tokenProvider;
   private final UserService userService;
   private final long refreshTokenExpirationMs;
+  private final long refreshTokenRememberMeExpirationMs;
 
   public AuthenticationService(
       UserRepository userRepository,
@@ -43,13 +44,15 @@ public class AuthenticationService {
       PasswordEncoder passwordEncoder,
       JwtTokenProvider tokenProvider,
       UserService userService,
-      @Value("${console.auth.jwt.refresh-expiration:86400000}") long refreshTokenExpirationMs) {
+      @Value("${console.auth.jwt.refresh-expiration:86400000}") long refreshTokenExpirationMs,
+      @Value("${console.auth.jwt.refresh-remember-me-expiration:604800000}") long refreshTokenRememberMeExpirationMs) {
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
     this.passwordEncoder = passwordEncoder;
     this.tokenProvider = tokenProvider;
     this.userService = userService;
     this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+    this.refreshTokenRememberMeExpirationMs = refreshTokenRememberMeExpirationMs;
   }
 
   public AuthResponse authenticate(LoginRequest loginRequest) {
@@ -81,10 +84,13 @@ public class AuthenticationService {
     List<String> authorities = List.of(user.getRole().getAuthority());
     String accessToken =
         tokenProvider.generateAccessToken(user.getId().toString(), authorities);
-    String refreshToken = createRefreshToken(user);
+    
+    // Use longer expiration for remember me
+    long tokenExpiration = loginRequest.isRememberMe() ? refreshTokenRememberMeExpirationMs : refreshTokenExpirationMs;
+    String refreshToken = createRefreshToken(user, tokenExpiration);
 
     return new AuthResponse(
-        accessToken, refreshToken, refreshTokenExpirationMs / 1000, userService.toDto(user));
+        accessToken, refreshToken, tokenExpiration / 1000, userService.toDto(user));
   }
 
   public AuthResponse refreshToken(String refreshTokenValue) {
@@ -125,20 +131,20 @@ public class AuthenticationService {
         .ifPresent(user -> refreshTokenRepository.revokeAllUserTokens(user));
   }
 
-  private String createRefreshToken(User user) {
+  private String createRefreshToken(User user, long expirationMs) {
     String tokenValue = tokenProvider.generateRefreshToken(user.getId().toString());
 
     Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
     if (existingToken.isPresent()) {
       RefreshToken token = existingToken.get();
       token.setToken(tokenValue);
-      token.setExpiryDate(Instant.now().plus(refreshTokenExpirationMs, ChronoUnit.MILLIS));
+      token.setExpiryDate(Instant.now().plus(expirationMs, ChronoUnit.MILLIS));
       token.setRevoked(false);
       refreshTokenRepository.save(token);
     } else {
       RefreshToken refreshToken =
           new RefreshToken(
-              user, tokenValue, Instant.now().plus(refreshTokenExpirationMs, ChronoUnit.MILLIS));
+              user, tokenValue, Instant.now().plus(expirationMs, ChronoUnit.MILLIS));
       refreshTokenRepository.save(refreshToken);
     }
 
@@ -195,6 +201,7 @@ public class AuthenticationService {
     }
 
     user.setPassword(passwordEncoder.encode(newPassword));
+    user.setPasswordChangeRequired(false);
     userRepository.save(user);
 
     logger.info("Password changed for user: {}", username);

@@ -37,6 +37,7 @@ public class UserService {
     dto.setCreatedDate(user.getCreatedDate());
     dto.setLastModifiedDate(user.getLastModifiedDate());
     dto.setLastLogin(user.getLastLogin());
+    dto.setPasswordChangeRequired(user.isPasswordChangeRequired());
 
     if (user.getParent() != null) {
       dto.setParentId(user.getParent().getId());

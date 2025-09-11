@@ -6,6 +6,7 @@ import DashboardPage from '@/features/dashboard/routes/DashboardPage';
 import AgentsPage from '@/features/agents/routes/AgentsPage';
 import Office365BackupPage from '@/features/office365-backup/routes/Office365BackupPage';
 import LoginPage from '@/features/auth/routes/LoginPage';
+import ChangePasswordPage from '@/features/auth/routes/ChangePasswordPage';
 import EditProfilePage from '@/features/user-profile/routes/EditProfilePage';
 import Layout from '@/components/shared/layout/Layout';
 import RapidoBackupLanding from '@/features/landing/LandingPage';
@@ -40,6 +41,7 @@ const App: React.FC = () => {
             <Route path="/test" element={<TestComponentsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
 
             
             {/* Protected routes - wrapped with Layout */}

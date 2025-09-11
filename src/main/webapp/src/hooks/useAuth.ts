@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { loginUser, signupUser, logoutUser, AuthResponse, UserDto } from '@/lib/api';
+import { loginUser, signupUser, logoutUser, changePassword, AuthResponse, UserDto } from '@/lib/api';
 
 // Query keys for caching
 export const authKeys = {
@@ -12,8 +12,8 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      loginUser(email, password),
+    mutationFn: ({ email, password, rememberMe = false }: { email: string; password: string; rememberMe?: boolean }) =>
+      loginUser(email, password, rememberMe),
     onSuccess: (data: AuthResponse) => {
       // Update the user cache with the new user data
       queryClient.setQueryData(authKeys.user, data.user);
@@ -90,4 +90,27 @@ export const useAuthGuard = () => {
   }
   
   return isAuthenticated;
+};
+
+// Hook for password change mutation
+export const useChangePassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
+      changePassword(currentPassword, newPassword),
+    onSuccess: () => {
+      // Update user to mark password change as no longer required
+      const currentUser = queryClient.getQueryData<UserDto>(authKeys.user);
+      if (currentUser) {
+        queryClient.setQueryData(authKeys.user, {
+          ...currentUser,
+          passwordChangeRequired: false
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('Password change failed:', error);
+    },
+  });
 };
