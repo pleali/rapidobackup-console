@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next';
-import { getPasswordStrength } from '../../../passwordStrength';
 import { PasswordInput } from '@/components/ui/password-input';
+import { PasswordWithStrength } from '@/components/custom/password-with-strength';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSignup } from '@/hooks/useAuth';
 
@@ -22,15 +22,6 @@ export function SignupPage() {
 
   const signupMutation = useSignup();
 
-  const passwordStrength = getPasswordStrength(password);
-  const strengthLabels = [
-    t('signup.tooShort') || 'Too short',
-    t('signup.weak') || 'Weak',
-    t('signup.medium') || 'Medium',
-    t('signup.strong') || 'Strong',
-    t('signup.veryStrong') || 'Very strong',
-  ];
-  const strengthColors = ['bg-red-500', 'bg-red-500', 'bg-yellow-500', 'bg-green-500', 'bg-blue-600'];
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -82,27 +73,13 @@ export function SignupPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">{t('signup.passwordLabel')}</Label>
-              <PasswordInput
+              <PasswordWithStrength
                 id="password"
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {/* Password strength meter */}
-              {password && (
-                <div className="mt-0">
-                  <div className="h-2 w-full rounded bg-muted">
-                    <div
-                      className={`h-2 rounded transition-all ${strengthColors[passwordStrength] || 'bg-gray-300'}`}
-                      style={{ width: `${((passwordStrength + 1) / 5) * 100}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-muted-foreground text-right">
-                    {strengthLabels[passwordStrength] || t('signup.tooShort') || 'Too short'}
-                  </div>
-                </div>
-              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="confirm-password">{t('signup.confirmPasswordLabel')}</Label>

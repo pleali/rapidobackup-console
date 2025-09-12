@@ -60,5 +60,13 @@
     "allFieldsRequired": "Tous les champs sont obligatoires.",
     "genericError": "Échec du changement de mot de passe. Veuillez réessayer.",
     "successMessage": "Mot de passe changé avec succès ! Redirection en cours..."
+  },
+  "passwordStrength": {
+    "label": "Force du mot de passe",
+    "tooShort": "Trop court",
+    "weak": "Faible",
+    "medium": "Moyen",
+    "strong": "Fort",
+    "veryStrong": "Très fort"
   }
 }

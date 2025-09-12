@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
+import { PasswordWithStrength } from '@/components/custom/password-with-strength';
 import { useNavigate } from 'react-router-dom';
 import { useChangePassword, useCurrentUser } from '@/hooks/useAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -103,7 +104,7 @@ const ChangePasswordPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="newPassword">{t('changePasswordPage.newPasswordLabel')}</Label>
-              <PasswordInput 
+              <PasswordWithStrength 
                 id="newPassword" 
                 placeholder={t('changePasswordPage.newPasswordPlaceholder')}
                 value={newPassword}

@@ -60,5 +60,13 @@
     "allFieldsRequired": "All fields are required.",
     "genericError": "Failed to change password. Please try again.",
     "successMessage": "Password changed successfully! Redirecting..."
+  },
+  "passwordStrength": {
+    "label": "Password strength",
+    "tooShort": "Too short",
+    "weak": "Weak",
+    "medium": "Medium",
+    "strong": "Strong",
+    "veryStrong": "Very strong"
   }
 }

@@ -60,5 +60,13 @@
     "allFieldsRequired": "Todos los campos son obligatorios.",
     "genericError": "Error al cambiar la contraseña. Por favor, inténtalo de nuevo.",
     "successMessage": "¡Contraseña cambiada exitosamente! Redirigiendo..."
+  },
+  "passwordStrength": {
+    "label": "Fuerza de la contraseña",
+    "tooShort": "Demasiado corta",
+    "weak": "Débil",
+    "medium": "Media",
+    "strong": "Fuerte",
+    "veryStrong": "Muy fuerte"
   }
 }
