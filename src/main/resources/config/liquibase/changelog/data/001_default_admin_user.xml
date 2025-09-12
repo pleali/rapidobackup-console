@@ -12,7 +12,7 @@
             <column name="id" valueComputed="gen_random_uuid()"/>
             <column name="login" value="admin"/>
             <!-- default password is 'admin', bcrypt hashed -->  
-            <column name="password_hash" value="$2a$10$DowJones93Y8tR6.iPFLmruT6EMnKOdmjUlTqTFWLKPJGRcT8sRn."/>
+            <column name="password_hash" value="{bcrypt}$2a$10$rgi704pstd/aiIB4TRNjxOsvPXMqu6vXgeR9wkmn/iDXQRbHzsQAm"/>
             <column name="first_name" value="Administrator"/>
             <column name="last_name" value="Console"/>
             <column name="email" value="admin@console.local"/>

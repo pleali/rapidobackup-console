@@ -14,7 +14,7 @@
             <column name="login" type="varchar(50)">
                 <constraints unique="true" nullable="false"/>
             </column>
-            <column name="password_hash" type="varchar(60)">
+            <column name="password_hash" type="varchar(100)">
                 <constraints nullable="false"/>
             </column>
             <column name="first_name" type="varchar(50)"/>
