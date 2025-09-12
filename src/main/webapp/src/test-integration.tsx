@@ -11,8 +11,8 @@ export const TestIntegration: React.FC = () => {
 
   const handleTestLogin = () => {
     loginMutation.mutate({
-      email: 'test@example.com',
-      password: 'password123'
+      username: 'admin',
+      password: 'admin'
     });
   };
 
