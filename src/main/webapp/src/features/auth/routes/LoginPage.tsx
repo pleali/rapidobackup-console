@@ -13,7 +13,7 @@ import { useLogin } from '@/hooks/useAuth';
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   
@@ -22,12 +22,12 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!email || !password) {
+    if (!username || !password) {
       return;
     }
 
     loginMutation.mutate(
-      { email, password, rememberMe },
+      {username , password, rememberMe },
       {
         onSuccess: (data) => {
           // Check if password change is required
@@ -70,8 +70,8 @@ const LoginPage: React.FC = () => {
                 type="text" 
                 autoComplete="username" 
                 placeholder={t('loginPage.usernamePlaceholder')} 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required 
               />
             </div>
