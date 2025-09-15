@@ -36,8 +36,8 @@ public class User {
 
   @JsonIgnore
   @NotBlank
-  @Size(min = 60, max = 60)
-  @Column(name = "password_hash", length = 60, nullable = false)
+  @Size(min = 8, max = 100)
+  @Column(name = "password_hash", length = 100, nullable = false)
   private String password;
 
   @Size(max = 50)

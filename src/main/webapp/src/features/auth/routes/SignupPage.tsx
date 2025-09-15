@@ -27,6 +27,11 @@ export function SignupPage() {
     e.preventDefault();
     setLocalError(null);
 
+    // Prevent multiple submissions
+    if (signupMutation.isPending) {
+      return;
+    }
+
     if (!email || !password || !confirmPassword) {
       setLocalError(t('common.requiredField'));
       return;

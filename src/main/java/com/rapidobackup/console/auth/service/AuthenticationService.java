@@ -125,9 +125,9 @@ public class AuthenticationService {
         });
   }
 
-  public void logoutAllDevices(String username) {
+  public void logoutAllDevices(String userId) {
     userRepository
-        .findByLogin(username)
+        .findById(java.util.UUID.fromString(userId))
         .ifPresent(user -> refreshTokenRepository.revokeAllUserTokens(user));
   }
 
@@ -190,10 +190,10 @@ public class AuthenticationService {
     userRepository.updateLastLogin(user.getId(), Instant.now());
   }
 
-  public void changePassword(String username, String currentPassword, String newPassword) {
+  public void changePassword(String userId, String currentPassword, String newPassword) {
     User user =
         userRepository
-            .findByLogin(username)
+            .findById(java.util.UUID.fromString(userId))
             .orElseThrow(() -> new AuthenticationException("User not found"));
 
     if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
@@ -204,7 +204,7 @@ public class AuthenticationService {
     user.setPasswordChangeRequired(false);
     userRepository.save(user);
 
-    logger.info("Password changed for user: {}", username);
+    logger.info("Password changed for user: {} ({})", user.getLogin(), userId);
   }
 
   public void registerUser(SignupRequest signupRequest) {

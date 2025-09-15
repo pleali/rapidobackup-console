@@ -8,7 +8,7 @@ public class PasswordChangeRequest {
   @NotBlank private String currentPassword;
 
   @NotBlank
-  @Size(min = 6, max = 100)
+  @Size(min = 3, max = 100)
   private String newPassword;
 
   public PasswordChangeRequest() {}

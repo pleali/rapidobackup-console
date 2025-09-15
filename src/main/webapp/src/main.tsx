@@ -8,5 +8,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {/* I18nextProvider is not needed here as initReactI18next handles it */}
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 )

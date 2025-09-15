@@ -83,7 +83,7 @@ public class AuthController {
   @PostMapping("/logout-all")
   public ResponseEntity<MessageResponse> logoutAllDevices(Principal principal) {
     
-    logger.info("Logout from all devices requested by user: {}", principal.getName());
+    logger.info("Logout from all devices requested by user ID: {}", principal.getName());
     
     authenticationService.logoutAllDevices(principal.getName());
     
@@ -94,7 +94,7 @@ public class AuthController {
   public ResponseEntity<MessageResponse> changePassword(
       @Valid @RequestBody PasswordChangeRequest request, Principal principal) {
     
-    logger.info("Password change requested by user: {}", principal.getName());
+    logger.info("Password change requested by user ID: {}", principal.getName());
     
     authenticationService.changePassword(
         principal.getName(), request.getCurrentPassword(), request.getNewPassword());

@@ -41,6 +41,11 @@ const ChangePasswordPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    // Prevent multiple submissions
+    if (changePasswordMutation.isPending) {
+      return;
+    }
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       setValidationError(t('changePasswordPage.allFieldsRequired'));
       return;
