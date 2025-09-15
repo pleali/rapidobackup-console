@@ -23,6 +23,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice(basePackages = "com.rapidobackup.console")
 public class GlobalExceptionHandler {
 
+  // TODO: Add translations for error messages.
+  
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

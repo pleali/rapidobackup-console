@@ -1,5 +1,44 @@
 import { apiClient } from './axios';
 
+// Interface for ProblemDetail error responses (RFC 7807)
+interface ProblemDetail {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  instance?: string;
+  errors?: string[];
+}
+
+// Helper function to extract error message from ProblemDetail or legacy format
+const extractErrorMessage = (error: any, defaultMessage: string): string => {
+  const errorData = error.response?.data;
+
+  if (!errorData) {
+    return defaultMessage;
+  }
+
+  // ProblemDetail format (RFC 7807)
+  if (errorData.detail) {
+    let message = errorData.detail;
+
+    // If there are validation errors, append them
+    if (errorData.errors && Array.isArray(errorData.errors)) {
+      const validationErrors = errorData.errors.join(', ');
+      message += `: ${validationErrors}`;
+    }
+
+    return message;
+  }
+
+  // Legacy format fallback
+  if (errorData.message) {
+    return errorData.message;
+  }
+
+  return defaultMessage;
+};
+
 export interface UserDto {
   id: string;
   login: string;
@@ -57,7 +96,7 @@ export const loginUser = async (username: string, password: string, rememberMe: 
 
     return response.data;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Invalid credentials';
+    const message = extractErrorMessage(error, 'Invalid credentials');
     throw new Error(message);
   }
 };
@@ -73,7 +112,7 @@ export const signupUser = async (email: string, password: string): Promise<{ mes
 
     return response.data;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Registration failed';
+    const message = extractErrorMessage(error, 'Registration failed');
     throw new Error(message);
   }
 };
@@ -91,7 +130,7 @@ export const logoutUser = async (refreshToken: string): Promise<{ message: strin
 
     return response.data;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Logout failed';
+    const message = extractErrorMessage(error, 'Logout failed');
     throw new Error(message);
   }
 };
@@ -104,7 +143,7 @@ export const refreshToken = async (refreshToken: string): Promise<AuthResponse> 
 
     return response.data;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Token refresh failed';
+    const message = extractErrorMessage(error, 'Token refresh failed');
     throw new Error(message);
   }
 };
@@ -118,7 +157,7 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 
     return response.data;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Password change failed';
+    const message = extractErrorMessage(error, 'Password change failed');
     throw new Error(message);
   }
 };
