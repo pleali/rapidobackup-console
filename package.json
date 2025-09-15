@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "prepare": "husky",
     "vite-build": "npm run build",
+    "services:up": "docker compose -f src/main/docker/services.yml up --wait",
     "webapp:build": "npm run clean-www && npm run webapp:build:dev --",
     "webapp:build:dev": "npm run vite-build",
     "webapp:build:prod": "npm run vite-build"
