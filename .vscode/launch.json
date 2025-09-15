@@ -4,9 +4,35 @@
             "type": "java",
             "name": "ConsoleApplication",
             "request": "launch",
+            "cwd": "${workspaceFolder}",
             "mainClass": "com.rapidobackup.console.ConsoleApplication",
-            "projectName": "backup-console"
+            "projectName": "backup-console",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "node",
+            "name": "Launch Frontend (React/Vite)",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "dev"],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "chrome",
+            "name": "Debug Frontend in Chrome",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/src/main/webapp/src",
+            "sourceMaps": true,
+            "preLaunchTask": "Start Frontend Dev Server"
         }
-       
     ]
 }
