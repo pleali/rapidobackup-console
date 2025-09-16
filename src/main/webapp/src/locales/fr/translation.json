@@ -68,5 +68,23 @@
     "medium": "Moyen",
     "strong": "Fort",
     "veryStrong": "Très fort"
+  },
+  "errors": {
+    "network": {
+      "timeout": "Délai d'attente dépassé. Veuillez réessayer.",
+      "connection": "Erreur réseau. Vérifiez votre connexion.",
+      "server": "Erreur réseau. Impossible de joindre le serveur."
+    },
+    "http": {
+      "400": "Requête incorrecte. Vérifiez vos données.",
+      "401": "Authentification requise. Veuillez vous connecter.",
+      "403": "Accès refusé. Vous n'avez pas les permissions nécessaires.",
+      "404": "Ressource introuvable.",
+      "409": "Conflit. La ressource existe déjà.",
+      "422": "Erreur de validation. Vérifiez vos données.",
+      "500": "Erreur interne du serveur. Veuillez réessayer plus tard.",
+      "502": "Passerelle défaillante. Serveur temporairement indisponible.",
+      "503": "Service indisponible. Veuillez réessayer plus tard."
+    }
   }
 }

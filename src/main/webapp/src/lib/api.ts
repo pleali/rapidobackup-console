@@ -1,4 +1,5 @@
 import { apiClient } from './axios';
+import i18n from '@/config/i18n';
 
 // Interface for ProblemDetail error responses (RFC 7807)
 interface ProblemDetail {
@@ -10,15 +11,38 @@ interface ProblemDetail {
   errors?: string[];
 }
 
-// Helper function to extract error message from ProblemDetail or legacy format
+// Helper function to extract error message from axios errors with i18n support
 const extractErrorMessage = (error: any, defaultMessage: string): string => {
-  const errorData = error.response?.data;
-
-  if (!errorData) {
-    return defaultMessage;
+  // Handle network errors or request setup errors
+  if (!error.response) {
+    if (error.request) {
+      // Request was made but no response received (network error, timeout, etc.)
+      if (error.code === 'ECONNABORTED') {
+        return i18n.t('errors.network.timeout');
+      }
+      if (error.code === 'ERR_NETWORK') {
+        return i18n.t('errors.network.connection');
+      }
+      return i18n.t('errors.network.server');
+    }
+    // Error in request setup
+    return error.message || defaultMessage;
   }
 
-  // ProblemDetail format (RFC 7807)
+  // Handle HTTP error responses
+  const errorData = error.response.data;
+  const status = error.response.status;
+
+  // Handle empty response data
+  if (!errorData) {
+    const httpErrorKey = `errors.http.${status}`;
+    if (i18n.exists(httpErrorKey)) {
+      return i18n.t(httpErrorKey);
+    }
+    return `HTTP ${status}: ${error.response.statusText || defaultMessage}`;
+  }
+
+  // ProblemDetail format (RFC 7807/RFC 9457)
   if (errorData.detail) {
     let message = errorData.detail;
 
@@ -36,7 +60,22 @@ const extractErrorMessage = (error: any, defaultMessage: string): string => {
     return errorData.message;
   }
 
-  return defaultMessage;
+  // Spring Boot default error format
+  if (errorData.error) {
+    let message = errorData.error;
+    if (errorData.message) {
+      message += `: ${errorData.message}`;
+    }
+    return message;
+  }
+
+  // Fallback to translated status-based message or default
+  const httpErrorKey = `errors.http.${status}`;
+  if (i18n.exists(httpErrorKey)) {
+    return i18n.t(httpErrorKey);
+  }
+
+  return `HTTP ${status}: ${error.response.statusText || defaultMessage}`;
 };
 
 export interface UserDto {

@@ -68,5 +68,23 @@
     "medium": "Medium",
     "strong": "Strong",
     "veryStrong": "Very strong"
+  },
+  "errors": {
+    "network": {
+      "timeout": "Request timeout. Please try again.",
+      "connection": "Network error. Please check your connection.",
+      "server": "Network error. Unable to reach the server."
+    },
+    "http": {
+      "400": "Bad request. Please check your input.",
+      "401": "Authentication required. Please log in.",
+      "403": "Access denied. You do not have permission.",
+      "404": "Resource not found.",
+      "409": "Conflict. The resource already exists.",
+      "422": "Validation error. Please check your input.",
+      "500": "Internal server error. Please try again later.",
+      "502": "Bad gateway. Server is temporarily unavailable.",
+      "503": "Service unavailable. Please try again later."
+    }
   }
 }

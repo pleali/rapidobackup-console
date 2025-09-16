@@ -68,5 +68,23 @@
     "medium": "Media",
     "strong": "Fuerte",
     "veryStrong": "Muy fuerte"
+  },
+  "errors": {
+    "network": {
+      "timeout": "Tiempo de espera agotado. Por favor, inténtalo de nuevo.",
+      "connection": "Error de red. Verifica tu conexión.",
+      "server": "Error de red. No se puede conectar al servidor."
+    },
+    "http": {
+      "400": "Solicitud incorrecta. Verifica tus datos.",
+      "401": "Autenticación requerida. Por favor, inicia sesión.",
+      "403": "Acceso denegado. No tienes los permisos necesarios.",
+      "404": "Recurso no encontrado.",
+      "409": "Conflicto. El recurso ya existe.",
+      "422": "Error de validación. Verifica tus datos.",
+      "500": "Error interno del servidor. Inténtalo más tarde.",
+      "502": "Puerta de enlace defectuosa. Servidor temporalmente no disponible.",
+      "503": "Servicio no disponible. Inténtalo más tarde."
+    }
   }
 }
