@@ -8,8 +8,9 @@
             "mainClass": "com.rapidobackup.console.ConsoleApplication",
             "projectName": "backup-console",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        },
+            "envFile": "${workspaceFolder}/.env",
+            "preLaunchTask": "Start Docker Services"
+        }
         {
             "type": "node",
             "name": "Launch Frontend (React/Vite)",
