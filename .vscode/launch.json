@@ -10,7 +10,7 @@
             "args": "",
             "envFile": "${workspaceFolder}/.env",
             "preLaunchTask": "Start Docker Services"
-        }
+        },
         {
             "type": "node",
             "name": "Launch Frontend (React/Vite)",
