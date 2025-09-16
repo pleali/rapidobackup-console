@@ -55,10 +55,7 @@
                     "endsPattern": ".*ready in.*"
                 }
             },
-            "isBackground": true,
-            "runOptions": {
-                "runOn": "folderOpen"
-            }
+            "isBackground": true
         }
     ]
 }
