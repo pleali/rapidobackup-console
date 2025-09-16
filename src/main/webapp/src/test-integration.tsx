@@ -7,7 +7,7 @@ import { Button } from './components/ui/button';
 
 export const TestIntegration: React.FC = () => {
   const loginMutation = useLogin();
-  const { data: user, isLoading } = useCurrentUser();
+  const user = useCurrentUser();
 
   const handleTestLogin = () => {
     loginMutation.mutate({
@@ -22,9 +22,7 @@ export const TestIntegration: React.FC = () => {
       
       <div className="mb-4">
         <h3 className="font-semibold">État utilisateur:</h3>
-        {isLoading ? (
-          <p>Chargement...</p>
-        ) : user ? (
+        {user ? (
           <pre>{JSON.stringify(user, null, 2)}</pre>
         ) : (
           <p>Aucun utilisateur connecté</p>

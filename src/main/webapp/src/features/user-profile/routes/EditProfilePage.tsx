@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 
 const EditProfilePage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { data: user } = useCurrentUser();
+  const user = useCurrentUser();
   
   // Profile form state
   const [firstName, setFirstName] = useState(user?.firstName || '');

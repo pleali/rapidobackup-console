@@ -1,24 +1,30 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { loginUser, signupUser, logoutUser, changePassword, AuthResponse, UserDto } from '@/lib/api';
+import { useAuthStore, useIsAuthenticated, useCurrentUser } from '@/stores/authStore';
 
-// Query keys for caching
-export const authKeys = {
-  user: ['auth', 'user'] as const,
-  all: ['auth'] as const,
-};
+// Re-export the hooks from the store for consistency
+export { useIsAuthenticated, useCurrentUser };
 
 // Hook for login mutation
 export const useLogin = () => {
-  const queryClient = useQueryClient();
+  const { login } = useAuthStore();
 
   return useMutation({
     mutationFn: ({ username, password, rememberMe = false }: { username: string; password: string; rememberMe?: boolean }) =>
       loginUser(username, password, rememberMe),
     onSuccess: (data: AuthResponse) => {
-      // Update the user cache with the new user data
-      queryClient.setQueryData(authKeys.user, data.user);
-      // Invalidate and refetch any auth-related queries
-      queryClient.invalidateQueries({ queryKey: authKeys.all });
+      try {
+        if (data.user && data.accessToken && data.refreshToken) {
+          // Update Zustand store
+          login(data.user, data.accessToken, data.refreshToken);
+
+          // Keep backward compatibility with localStorage for API interceptors
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+      } catch (error) {
+        console.error('Error storing auth data:', error);
+      }
     },
     onError: (error) => {
       console.error('Login failed:', error);
@@ -40,11 +46,17 @@ export const useSignup = () => {
 // Hook for logout mutation
 export const useLogout = () => {
   const queryClient = useQueryClient();
+  const { logout, refreshToken } = useAuthStore();
 
   return useMutation({
-    mutationFn: (refreshToken: string) => logoutUser(refreshToken),
+    mutationFn: () => {
+      const token = refreshToken || localStorage.getItem('refreshToken') || '';
+      return logoutUser(token);
+    },
     onSuccess: () => {
-      // Clear all cached data
+      // Clear Zustand store and localStorage
+      logout();
+      // Clear React Query cache
       queryClient.clear();
       // Redirect to login page
       window.location.href = '/login';
@@ -52,34 +64,14 @@ export const useLogout = () => {
     onError: (error) => {
       console.error('Logout failed:', error);
       // Even if logout fails on server, clear local data
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      logout();
       queryClient.clear();
       window.location.href = '/login';
     },
   });
 };
 
-// Hook to get current user from cache or localStorage
-export const useCurrentUser = () => {
-  return useQuery({
-    queryKey: authKeys.user,
-    queryFn: (): UserDto | null => {
-      const userStr = localStorage.getItem('user');
-      return userStr ? JSON.parse(userStr) : null;
-    },
-    staleTime: Infinity, // User data doesn't go stale until manually invalidated
-  });
-};
-
-// Hook to check authentication status
-export const useIsAuthenticated = () => {
-  const { data: user } = useCurrentUser();
-  const accessToken = localStorage.getItem('accessToken');
-  
-  return !!(user && accessToken);
-};
+// Note: useCurrentUser and useIsAuthenticated are now exported from the store above
 
 // Custom hook for protected routes
 export const useAuthGuard = () => {
@@ -94,20 +86,14 @@ export const useAuthGuard = () => {
 
 // Hook for password change mutation
 export const useChangePassword = () => {
-  const queryClient = useQueryClient();
+  const { updateUser } = useAuthStore();
 
   return useMutation({
     mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
       changePassword(currentPassword, newPassword),
     onSuccess: () => {
       // Update user to mark password change as no longer required
-      const currentUser = queryClient.getQueryData<UserDto>(authKeys.user);
-      if (currentUser) {
-        queryClient.setQueryData(authKeys.user, {
-          ...currentUser,
-          passwordChangeRequired: false
-        });
-      }
+      updateUser({ passwordChangeRequired: false });
     },
     onError: (error) => {
       console.error('Password change failed:', error);

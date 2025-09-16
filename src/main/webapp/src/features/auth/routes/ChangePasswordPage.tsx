@@ -13,7 +13,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 const ChangePasswordPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: user } = useCurrentUser();
+  const user = useCurrentUser();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
