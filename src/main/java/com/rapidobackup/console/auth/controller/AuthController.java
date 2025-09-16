@@ -1,23 +1,27 @@
 package com.rapidobackup.console.auth.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import java.security.Principal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rapidobackup.console.auth.dto.AuthResponse;
 import com.rapidobackup.console.auth.dto.LoginRequest;
 import com.rapidobackup.console.auth.dto.PasswordChangeRequest;
-import com.rapidobackup.console.auth.dto.RefreshTokenRequest;
 import com.rapidobackup.console.auth.dto.SignupRequest;
 import com.rapidobackup.console.auth.service.AuthenticationService;
 import com.rapidobackup.console.common.dto.MessageResponse;
+import com.rapidobackup.console.user.dto.UserDto;
+import com.rapidobackup.console.user.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,23 +30,35 @@ public class AuthController {
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
   private final AuthenticationService authenticationService;
+  private final UserService userService;
 
-  public AuthController(AuthenticationService authenticationService) {
+  public AuthController(AuthenticationService authenticationService, UserService userService) {
     this.authenticationService = authenticationService;
+    this.userService = userService;
   }
 
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(
+  public ResponseEntity<UserDto> login(
       @Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
-    
-    logger.info("Login attempt for user: {} from IP: {}", 
+
+    logger.info("Login attempt for user: {} from IP: {}",
         loginRequest.getLogin(), getClientIp(request));
-    
-    AuthResponse authResponse = authenticationService.authenticate(loginRequest);
-    
+
+    UserDto user = authenticationService.authenticate(loginRequest);
+
     logger.info("Successful login for user: {}", loginRequest.getLogin());
-    
-    return ResponseEntity.ok(authResponse);
+
+    return ResponseEntity.ok(user);
+  }
+
+  @GetMapping("/me")
+  public ResponseEntity<UserDto> getCurrentUser(Principal principal) {
+    if (principal == null) {
+      return ResponseEntity.status(401).build();
+    }
+
+    UserDto user = userService.findByLogin(principal.getName());
+    return ResponseEntity.ok(user);
   }
 
   @PostMapping("/signup")
@@ -59,35 +75,20 @@ public class AuthController {
     return ResponseEntity.ok(new MessageResponse("User registered successfully"));
   }
 
-  @PostMapping("/refresh")
-  public ResponseEntity<AuthResponse> refreshToken(
-      @Valid @RequestBody RefreshTokenRequest request) {
-    
-    logger.debug("Token refresh requested");
-    
-    AuthResponse authResponse = authenticationService.refreshToken(request.getRefreshToken());
-    
-    return ResponseEntity.ok(authResponse);
-  }
-
   @PostMapping("/logout")
-  public ResponseEntity<MessageResponse> logout(@Valid @RequestBody RefreshTokenRequest request) {
-    
-    logger.debug("Logout requested");
-    
-    authenticationService.logout(request.getRefreshToken());
-    
-    return ResponseEntity.ok(new MessageResponse("Logout successful"));
-  }
+  public ResponseEntity<MessageResponse> logout(HttpServletRequest request) {
 
-  @PostMapping("/logout-all")
-  public ResponseEntity<MessageResponse> logoutAllDevices(Principal principal) {
-    
-    logger.info("Logout from all devices requested by user ID: {}", principal.getName());
-    
-    authenticationService.logoutAllDevices(principal.getName());
-    
-    return ResponseEntity.ok(new MessageResponse("Logged out from all devices"));
+    logger.debug("Logout requested");
+
+    authenticationService.logout();
+
+    // Invalidate session
+    HttpSession session = request.getSession(false);
+    if (session != null) {
+      session.invalidate();
+    }
+
+    return ResponseEntity.ok(new MessageResponse("Logout successful"));
   }
 
   @PostMapping("/change-password")

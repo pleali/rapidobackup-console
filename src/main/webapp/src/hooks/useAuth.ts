@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { loginUser, signupUser, logoutUser, changePassword, AuthResponse, UserDto } from '@/lib/api';
+import { loginUser, signupUser, logoutUser, changePassword, UserDto } from '@/lib/api';
 import { useAuthStore, useIsAuthenticated, useCurrentUser } from '@/stores/authStore';
 
 // Re-export the hooks from the store for consistency
@@ -12,16 +12,10 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: ({ username, password, rememberMe = false }: { username: string; password: string; rememberMe?: boolean }) =>
       loginUser(username, password, rememberMe),
-    onSuccess: (data: AuthResponse) => {
+    onSuccess: (user: UserDto) => {
       try {
-        if (data.user && data.accessToken && data.refreshToken) {
-          // Update Zustand store
-          login(data.user, data.accessToken, data.refreshToken);
-
-          // Keep backward compatibility with localStorage for API interceptors
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
-        }
+        // Update Zustand store with user data only
+        login(user);
       } catch (error) {
         console.error('Error storing auth data:', error);
       }
@@ -46,15 +40,12 @@ export const useSignup = () => {
 // Hook for logout mutation
 export const useLogout = () => {
   const queryClient = useQueryClient();
-  const { logout, refreshToken } = useAuthStore();
+  const { logout } = useAuthStore();
 
   return useMutation({
-    mutationFn: () => {
-      const token = refreshToken || localStorage.getItem('refreshToken') || '';
-      return logoutUser(token);
-    },
+    mutationFn: () => logoutUser(),
     onSuccess: () => {
-      // Clear Zustand store and localStorage
+      // Clear Zustand store
       logout();
       // Clear React Query cache
       queryClient.clear();

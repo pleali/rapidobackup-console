@@ -96,13 +96,6 @@ export interface UserDto {
   passwordChangeRequired: boolean;
 }
 
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-  expiresIn: number;
-  user: UserDto;
-}
 
 export interface LoginRequest {
   login: string;
@@ -119,19 +112,13 @@ export interface SignupRequest {
   langKey?: string;
 }
 
-export const loginUser = async (username: string, password: string, rememberMe: boolean = false): Promise<AuthResponse> => {
+export const loginUser = async (username: string, password: string, rememberMe: boolean = false): Promise<UserDto> => {
   try {
-    const response = await apiClient.post<AuthResponse>('/auth/login', {
+    const response = await apiClient.post<UserDto>('/auth/login', {
       login: username,
       password: password,
       rememberMe: rememberMe
     } as LoginRequest);
-
-    // Store tokens after successful login
-    const { accessToken, refreshToken } = response.data;
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
 
     return response.data;
   } catch (error: any) {
@@ -156,16 +143,9 @@ export const signupUser = async (email: string, password: string): Promise<{ mes
   }
 };
 
-export const logoutUser = async (refreshToken: string): Promise<{ message: string }> => {
+export const logoutUser = async (): Promise<{ message: string }> => {
   try {
-    const response = await apiClient.post<{ message: string }>('/auth/logout', {
-      refreshToken
-    });
-
-    // Clear tokens after successful logout
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    const response = await apiClient.post<{ message: string }>('/auth/logout');
 
     return response.data;
   } catch (error: any) {
@@ -174,15 +154,14 @@ export const logoutUser = async (refreshToken: string): Promise<{ message: strin
   }
 };
 
-export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
-  try {
-    const response = await apiClient.post<AuthResponse>('/auth/refresh', {
-      refreshToken
-    });
 
+// Get current user information (requires active session)
+export const getCurrentUser = async (): Promise<UserDto> => {
+  try {
+    const response = await apiClient.get<UserDto>('/auth/me');
     return response.data;
   } catch (error: any) {
-    const message = extractErrorMessage(error, 'Token refresh failed');
+    const message = extractErrorMessage(error, 'Failed to get user information');
     throw new Error(message);
   }
 };

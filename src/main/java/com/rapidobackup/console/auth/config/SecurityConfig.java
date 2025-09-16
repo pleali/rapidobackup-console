@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
@@ -18,30 +16,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.rapidobackup.console.auth.jwt.JwtAuthenticationFilter;
-import com.rapidobackup.console.auth.security.JwtAuthenticationEntryPoint;
 import com.rapidobackup.console.web.filter.SpaWebFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
-
-  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-  public SecurityConfig(
-      JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-      JwtAuthenticationFilter jwtAuthenticationFilter) {
-    this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-  }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -77,7 +62,7 @@ public class SecurityConfig {
     return http.securityMatcher("/api/agent-polling/**", "/ws/agent/**")
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/api/agent-polling/**", "/ws/agent/**")
@@ -91,14 +76,12 @@ public class SecurityConfig {
   public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
     return http.securityMatcher("/api/**")
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+        .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API endpoints
+        .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(
                         "/api/auth/login",
-                        "/api/auth/refresh",
                         "/api/auth/signup",
                         "/api/public/**",
                         "/api/actuator/health/**")
@@ -111,7 +94,6 @@ public class SecurityConfig {
                     .hasAnyRole("ADMIN", "GROSSISTE", "PARTENAIRE")
                     .anyRequest()
                     .authenticated())
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }
 
@@ -121,9 +103,8 @@ public class SecurityConfig {
     return http.securityMatcher("/ws/**")
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
         .authorizeHttpRequests(auth -> auth.requestMatchers("/ws/**").authenticated())
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }
 
@@ -133,7 +114,7 @@ public class SecurityConfig {
     return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .addFilterAfter(new SpaWebFilter(), BasicAuthenticationFilter.class )
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(

@@ -47,6 +47,12 @@ public class UserService {
     return dto;
   }
 
+  public UserDto findByLogin(String login) {
+    User user = userRepository.findByLogin(login)
+        .orElseThrow(() -> new RuntimeException("User not found: " + login));
+    return toDto(user);
+  }
+
   public User createUser(String login, String email, String password, String firstName, String lastName, String langKey) {
     User user = new User();
     user.setLogin(login);

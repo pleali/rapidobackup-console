@@ -97,6 +97,15 @@ spring:
     encoding: UTF-8
     cache-duration: 3600
 
+  session:
+    timeout: 30m
+    cookie:
+      name: JSESSIONID
+      http-only: true
+      secure: true
+      same-site: strict
+      path: /
+
   docker:
     compose:
       enabled: true
@@ -139,12 +148,6 @@ management:
 # Application specific configuration
 console:
   version: @project.version@
-  
-  auth:
-    jwt:
-      secret: ${JWT_SECRET:MySecretKeyForJWTTokenGenerationThatShouldBeVeryLongAndSecureInProduction}
-      expiration: 3600000 # 1 hour in milliseconds
-      refresh-expiration: 86400000 # 24 hours in milliseconds
       
   agent:
     heartbeat-interval: 30s
@@ -187,6 +190,9 @@ spring:
     livereload:
       enabled: false
 
+  session:
+    store-type: none  # In-memory sessions for development
+
 logging:
   level:
     com.rapidobackup.console: DEBUG
@@ -208,7 +214,13 @@ spring:
     
   liquibase:
     contexts: prod
-    
+
+  session:
+    store-type: redis
+    redis:
+      namespace: rapidobackup:sessions
+      flush-mode: on_save
+
 logging:
   level:
     ROOT: INFO

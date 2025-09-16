@@ -3,24 +3,22 @@ package com.rapidobackup.console.auth.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.rapidobackup.console.auth.dto.AuthResponse;
 import com.rapidobackup.console.auth.dto.LoginRequest;
 import com.rapidobackup.console.auth.dto.SignupRequest;
-import com.rapidobackup.console.auth.jwt.JwtTokenProvider;
 import com.rapidobackup.console.common.exception.AuthenticationException;
-import com.rapidobackup.console.common.exception.TokenRefreshException;
-import com.rapidobackup.console.user.entity.RefreshToken;
+import com.rapidobackup.console.user.dto.UserDto;
 import com.rapidobackup.console.user.entity.User;
-import com.rapidobackup.console.user.repository.RefreshTokenRepository;
 import com.rapidobackup.console.user.repository.UserRepository;
 import com.rapidobackup.console.user.service.UserService;
 
@@ -31,31 +29,22 @@ public class AuthenticationService {
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
   private final UserRepository userRepository;
-  private final RefreshTokenRepository refreshTokenRepository;
   private final PasswordEncoder passwordEncoder;
-  private final JwtTokenProvider tokenProvider;
+  private final AuthenticationManager authenticationManager;
   private final UserService userService;
-  private final long refreshTokenExpirationMs;
-  private final long refreshTokenRememberMeExpirationMs;
 
   public AuthenticationService(
       UserRepository userRepository,
-      RefreshTokenRepository refreshTokenRepository,
       PasswordEncoder passwordEncoder,
-      JwtTokenProvider tokenProvider,
-      UserService userService,
-      @Value("${console.auth.jwt.refresh-expiration:86400000}") long refreshTokenExpirationMs,
-      @Value("${console.auth.jwt.refresh-remember-me-expiration:604800000}") long refreshTokenRememberMeExpirationMs) {
+      AuthenticationManager authenticationManager,
+      UserService userService) {
     this.userRepository = userRepository;
-    this.refreshTokenRepository = refreshTokenRepository;
     this.passwordEncoder = passwordEncoder;
-    this.tokenProvider = tokenProvider;
+    this.authenticationManager = authenticationManager;
     this.userService = userService;
-    this.refreshTokenExpirationMs = refreshTokenExpirationMs;
-    this.refreshTokenRememberMeExpirationMs = refreshTokenRememberMeExpirationMs;
   }
 
-  public AuthResponse authenticate(LoginRequest loginRequest) {
+  public UserDto authenticate(LoginRequest loginRequest) {
     User user =
         userRepository
             .findByLogin(loginRequest.getLogin())
@@ -81,97 +70,21 @@ public class AuthenticationService {
 
     handleSuccessfulLogin(user);
 
-    List<String> authorities = List.of(user.getRole().getAuthority());
-    String accessToken =
-        tokenProvider.generateAccessToken(user.getId().toString(), authorities);
-    
-    // Use longer expiration for remember me
-    long tokenExpiration = loginRequest.isRememberMe() ? refreshTokenRememberMeExpirationMs : refreshTokenExpirationMs;
-    String refreshToken = createRefreshToken(user, tokenExpiration);
+    // Create Spring Security authentication and set in context
+    Authentication authentication = new UsernamePasswordAuthenticationToken(
+        user.getLogin(), loginRequest.getPassword(), List.of(() -> "ROLE_" + user.getRole().name()));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    return new AuthResponse(
-        accessToken, refreshToken, tokenExpiration / 1000, userService.toDto(user));
+    logger.info("User authenticated successfully: {}", user.getLogin());
+    return userService.toDto(user);
   }
 
-  public AuthResponse refreshToken(String refreshTokenValue) {
-    RefreshToken refreshToken = verifyRefreshToken(refreshTokenValue);
-    User user = refreshToken.getUser();
-
-    if (!user.isActivated()) {
-      throw new AuthenticationException("User account is not activated");
-    }
-
-    if (user.isAccountLocked()) {
-      throw new AuthenticationException("Account is locked");
-    }
-
-    List<String> authorities = List.of(user.getRole().getAuthority());
-    String accessToken =
-        tokenProvider.generateAccessToken(user.getId().toString(), authorities);
-
-    refreshToken.setLastUsed(Instant.now());
-    refreshTokenRepository.save(refreshToken);
-
-    return new AuthResponse(
-        accessToken, refreshTokenValue, refreshTokenExpirationMs / 1000, userService.toDto(user));
+  public void logout() {
+    // Clear Spring Security context
+    SecurityContextHolder.clearContext();
+    logger.info("User logged out successfully");
   }
 
-  public void logout(String refreshTokenValue) {
-    Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(refreshTokenValue);
-    refreshToken.ifPresent(
-        token -> {
-          token.setRevoked(true);
-          refreshTokenRepository.save(token);
-        });
-  }
-
-  public void logoutAllDevices(String userId) {
-    userRepository
-        .findById(java.util.UUID.fromString(userId))
-        .ifPresent(user -> refreshTokenRepository.revokeAllUserTokens(user));
-  }
-
-  private String createRefreshToken(User user, long expirationMs) {
-    String tokenValue = tokenProvider.generateRefreshToken(user.getId().toString());
-
-    Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
-    if (existingToken.isPresent()) {
-      RefreshToken token = existingToken.get();
-      token.setToken(tokenValue);
-      token.setExpiryDate(Instant.now().plus(expirationMs, ChronoUnit.MILLIS));
-      token.setRevoked(false);
-      refreshTokenRepository.save(token);
-    } else {
-      RefreshToken refreshToken =
-          new RefreshToken(
-              user, tokenValue, Instant.now().plus(expirationMs, ChronoUnit.MILLIS));
-      refreshTokenRepository.save(refreshToken);
-    }
-
-    return tokenValue;
-  }
-
-  private RefreshToken verifyRefreshToken(String token) {
-    RefreshToken refreshToken =
-        refreshTokenRepository
-            .findByToken(token)
-            .orElseThrow(() -> new TokenRefreshException("Refresh token not found"));
-
-    if (refreshToken.isRevoked()) {
-      throw new TokenRefreshException("Refresh token is revoked");
-    }
-
-    if (refreshToken.isExpired()) {
-      refreshTokenRepository.delete(refreshToken);
-      throw new TokenRefreshException("Refresh token expired");
-    }
-
-    if (!tokenProvider.validateToken(token)) {
-      throw new TokenRefreshException("Invalid refresh token");
-    }
-
-    return refreshToken;
-  }
 
   private void handleFailedLogin(User user) {
     int attempts = user.getFailedLoginAttempts() + 1;
@@ -228,11 +141,6 @@ public class AuthenticationService {
     logger.info("User registered successfully: {}", signupRequest.getLogin());
   }
 
-  @Transactional
-  public void cleanupExpiredTokens() {
-    refreshTokenRepository.deleteAllExpiredTokens(Instant.now());
-    logger.debug("Cleaned up expired refresh tokens");
-  }
 
   private boolean needsPasswordUpgrade(String storedPassword) {
     // Password needs upgrade if it doesn't start with {bcrypt} or has no algorithm prefix

@@ -29,9 +29,9 @@ const LoginPage: React.FC = () => {
     loginMutation.mutate(
       {username , password, rememberMe },
       {
-        onSuccess: (data) => {
+        onSuccess: (user) => {
           // Check if password change is required
-          if (data.user.passwordChangeRequired) {
+          if (user.passwordChangeRequired) {
             navigate('/change-password');
           } else {
             navigate('/dashboard');

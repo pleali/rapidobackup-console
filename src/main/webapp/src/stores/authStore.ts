@@ -7,12 +7,10 @@ import type { UserDto } from '@/lib/api';
 interface AuthState {
   isAuthenticated: boolean;
   user: UserDto | null;
-  accessToken: string | null;
-  refreshToken: string | null;
 }
 
 interface AuthActions {
-  login: (user: UserDto, accessToken: string, refreshToken: string) => void;
+  login: (user: UserDto) => void;
   logout: () => void;
   setUser: (user: UserDto) => void;
   clearAuth: () => void;
@@ -24,8 +22,6 @@ export type AuthStore = AuthState & AuthActions;
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
-  accessToken: null,
-  refreshToken: null,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -33,21 +29,15 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       ...initialState,
 
-      login: (user: UserDto, accessToken: string, refreshToken: string) => {
+      login: (user: UserDto) => {
         set({
           isAuthenticated: true,
           user,
-          accessToken,
-          refreshToken,
         });
       },
 
       logout: () => {
         set(initialState);
-        // Also clear localStorage tokens (for backward compatibility)
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
       },
 
       setUser: (user: UserDto) => {
@@ -73,8 +63,6 @@ export const useAuthStore = create<AuthStore>()(
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
       }),
     }
   )
@@ -83,5 +71,3 @@ export const useAuthStore = create<AuthStore>()(
 // Convenience hooks
 export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
 export const useCurrentUser = () => useAuthStore((state) => state.user);
-export const useAccessToken = () => useAuthStore((state) => state.accessToken);
-export const useRefreshToken = () => useAuthStore((state) => state.refreshToken);
