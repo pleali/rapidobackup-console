@@ -14,8 +14,10 @@ Cloud administration console for RapidoBackup - online/local backup services, re
 **IMPORTANT - Shell Configuration when the development environment is Windows:**
 - Operating System: Windows
 - Required Shell: PowerShell ONLY
-- Do NOT use bash, sh, or Unix commands
+- Do NOT use bash, sh, or Unix commands (curl, grep, find, etc.)
 - All commands must be PowerShell compatible
+- Use PowerShell equivalents: `Invoke-RestMethod` instead of `curl`, `Select-String` instead of `grep`
+- File operations: `Get-Content`, `Set-Content`, `Copy-Item`, `Remove-Item`
 
 ## Architecture - Monolithic Modular (Evolutive)
 

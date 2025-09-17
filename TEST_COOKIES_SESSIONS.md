@@ -1,142 +1,159 @@
-# Test des Cookies de Session - Guide de Validation
+# Session Cookies Testing - Validation Guide
 
-Ce guide permet de valider que les cookies de session fonctionnent correctement après la migration.
+This guide helps validate that session cookies are working correctly after the migration.
 
-## 🚀 Démarrage de l'application
+## 🚀 Application Startup
 
-```bash
-# Démarrer en mode développement
-mvn spring-boot:run
+```powershell
+# Start in development mode
+.\mvnw.cmd spring-boot:run
 
-# L'application démarre sur http://localhost:8080
+# Application starts on http://localhost:8080
 ```
 
-## 🔍 Tests de validation
+## 🧪 PowerShell Testing Commands
 
-### 1. **Vérifier les cookies dans DevTools**
+```powershell
+# Test login and save session cookie
+$session = $null
+$loginResponse = Invoke-RestMethod -Uri "http://localhost:8080/api/auth/login" -Method POST -ContentType "application/json" -Body '{"login":"admin","password":"admin"}' -SessionVariable session
 
-1. Ouvrir http://localhost:8080 dans le navigateur
-2. Ouvrir DevTools (F12)
-3. Aller dans l'onglet **Application** > **Cookies**
-4. **Avant login** : Aucun cookie JSESSIONID visible
-5. **Se connecter** avec admin/admin
-6. **Après login** : Cookie JSESSIONID doit apparaître avec :
-   - `HttpOnly` : ✅ (protégé contre XSS)
-   - `Secure` : ❌ (HTTP en dev, normal)
-   - `SameSite` : Lax (flexible pour dev)
-   - `Path` : /
+# Test authenticated endpoint using saved session
+Invoke-RestMethod -Uri "http://localhost:8080/api/test/session-info" -WebSession $session
 
-### 2. **Vérifier les requêtes réseau**
+# Test current user endpoint
+Invoke-RestMethod -Uri "http://localhost:8080/api/auth/current-user" -WebSession $session
 
-1. Dans DevTools, onglet **Network**
-2. Se connecter
-3. Observer la requête POST `/api/auth/login` :
-   - **Réponse** : Doit retourner uniquement UserDto (pas de tokens)
-   - **Headers Set-Cookie** : Doit contenir JSESSIONID
-4. Requêtes suivantes :
-   - **Headers Cookie** : Doit inclure JSESSIONID automatiquement
-
-### 3. **Test de persistance de session**
-
-1. Se connecter
-2. Naviguer vers `/dashboard`
-3. **Actualiser la page** (F5)
-4. ✅ Doit rester connecté
-5. **Fermer/rouvrir l'onglet**
-6. ✅ Doit rester connecté (session cookie)
-
-### 4. **Test de déconnexion**
-
-1. Cliquer sur "Logout"
-2. Observer la requête POST `/api/auth/logout`
-3. **Cookie JSESSIONID** : Doit disparaître des DevTools
-4. **Redirection** : Vers /login
-5. Tenter d'accéder à `/dashboard` : Redirection vers /login
-
-## 📋 Checklist de validation
-
-- [ ] **Cookie JSESSIONID créé** lors du login
-- [ ] **HttpOnly activé** (protection XSS)
-- [ ] **Secure désactivé** en dev (HTTP localhost)
-- [ ] **SameSite = Lax** en dev (flexibilité)
-- [ ] **Envoi automatique** dans les requêtes suivantes
-- [ ] **Persistance** lors des rafraîchissements
-- [ ] **Suppression** lors du logout
-- [ ] **Redirection automatique** si non authentifié
-
-## 🐛 Problèmes courants et solutions
-
-### **Cookie JSESSIONID non créé**
-```
-Problème : Aucun cookie après login
-Solution : Vérifier les logs Spring Session
-Logs : org.springframework.session: DEBUG
+# Test logout
+Invoke-RestMethod -Uri "http://localhost:8080/api/auth/logout" -Method POST -WebSession $session
 ```
 
-### **Cookie non envoyé dans les requêtes**
+## 🔍 Validation Tests
+
+### 1. **Verify cookies in DevTools**
+
+1. Open http://localhost:8080 in browser
+2. Open DevTools (F12)
+3. Go to **Application** > **Cookies** tab
+4. **Before login**: No RBSESSIONID cookie visible
+5. **Login** with admin/admin
+6. **After login**: RBSESSIONID cookie must appear with:
+   - `HttpOnly`: ✅ (XSS protection)
+   - `Secure`: ❌ (HTTP in dev, normal)
+   - `SameSite`: Lax (flexible for dev)
+   - `Path`: /
+
+### 2. **Verify network requests**
+
+1. In DevTools, **Network** tab
+2. Login
+3. Observe POST `/api/auth/login` request:
+   - **Response**: Must return only UserDto (no tokens)
+   - **Set-Cookie Headers**: Must contain RBSESSIONID
+4. Subsequent requests:
+   - **Cookie Headers**: Must include RBSESSIONID automatically
+
+### 3. **Session persistence test**
+
+1. Login
+2. Navigate to `/dashboard`
+3. **Refresh page** (F5)
+4. ✅ Must remain logged in
+5. **Close/reopen tab**
+6. ✅ Must remain logged in (session cookie)
+
+### 4. **Logout test**
+
+1. Click "Logout"
+2. Observe POST `/api/auth/logout` request
+3. **RBSESSIONID Cookie**: Must disappear from DevTools
+4. **Redirect**: To /login
+5. Try accessing `/dashboard`: Redirect to /login
+
+## 📋 Validation Checklist
+
+- [ ] **RBSESSIONID cookie created** on login
+- [ ] **HttpOnly enabled** (XSS protection)
+- [ ] **Secure disabled** in dev (HTTP localhost)
+- [ ] **SameSite = Lax** in dev (flexibility)
+- [ ] **Automatic sending** in subsequent requests
+- [ ] **Persistence** during page refreshes
+- [ ] **Removal** on logout
+- [ ] **Automatic redirect** when not authenticated
+
+## 🐛 Common Issues and Solutions
+
+### **RBSESSIONID cookie not created**
 ```
-Problème : Cookie présent mais pas envoyé
-Solution : Vérifier withCredentials: true dans Axios
-Code : apiClient.defaults.withCredentials = true
+Problem: No cookie after login
+Solution: Check Spring Session logs
+Logs: org.springframework.session: DEBUG
 ```
 
-### **Cookie Secure en dev**
+### **Cookie not sent in requests**
 ```
-Problème : Secure=true bloque en HTTP
-Solution : Profil dev avec setUseSecureCookie(false)
-Config : @Profile("dev") in SessionConfig
-```
-
-### **SameSite trop strict**
-```
-Problème : Cookie bloqué lors des redirections
-Solution : SameSite=Lax en développement
-Config : serializer.setSameSite("Lax")
+Problem: Cookie present but not sent
+Solution: Verify withCredentials: true in Axios
+Code: apiClient.defaults.withCredentials = true
 ```
 
-## 📊 Logs utiles pour le débogage
+### **Secure cookie in dev**
+```
+Problem: Secure=true blocks HTTP
+Solution: Dev profile with secure=false
+Config: server.servlet.session.cookie.secure: false
+```
 
-### **Logs Spring Session**
+### **SameSite too strict**
+```
+Problem: Cookie blocked during redirects
+Solution: SameSite=Lax in development
+Config: server.servlet.session.cookie.same-site: lax
+```
+
+## 📊 Useful Logs for Debugging
+
+### **Spring Session Logs**
 ```
 o.s.session.web.http.SessionRepositoryFilter : Session created: 1234567890
 o.s.session.web.http.CookieHttpSessionIdResolver : Session cookie created
 ```
 
-### **Logs Spring Security**
+### **Spring Security Logs**
 ```
 o.s.s.w.context.HttpSessionSecurityContextRepository : Stored SecurityContext
 o.s.s.w.context.SecurityContextPersistenceFilter : SecurityContext stored to HttpSession
 ```
 
-### **Logs d'authentification**
+### **Authentication Logs**
 ```
 c.r.c.auth.service.AuthenticationService : User authenticated successfully: admin
 o.s.security.authentication.ProviderManager : Authentication attempt using [Provider]
 ```
 
-## 🔬 Tests avancés
+## 🔬 Advanced Tests
 
-### **Test de concurrence (multi-onglets)**
-1. Se connecter dans l'onglet 1
-2. Ouvrir l'onglet 2 sur le même domaine
-3. ✅ Les deux onglets doivent partager la session
+### **Concurrency test (multi-tabs)**
+1. Login in tab 1
+2. Open tab 2 on same domain
+3. ✅ Both tabs must share the session
 
-### **Test d'expiration**
-1. Se connecter
-2. Attendre 30 minutes (timeout de session)
-3. Effectuer une action
-4. ✅ Doit être redirigé vers /login
+### **Expiration test**
+1. Login
+2. Wait 30 minutes (session timeout)
+3. Perform an action
+4. ✅ Must be redirected to /login
 
-### **Test de sécurité**
-1. Examiner localStorage : ✅ Aucun token visible
-2. Examiner sessionStorage : ✅ Aucun token visible
-3. Console JavaScript : `document.cookie` ne montre pas JSESSIONID (HttpOnly)
+### **Security test**
+1. Check localStorage: ✅ No tokens visible
+2. Check sessionStorage: ✅ No tokens visible
+3. JavaScript console: `document.cookie` doesn't show RBSESSIONID (HttpOnly)
 
-## 📈 Métriques de succès
+## 📈 Success Metrics
 
-- **Sécurité** : ✅ Aucun token en localStorage
-- **Performance** : ✅ useIsAuthenticated instantané
-- **UX** : ✅ Connexion transparente et persistante
-- **Architecture** : ✅ Code simplifié (-70% vs JWT)
+- **Security**: ✅ No tokens in localStorage
+- **Performance**: ✅ Instant useIsAuthenticated
+- **UX**: ✅ Transparent and persistent login
+- **Architecture**: ✅ Simplified code (-70% vs JWT)
 
-Si tous les tests passent, la migration vers les sessions Spring est réussie ! 🎉
+If all tests pass, the Spring Session migration is successful! 🎉
