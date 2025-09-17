@@ -1,0 +1,36 @@
+spring:
+  jpa:
+    show-sql: false
+
+  liquibase:
+    contexts: prod
+
+  session:
+    timeout: 30m
+    redis:
+      namespace: rapidobackup:sessions
+      flush-mode: on_save
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: RBSESSIONID
+        http-only: true
+        secure: true
+        same-site: strict
+        path: /
+
+logging:
+  level:
+    ROOT: INFO
+    com.rapidobackup.console: INFO
+    org.springframework.security: WARN
+  file:
+    name: logs/console.log
+    max-size: 100MB
+    max-history: 30
+
+console:
+  cors:
+    allowed-origins: "https://secure.rapidobackup.com"

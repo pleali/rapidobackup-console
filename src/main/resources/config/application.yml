@@ -1,10 +1,10 @@
 spring:
   application:
-    name: rapidbackup-console
-  
+    name: rapidobackup-console
+
   profiles:
     active: dev
-    
+
   datasource:
     url: jdbc:postgresql://localhost:5432/rb-console
     username: rb-console-admin
@@ -44,7 +44,6 @@ spring:
 
   liquibase:
     change-log: classpath:config/liquibase/changelog/master.xml
-
 
   # R2DBC Configuration for reactive database access (agents module)
   r2dbc:
@@ -97,7 +96,6 @@ spring:
     encoding: UTF-8
     cache-duration: 3600
 
-
   docker:
     compose:
       enabled: true
@@ -149,7 +147,7 @@ management:
 # Application specific configuration
 console:
   version: @project.version@
-      
+
   agent:
     heartbeat-interval: 30s
     command-timeout: 5m
@@ -157,11 +155,11 @@ console:
     long-polling:
       timeout: 30000 # 30 seconds
       max-queue-size: 100
-      
+
   backup:
     max-concurrent-jobs: 10
     default-retention-days: 30
-    
+
   cors:
     allowed-origins: "http://localhost:3000,http://localhost:3001"
     allowed-methods: "*"
@@ -173,84 +171,3 @@ console:
   internationalization:
     default-locale: en
     supported-locales: en,fr,es
-
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-  
-  h2:
-    console:
-      enabled: false
-      
-  devtools:
-    restart:
-      enabled: true
-      exclude: static/**,public/**
-    livereload:
-      enabled: false
-
-  session:
-    timeout: 30m
-
-  cache:
-    type: simple  # Use Spring Boot's in-memory cache
-
-  # Disable Redis auto-configuration in development
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-
-logging:
-  level:
-    com.rapidobackup.console: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.session: DEBUG
-
-console:
-  cors:
-    allowed-origins: "*"
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-      
-  jpa:
-    show-sql: false
-    
-  liquibase:
-    contexts: prod
-
-  session:
-    timeout: 30m
-    redis:
-      namespace: rapidobackup:sessions
-      flush-mode: on_save
-
-server:
-  servlet:
-    session:
-      cookie:
-        name: RBSESSIONID
-        http-only: true
-        secure: true
-        same-site: strict
-        path: /
-
-logging:
-  level:
-    ROOT: INFO
-    com.rapidobackup.console: INFO
-    org.springframework.security: WARN
-  file:
-    name: logs/console.log
-    max-size: 100MB
-    max-history: 30
-
-console:
-  cors:
-    allowed-origins: "https://secure.rapidobackup.com"

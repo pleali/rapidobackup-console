@@ -1,0 +1,33 @@
+spring:
+  h2:
+    console:
+      enabled: false
+
+  devtools:
+    restart:
+      enabled: true
+      exclude: static/**,public/**
+    livereload:
+      enabled: false
+
+  session:
+    timeout: 30m
+
+  cache:
+    type: simple  # Use Spring Boot's in-memory cache
+
+  # Disable Redis auto-configuration in development
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+logging:
+  level:
+    com.rapidobackup.console: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.session: DEBUG
+
+console:
+  cors:
+    allowed-origins: "*"
