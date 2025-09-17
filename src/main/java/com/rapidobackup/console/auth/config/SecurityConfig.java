@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
@@ -21,6 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.rapidobackup.console.auth.service.CustomUserDetailsService;
 import com.rapidobackup.console.web.filter.SpaWebFilter;
 
 @Configuration
@@ -49,6 +51,7 @@ public class SecurityConfig {
     
     return delegatingEncoder;
   }
+
 
   @Bean
   public AuthenticationManager authenticationManager(
@@ -84,6 +87,7 @@ public class SecurityConfig {
                         "/api/auth/login",
                         "/api/auth/signup",
                         "/api/public/**",
+                        "/api/test/**",
                         "/api/actuator/health/**")
                     .permitAll()
                     .requestMatchers("/api/admin/**")

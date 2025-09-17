@@ -45,38 +45,39 @@ public class AuthenticationService {
   }
 
   public UserDto authenticate(LoginRequest loginRequest) {
-    User user =
-        userRepository
-            .findByLogin(loginRequest.getLogin())
-            .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
+    try {
+      // Use Spring Security's AuthenticationManager for proper session creation
+      Authentication authRequest = new UsernamePasswordAuthenticationToken(
+          loginRequest.getLogin(), loginRequest.getPassword());
 
-    if (!user.isActivated()) {
-      throw new AuthenticationException("User account is not activated");
-    }
+      Authentication authResult = authenticationManager.authenticate(authRequest);
 
-    if (user.isAccountLocked()) {
-      throw new AuthenticationException("Account is locked due to too many failed attempts");
-    }
+      // Set authentication in security context (this creates the session)
+      SecurityContextHolder.getContext().setAuthentication(authResult);
 
-    if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-      handleFailedLogin(user);
+      // Get the authenticated user for additional processing
+      User user = userRepository
+          .findByLogin(loginRequest.getLogin())
+          .orElseThrow(() -> new AuthenticationException("User not found after authentication"));
+
+      // Check if password needs upgrade from MD5 to BCrypt
+      if (needsPasswordUpgrade(user.getPassword())) {
+        upgradePassword(user, loginRequest.getPassword());
+      }
+
+      handleSuccessfulLogin(user);
+
+      logger.info("User authenticated successfully: {}", user.getLogin());
+      return userService.toDto(user);
+
+    } catch (org.springframework.security.core.AuthenticationException e) {
+      // Handle Spring Security authentication exceptions
+      User user = userRepository.findByLogin(loginRequest.getLogin()).orElse(null);
+      if (user != null) {
+        handleFailedLogin(user);
+      }
       throw new AuthenticationException("Invalid credentials");
     }
-
-    // Check if password needs upgrade from MD5 to BCrypt
-    if (needsPasswordUpgrade(user.getPassword())) {
-      upgradePassword(user, loginRequest.getPassword());
-    }
-
-    handleSuccessfulLogin(user);
-
-    // Create Spring Security authentication and set in context
-    Authentication authentication = new UsernamePasswordAuthenticationToken(
-        user.getLogin(), loginRequest.getPassword(), List.of(() -> "ROLE_" + user.getRole().name()));
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-    logger.info("User authenticated successfully: {}", user.getLogin());
-    return userService.toDto(user);
   }
 
   public void logout() {
