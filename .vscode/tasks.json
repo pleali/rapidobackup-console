@@ -10,7 +10,8 @@
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "panel": "new"
+                "panel": "new",
+                "close": true
             },
             "problemMatcher": []
         },
@@ -23,7 +24,8 @@
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "panel": "new"
+                "panel": "new",
+                "close": true
             },
             "problemMatcher": []
         },
