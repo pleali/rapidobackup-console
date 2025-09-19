@@ -161,6 +161,7 @@ const RapidoBackupLanding: React.FC = () => {
             <button
               className="px-6 py-2 rounded-lg hover:opacity-90 transition-all transform hover:scale-105 text-white font-semibold"
               style={{ background: 'linear-gradient(135deg, #f60, #ff8c00)' }}
+              onClick={() => window.location.href = '/signup'}
             >
               Essai Gratuit
             </button>
@@ -195,7 +196,8 @@ const RapidoBackupLanding: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <button
               className="px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105 flex items-center justify-center space-x-2 text-white"
-              style={{ background: 'linear-gradient(135deg, #f60, #ff8c00)' }}
+              style={{ background: 'linear-gradient(135deg, #f60, #ff8c00)'}}
+              onClick={() => window.location.href = '/signup'}
             >
               <Download className="w-5 h-5" />
               <span>Commencer Gratuitement</span>
