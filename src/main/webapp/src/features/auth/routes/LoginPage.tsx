@@ -32,9 +32,9 @@ const LoginPage: React.FC = () => {
         onSuccess: (user) => {
           // Check if password change is required
           if (user.passwordChangeRequired) {
-            navigate('/change-password');
+            navigate('/change-password', { replace: true });
           } else {
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
           }
         },
       }
