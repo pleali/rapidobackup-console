@@ -60,7 +60,7 @@ const ChangePasswordPage: React.FC = () => {
       {
         onSuccess: () => {
           // Redirect to dashboard after successful password change
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         },
       }
     );
@@ -169,7 +169,7 @@ const ChangePasswordPage: React.FC = () => {
                 type="button" 
                 variant="outline" 
                 className="w-full"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/dashboard', { replace: true })}
               >
                 {t('changePasswordPage.cancelButton')}
               </Button>
