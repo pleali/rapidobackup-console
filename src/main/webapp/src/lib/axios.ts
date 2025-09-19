@@ -16,8 +16,8 @@ export const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
-    // If we get a 401 error, redirect to login
-    if (error.response?.status === 401) {
+    // If we get a 401 error, redirect to login (except for login endpoint itself)
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       // Clear any local state if needed
       localStorage.clear();
       window.location.href = '/login';
