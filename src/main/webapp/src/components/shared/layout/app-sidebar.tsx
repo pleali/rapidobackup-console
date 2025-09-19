@@ -1,20 +1,19 @@
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
+  LayoutDashboard,
+  Server,
+  Database,
+  Mail,
+  Monitor,
+  Package,
+  FileCode,
   Settings2,
-  SquareTerminal,
+  GalleryVerticalEnd,
 } from "lucide-react"
 
 import { NavMain } from "./nav-main"
-import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
+import { useCurrentUser, useIsAuthenticated } from "@/hooks/useAuth"
 //
 import {
   Sidebar,
@@ -24,152 +23,102 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "Marc Rotceig",
-    email: "mrotceig@rapdiobackup.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Rapidobackup",
-      logo: GalleryVerticalEnd,
-      plan: "Protect your business",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
+// Navigation data for RapidoBackup
+const getNavData = () => ({
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+      isActive: false,
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
+      title: "Agents",
+      url: "/agents",
+      icon: Server,
+      isActive: false,
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
+      title: "Backups",
+      url: "/backups",
+      icon: Database,
+      isActive: false,
+    },
+    {
+      title: "Office 365",
+      url: "/office365",
+      icon: Mail,
+      isActive: false,
+    },
+    {
+      title: "Remote Maintenance",
+      url: "/remote",
+      icon: Monitor,
+      isActive: false,
+    },
+    {
+      title: "Deployments",
+      url: "/deployments",
+      icon: Package,
+      isActive: false,
+    },
+    {
+      title: "Scripts",
+      url: "/scripts",
+      icon: FileCode,
+      isActive: false,
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
+      isActive: false,
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+})
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const user = useCurrentUser()
+  const isAuthenticated = useIsAuthenticated()
+  const navData = getNavData()
+
+  // Transform user data for NavUser component
+  const userData = React.useMemo(() => {
+    if (!user) return null
+
+    return {
+      name: user.fullName || `${user.firstName} ${user.lastName}` || user.login,
+      email: user.email,
+      avatar: user.imageUrl || "",
+      role: user.role,
+      passwordChangeRequired: user.passwordChangeRequired,
+    }
+  }, [user])
+
+  if (!isAuthenticated || !userData) {
+    return null
+  }
+
   return (
-    <Sidebar 
-      collapsible="icon" 
-      className="top-(--header-height) !h-[calc(100svh-var(--header-height))]" 
+    <Sidebar
+      collapsible="icon"
+      className="top-(--header-height) !h-[calc(100svh-var(--header-height))]"
       {...props}
     >
+      {/* not useful, already have logo and product name in header 
       <SidebarHeader>
-        {/* <TeamSwitcher teams={data.teams} /> */}
+        <div className="flex items-center gap-2 px-4 py-2">
+          <GalleryVerticalEnd className="h-6 w-6" />
+          <span className="text-lg font-semibold">RapidoBackup</span>
+        </div>
       </SidebarHeader>
+      */}
+
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={navData.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

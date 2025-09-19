@@ -1,18 +1,29 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { 
-  LayoutDashboard, 
-  Server, 
-  Database, 
-  Mail, 
-  Monitor, 
-  Package, 
-  FileCode, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Server,
+  Database,
+  Mail,
+  Monitor,
+  Package,
+  FileCode,
+  LogOut,
   User,
-  Settings
+  Settings,
+  ChevronDown
 } from 'lucide-react';
+import { useCurrentUser, useIsAuthenticated, useLogout } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 interface SidebarItemProps {
   href: string;
@@ -39,14 +50,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, label, icon, active }) 
   );
 };
 
-interface SidebarProps {
-  userName?: string;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ userName }) => {
+const Sidebar: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const { t } = useTranslation();
+  const user = useCurrentUser();
+  const isAuthenticated = useIsAuthenticated();
+  const logoutMutation = useLogout();
 
   return (
     <div className="w-64 h-screen bg-background border-r border-border flex flex-col">
@@ -102,17 +112,62 @@ const Sidebar: React.FC<SidebarProps> = ({ userName }) => {
       </nav>
       
       <div className="p-4 border-t border-border">
-        {userName ? (
-          <div className="flex flex-col space-y-2">
-            <Link to="/profile" className="flex items-center px-4 py-2 rounded-lg hover:bg-muted">
-              <User size={20} className="mr-3" />
-              <span>{userName}</span>
-            </Link>
-            <Link to="/logout" className="flex items-center px-4 py-2 rounded-lg hover:bg-muted text-red-500">
-              <LogOut size={20} className="mr-3" />
-              <span>{t('sidebar.auth.logout')}</span>
-            </Link>
-          </div>
+        {isAuthenticated && user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start p-2 h-auto">
+                <div className="flex items-center space-x-3 w-full">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User size={20} className="text-primary" />
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {user.fullName || `${user.firstName} ${user.lastName}` || user.login}
+                    </p>
+                    <div className="flex items-center space-x-2">
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                      <Badge variant="secondary" className="text-xs">
+                        {user.role}
+                      </Badge>
+                    </div>
+                  </div>
+                  <ChevronDown size={16} className="text-muted-foreground" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="flex items-center">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{t('sidebar.user.profile')}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/settings" className="flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>{t('sidebar.user.settings')}</span>
+                </Link>
+              </DropdownMenuItem>
+              {user.passwordChangeRequired && (
+                <DropdownMenuItem asChild>
+                  <Link to="/change-password" className="flex items-center text-orange-600">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>{t('sidebar.user.changePassword')}</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => logoutMutation.mutate()}
+                className="text-red-600 focus:text-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{t('sidebar.auth.logout')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <div className="flex flex-col space-y-2">
             <Link to="/login" className="flex items-center justify-center px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
