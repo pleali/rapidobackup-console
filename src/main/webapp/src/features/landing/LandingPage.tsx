@@ -208,12 +208,12 @@ const RapidoBackupLanding: React.FC = () => {
             </button>
           </div>
 
-          <Alert className="max-w-md mx-auto bg-green-900/20 border-green-500/50">
-            <CheckCircle className="h-4 w-4 text-green-400" />
-            <AlertDescription className="text-green-500">
+          <div className="flex items-center justify-center gap-2 w-fit mx-auto bg-green-900/20 border border-green-500/50 rounded-lg px-4 py-3">
+            <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+            <span className="text-green-500 whitespace-nowrap">
               <strong>30 jours d'essai gratuit</strong> - Aucune carte bancaire requise
-            </AlertDescription>
-          </Alert>
+            </span>
+          </div>
         </div>
       </section>
 
