@@ -91,6 +91,10 @@ spring:
     locale: en
     locale-resolver: fixed
 
+  mvc:
+    problemdetails:
+      enabled: true
+
   messages:
     basename: i18n/messages
     encoding: UTF-8

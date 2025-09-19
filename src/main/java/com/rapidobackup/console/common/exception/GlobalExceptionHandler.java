@@ -24,18 +24,28 @@ import jakarta.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
 
   // TODO: Add translations for error messages.
-  
+
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  private static final String PROBLEM_BASE_URL = "https://rapidobackup.com/problems";
+
+  private ProblemDetail createProblemDetail(HttpStatus status, String type, String title,
+      String detail, HttpServletRequest request) {
+    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+    problemDetail.setType(URI.create(PROBLEM_BASE_URL + "/" + type));
+    problemDetail.setTitle(title);
+    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    problemDetail.setProperty("status", status.value());
+    return problemDetail;
+  }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ProblemDetail> handleValidationExceptions(
       MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.BAD_REQUEST, "Validation failed");
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/validation-failed"));
-    problemDetail.setTitle("Validation Failed");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.BAD_REQUEST, "validation-failed", "Validation Failed",
+        "Validation failed", request);
 
     List<String> errors = new ArrayList<>();
     ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -53,12 +63,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleMethodNotSupported(
       HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.METHOD_NOT_ALLOWED,
-        "HTTP method '" + ex.getMethod() + "' is not supported for this endpoint");
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/method-not-allowed"));
-    problemDetail.setTitle("Method Not Allowed");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.METHOD_NOT_ALLOWED, "method-not-allowed", "Method Not Allowed",
+        "HTTP method '" + ex.getMethod() + "' is not supported for this endpoint", request);
     problemDetail.setProperty("method", ex.getMethod());
     problemDetail.setProperty("supportedMethods", ex.getSupportedHttpMethods());
 
@@ -70,12 +77,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleMissingParameter(
       MissingServletRequestParameterException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.BAD_REQUEST,
-        "Required parameter '" + ex.getParameterName() + "' is missing");
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/missing-parameter"));
-    problemDetail.setTitle("Missing Parameter");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.BAD_REQUEST, "missing-parameter", "Missing Parameter",
+        "Required parameter '" + ex.getParameterName() + "' is missing", request);
     problemDetail.setProperty("parameterName", ex.getParameterName());
     problemDetail.setProperty("parameterType", ex.getParameterType());
 
@@ -87,12 +91,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleMediaTypeNotSupported(
       HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-        "Media type '" + ex.getContentType() + "' is not supported");
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/unsupported-media-type"));
-    problemDetail.setTitle("Unsupported Media Type");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.UNSUPPORTED_MEDIA_TYPE, "unsupported-media-type", "Unsupported Media Type",
+        "Media type '" + ex.getContentType() + "' is not supported", request);
     problemDetail.setProperty("contentType", ex.getContentType());
     problemDetail.setProperty("supportedMediaTypes", ex.getSupportedMediaTypes());
 
@@ -104,11 +105,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleAccessDenied(
       AccessDeniedException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.FORBIDDEN, "Access denied");
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/access-denied"));
-    problemDetail.setTitle("Access Denied");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.FORBIDDEN, "access-denied", "Access Denied",
+        "Access denied", request);
 
     logger.warn("Access denied on {}: {}", request.getRequestURI(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
@@ -118,11 +117,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleAuthenticationException(
       AuthenticationException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.UNAUTHORIZED, ex.getMessage());
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/authentication-failed"));
-    problemDetail.setTitle("Authentication Failed");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.UNAUTHORIZED, "authentication-failed", "Authentication Failed",
+        ex.getMessage(), request);
 
     logger.warn("Authentication error on {}: {}", request.getRequestURI(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problemDetail);
@@ -132,11 +129,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleTokenRefreshException(
       TokenRefreshException ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.UNAUTHORIZED, ex.getMessage());
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/token-refresh-failed"));
-    problemDetail.setTitle("Token Refresh Failed");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.UNAUTHORIZED, "token-refresh-failed", "Token Refresh Failed",
+        ex.getMessage(), request);
 
     logger.warn("Token refresh error on {}: {}", request.getRequestURI(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problemDetail);
@@ -146,11 +141,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ProblemDetail> handleGenericException(
       Exception ex, HttpServletRequest request) {
 
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-        HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-    problemDetail.setType(URI.create("https://rapidobackup.com/problems/internal-server-error"));
-    problemDetail.setTitle("Internal Server Error");
-    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    ProblemDetail problemDetail = createProblemDetail(
+        HttpStatus.INTERNAL_SERVER_ERROR, "internal-server-error", "Internal Server Error",
+        "An unexpected error occurred", request);
 
     logger.error("Unexpected error on {}: {}", request.getRequestURI(), ex.getMessage(), ex);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
