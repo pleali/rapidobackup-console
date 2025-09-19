@@ -281,3 +281,4 @@ npm run test:e2e                 # Playwright E2E
 - **Company**: RapidoBackup is both the company name and the backup software name
 - **frontend**: path is @src/main/webapp/
 - **frontend**: use mcp server Shadcn for ui
+- **important** : tu ne dois pas corriger le code généré par openapitools

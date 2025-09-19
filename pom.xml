@@ -22,7 +22,6 @@
         <node.version>v22.15.0</node.version>
         <npm.version>11.3.0</npm.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
         <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <liquibase-plugin.password/>
@@ -30,6 +29,9 @@
         <liquibase-plugin.username/>
         
         <spring-boot.version>${project.parent.version}</spring-boot.version>
+
+        <!-- OpenAPI Generation Properties -->
+        <openapi.client.skip>true</openapi.client.skip>
     </properties>
 
     <dependencies>
@@ -37,6 +39,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- OpenAPI Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.6.0</version>
         </dependency>
         
         <dependency>
@@ -114,18 +123,6 @@
         </dependency>
 
 
-        <!-- MapStruct -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Utilities -->
         <dependency>
@@ -252,6 +249,61 @@
                     </dependency>
                 </dependencies>
             </plugin>
+
+            <!-- SpringDoc OpenAPI spec extraction plugin -->
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                    <outputFileName>api.yml</outputFileName>
+                    <outputDir>${project.basedir}/src/main/resources/openapi</outputDir>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+
+            <!-- OpenAPI Generator for TypeScript client only -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.10.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-typescript-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/api.yml</inputSpec>
+                            <generatorName>typescript-axios</generatorName>
+                            <output>${project.basedir}/src/main/webapp/src/lib/generated</output>
+                            <configOptions>
+                                <npmName>@rapidobackup/console-api-client</npmName>
+                                <npmVersion>1.0.0</npmVersion>
+                                <supportsES6>true</supportsES6>
+                                <withInterfaces>true</withInterfaces>
+                                <modelPropertyNaming>camelCase</modelPropertyNaming>
+                                <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
+                            </configOptions>
+                            <typeMappings>
+                                <typeMapping>DateTime=string</typeMapping>
+                            </typeMappings>
+                            <skip>${openapi.client.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -265,14 +317,13 @@
         </plugins>
     </build>
     <profiles>
-        <!-- Swager/OpenAPI generation is not currently supported
-          <profile>
+        <!-- OpenAPI generation is now configured above in the main build -->
+        <profile>
             <id>api-docs</id>
             <properties>
                 <profile.api-docs>,api-docs</profile.api-docs>
             </properties>
-        </profile> 
-        -->
+        </profile>
         <profile>
             <id>dev</id>
             <activation>
@@ -365,19 +416,6 @@
                                                 <ignore/>
                                             </action>
                                         </pluginExecution>
-                                        <pluginExecution>
-                                            <pluginExecutionFilter>
-                                                <groupId>org.openapitools</groupId>
-                                                <artifactId>openapi-generator-maven-plugin</artifactId>
-                                                <versionRange>${openapi-generator-maven-plugin.version}</versionRange>
-                                                <goals>
-                                                    <goal>generate</goal>
-                                                </goals>
-                                            </pluginExecutionFilter>
-                                            <action>
-                                                <ignore/>
-                                            </action>
-                                        </pluginExecution>
                                     </pluginExecutions>
                                 </lifecycleMappingMetadata>
                             </configuration>
@@ -385,21 +423,6 @@
                     </plugins>
                 </pluginManagement>
             </build>
-        </profile>
-        <profile>
-            <!--
-                Profile for applying IDE-specific configuration.
-                At the moment it configures MapStruct and Hibernate JPA Metamodel Generator, which you need when working
-                with DTOs and entity filtering.
-            -->
-            <id>IDE</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.mapstruct</groupId>
-                    <artifactId>mapstruct-processor</artifactId>
-                    <version>${mapstruct.version}</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <id>no-liquibase</id>

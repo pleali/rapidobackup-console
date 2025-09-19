@@ -171,3 +171,36 @@ console:
   internationalization:
     default-locale: en
     supported-locales: en,fr,es
+
+# SpringDoc OpenAPI 3 Configuration
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+    resolve-schema-properties: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    filter: true
+    display-request-duration: true
+  cache:
+    disabled: true
+  override-with-generic-response: false
+  auto-tag-classes: true
+  model-and-view-allowed: true
+
+  # Export OpenAPI spec to file during development
+  writer-with-default-pretty-printer: true
+
+  # Group configuration for API documentation
+  group-configs:
+    - group: 'auth'
+      display-name: 'Authentication API'
+      paths-to-match: '/api/auth/**'
+    - group: 'agents'
+      display-name: 'Agents API'
+      paths-to-match: '/api/agents/**'
+    - group: 'users'
+      display-name: 'Users API'
+      paths-to-match: '/api/users/**'

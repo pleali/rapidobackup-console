@@ -156,3 +156,13 @@ coverage/
 # Claude Code
 ######################
 .claude/
+
+######################
+# OpenAPI Generated Files
+######################
+# Generated OpenAPI specification
+src/main/resources/openapi/api.yml
+
+# Generated TypeScript client
+src/main/webapp/src/lib/generated/
+!src/main/webapp/src/lib/generated-api-client.ts
