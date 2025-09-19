@@ -112,11 +112,13 @@ server:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
   forward-headers-strategy: native
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: never
-    include-exception: false
+# Configuration d'erreur supprimée pour permettre RFC 9457 natif
+  # error:
+  #   include-message: always
+  #   include-binding-errors: always
+  #   include-stacktrace: never
+  #   include-exception: false
+  #   path: /error
   servlet:
     session:
       cookie:
