@@ -16,6 +16,7 @@ import TestComponentsPage from './features/tests/TestComponentsPage';
 import { queryClient } from '@/lib/query-client';
 import { useIsAuthenticated, useCurrentUser } from '@/hooks/useAuth';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
+import { Toaster } from '@/components/custom/sonner';
 
 // Protected route component
 const ProtectedRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
@@ -63,6 +64,7 @@ const App: React.FC = () => {
               <Route path="*" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
             </Routes>
           </Router>
+          <Toaster />
           <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>
       </QueryClientProvider>

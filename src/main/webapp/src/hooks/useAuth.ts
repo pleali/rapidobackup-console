@@ -49,15 +49,15 @@ export const useLogout = () => {
       logout();
       // Clear React Query cache
       queryClient.clear();
-      // Redirect to login page
-      window.location.href = '/login';
+      // Redirect to landing page
+      window.location.href = '/?reason=logout_success';
     },
     onError: (error) => {
       console.error('Logout failed:', error);
       // Even if logout fails on server, clear local data
       logout();
       queryClient.clear();
-      window.location.href = '/login';
+      window.location.href = '/?reason=logout_success';
     },
   });
 };

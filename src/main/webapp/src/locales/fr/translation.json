@@ -1,4 +1,8 @@
 {
+  "notifications": {
+    "sessionExpired": "Votre session a expiré, veuillez vous reconnecter",
+    "logoutSuccess": "Merci d'avoir utilisé RapidoBackup"
+  },
   "signup": {
     "title": "S'inscrire",
     "description": "Créez un compte pour continuer.",

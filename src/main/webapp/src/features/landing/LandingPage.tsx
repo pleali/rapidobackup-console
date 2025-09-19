@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Shield,
   Zap,
@@ -12,6 +12,9 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 // Ajout de la police Inter via Google Fonts
 const fontLink = document.createElement('link');
@@ -22,6 +25,36 @@ if (!document.querySelector('link[href*="Inter"]')) {
 }
 
 const RapidoBackupLanding: React.FC = () => {
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const toastShownRef = useRef(false);
+
+  // Show logout success toast if redirected from logout
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+
+    if (reason === 'logout_success' && !toastShownRef.current) {
+      toastShownRef.current = true;
+
+      // Small delay to ensure the component is fully mounted
+      setTimeout(() => {
+        toast.success(t('notifications.logoutSuccess'), {
+          duration: 4000,
+          position: 'top-center'
+        });
+      }, 100);
+
+      // Clean up the URL parameter after showing toast
+      setTimeout(() => {
+        setSearchParams(prev => {
+          const newParams = new URLSearchParams(prev);
+          newParams.delete('reason');
+          return newParams;
+        });
+      }, 500);
+    }
+  }, [searchParams, setSearchParams, t]);
+
   const features = [
     {
       icon: <Shield className="w-6 h-6" />,
@@ -96,6 +129,7 @@ const RapidoBackupLanding: React.FC = () => {
       className="min-h-screen bg-gray-900 text-white font-inter"
       style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
     >
+
       {/* Header */}
       <header className="fixed w-full top-0 z-50 bg-gray-900/85 backdrop-blur-sm border-b border-gray-800">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">

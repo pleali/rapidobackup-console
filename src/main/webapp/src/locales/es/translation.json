@@ -1,4 +1,8 @@
 {
+  "notifications": {
+    "sessionExpired": "Su sesión ha expirado, por favor inicie sesión nuevamente",
+    "logoutSuccess": "Gracias por usar RapidoBackup"
+  },
   "signup": {
     "title": "Regístrate",
     "description": "Crea una cuenta para continuar.",

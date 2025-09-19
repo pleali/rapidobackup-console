@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,18 +6,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLogin } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const loginMutation = useLogin();
+
+  // Show session expired toast if redirected from session expiration
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'session_expired') {
+      toast.error(t('notifications.sessionExpired'));
+      // Clean up the URL parameter
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('reason');
+        return newParams;
+      });
+    }
+  }, [searchParams, setSearchParams, t]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
