@@ -87,10 +87,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (!user) return null
 
     return {
-      name: user.fullName || `${user.firstName} ${user.lastName}` || user.login,
-      email: user.email,
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.login || '',
+      email: user.email || '',
       avatar: user.imageUrl || "",
-      role: user.role,
+      role: user.role || '',
       passwordChangeRequired: user.passwordChangeRequired,
     }
   }, [user])

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,55 +15,49 @@ import org.springframework.stereotype.Repository;
 
 import com.rapidobackup.console.user.entity.User;
 import com.rapidobackup.console.user.entity.UserRole;
+import com.rapidobackup.console.user.entity.UserStatus;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-  Optional<User> findByLogin(String login);
+  Optional<User> findByUsername(String username);
 
   Optional<User> findByEmail(String email);
 
-  Optional<User> findByActivationKey(String activationKey);
+  Optional<User> findByActivationToken(String activationToken);
 
   Optional<User> findByResetKey(String resetKey);
 
-  List<User> findByParentId(UUID parentId);
+  List<User> findByTenantId(UUID tenantId);
 
-  Page<User> findByParentId(UUID parentId, Pageable pageable);
+  Page<User> findByTenantId(UUID tenantId, Pageable pageable);
 
-  @Query(
-      "SELECT u FROM User u WHERE u.parent.id = :parentId OR "
-          + "(u.parent IS NULL AND :parentId IS NULL)")
-  List<User> findByParentIdIncludingNull(@Param("parentId") UUID parentId);
+  @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r = :role")
+  List<User> findByRole(@Param("role") UserRole role);
 
-  List<User> findByRole(UserRole role);
-
-  List<User> findByActivatedFalseAndCreatedDateBefore(Instant dateTime);
+  List<User> findByStatusAndCreatedAtBefore(UserStatus status, Instant dateTime);
 
   List<User> findByResetDateBeforeAndResetKeyIsNotNull(Instant dateTime);
 
-  @Query(
-      "SELECT COUNT(u) FROM User u WHERE u.parent.id = :parentId OR "
-          + "(u.parent IS NULL AND :parentId IS NULL)")
-  long countByParentId(@Param("parentId") UUID parentId);
+  long countByTenantId(UUID tenantId);
 
   @Query(
-      "SELECT u FROM User u WHERE "
-          + "(:searchTerm IS NULL OR LOWER(u.login) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+      "SELECT DISTINCT u FROM User u LEFT JOIN u.roles r WHERE "
+          + "(:searchTerm IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
           + "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
           + "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
           + "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND "
-          + "(:role IS NULL OR u.role = :role) AND "
-          + "(:activated IS NULL OR u.activated = :activated)")
+          + "(:role IS NULL OR r = :role) AND "
+          + "(:status IS NULL OR u.status = :status)")
   Page<User> findUsersWithFilters(
       @Param("searchTerm") String searchTerm,
       @Param("role") UserRole role,
-      @Param("activated") Boolean activated,
+      @Param("status") UserStatus status,
       Pageable pageable);
 
   @Modifying
-  @Query("UPDATE User u SET u.lastLogin = :lastLogin WHERE u.id = :userId")
-  void updateLastLogin(@Param("userId") UUID userId, @Param("lastLogin") Instant lastLogin);
+  @Query("UPDATE User u SET u.lastLoginAt = :lastLoginAt WHERE u.id = :userId")
+  void updateLastLogin(@Param("userId") UUID userId, @Param("lastLoginAt") Instant lastLoginAt);
 
   @Modifying
   @Query(
@@ -74,12 +69,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       @Param("lockedUntil") Instant lockedUntil);
 
   @Query(
-      "SELECT u FROM User u WHERE "
-          + "u.id = :userId OR u.parent.id = :userId OR "
-          + "u.parent.parent.id = :userId OR u.parent.parent.parent.id = :userId")
-  List<User> findUserHierarchy(@Param("userId") UUID userId);
+      "SELECT u FROM User u WHERE u.tenant.id IN "
+          + "(SELECT t.id FROM Tenant t WHERE t.path LIKE CONCAT(:tenantPath, '%'))")
+  List<User> findByTenantHierarchy(@Param("tenantPath") String tenantPath);
 
-  boolean existsByLogin(String login);
+  boolean existsByUsername(String username);
 
   boolean existsByEmail(String email);
 }

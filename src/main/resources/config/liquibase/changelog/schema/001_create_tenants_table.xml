@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="001_create_tenants_table" author="console">
+        <createTable tableName="tenants">
+            <!-- Primary Key -->
+            <column name="id" type="${uuidType}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Parent Relationship -->
+            <column name="parent_id" type="${uuidType}">
+                <constraints nullable="true"/>
+            </column>
+
+            <!-- Identification -->
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slug" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="external_id" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+
+            <!-- Hierarchy -->
+            <column name="path" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="level" type="integer">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Classification -->
+            <column name="tenant_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="industry" type="varchar(100)"/>
+            <column name="size_category" type="varchar(50)"/>
+
+            <!-- Configuration -->
+            <column name="timezone" type="varchar(50)" defaultValue="UTC"/>
+            <column name="locale" type="varchar(10)" defaultValue="en-US"/>
+            <column name="currency" type="varchar(3)" defaultValue="EUR"/>
+            <column name="country" type="varchar(2)"/>
+
+            <!-- Limits and Quotas -->
+            <column name="max_users" type="integer"/>
+            <column name="max_agents" type="integer"/>
+            <column name="max_storage_gb" type="bigint"/>
+            <column name="used_storage_gb" type="bigint" defaultValue="0"/>
+
+            <!-- Billing -->
+            <column name="billing_contact_email" type="varchar(255)"/>
+            <column name="billing_address" type="jsonb"/>
+            <column name="contract_number" type="varchar(100)"/>
+            <column name="subscription_plan" type="varchar(50)"/>
+            <column name="subscription_expires_at" type="timestamp"/>
+
+            <!-- Status -->
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="suspension_reason" type="text"/>
+
+            <!-- Metadata -->
+            <column name="settings" type="jsonb"/>
+            <column name="custom_attributes" type="jsonb"/>
+
+            <!-- Timestamps -->
+            <column name="created_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activated_at" type="timestamp"/>
+            <column name="suspended_at" type="timestamp"/>
+            <column name="deleted_at" type="timestamp"/>
+        </createTable>
+
+        <!-- Foreign Key for parent relationship -->
+        <addForeignKeyConstraint baseColumnNames="parent_id"
+                                 baseTableName="tenants"
+                                 constraintName="fk_tenant_parent"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenants"/>
+
+        <!-- Indexes -->
+        <createIndex indexName="idx_tenants_slug" tableName="tenants">
+            <column name="slug"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_parent" tableName="tenants">
+            <column name="parent_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_path" tableName="tenants">
+            <column name="path" type="varchar_pattern_ops"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_level" tableName="tenants">
+            <column name="level"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_status" tableName="tenants">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_tenant_type" tableName="tenants">
+            <column name="tenant_type"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_external_id" tableName="tenants">
+            <column name="external_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenants_deleted_at" tableName="tenants">
+            <column name="deleted_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

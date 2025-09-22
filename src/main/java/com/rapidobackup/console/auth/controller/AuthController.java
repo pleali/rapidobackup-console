@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -278,12 +277,18 @@ public class AuthController {
         )
     })
     @SecurityRequirement(name = "sessionAuth")
-    public ResponseEntity<MessageResponse> changePassword(@Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
+    public ResponseEntity<MessageResponse> changePassword(@Valid @RequestBody PasswordChangeRequest passwordChangeRequest, HttpServletRequest request) {
         try {
+            // Log session information for debugging
+            logger.debug("Change password request - Session ID: {}, User Principal: {}",
+                request.getSession(false) != null ? request.getSession(false).getId() : "null",
+                getCurrentPrincipalName());
+
             // Get current principal from Spring Security context
             Principal principal = getCurrentPrincipal();
 
             if (principal == null) {
+                logger.warn("Change password failed - no authenticated user found");
                 return ResponseEntity.status(401).build();
             }
 

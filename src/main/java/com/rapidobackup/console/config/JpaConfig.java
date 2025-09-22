@@ -25,8 +25,9 @@ import jakarta.persistence.EntityManagerFactory;
 @Configuration
 @EnableJpaRepositories(basePackages = {
     "com.rapidobackup.console.user.repository",
-    "com.rapidobackup.console.auth.repository", 
-    "com.rapidobackup.console.backup.repository"
+    "com.rapidobackup.console.auth.repository",
+    "com.rapidobackup.console.backup.repository",
+    "com.rapidobackup.console.tenant.repository"
 }, entityManagerFactoryRef = "entityManagerFactory",
    transactionManagerRef = "transactionManager")
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")

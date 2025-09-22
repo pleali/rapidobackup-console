@@ -1,7 +1,5 @@
 package com.rapidobackup.console.auth.service;
 
-import java.util.List;
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,10 +20,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByLogin(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        if (!user.isActivated()) {
+        if (!user.isActive()) {
             throw new UsernameNotFoundException("User account is not activated: " + username);
         }
 
@@ -34,13 +32,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getLogin())
-                .password(user.getPassword())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
+                .username(user.getUsername())
+                .password(user.getPasswordHash())
+                .authorities(user.getRoles().stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                    .collect(java.util.stream.Collectors.toList()))
                 .accountExpired(false)
                 .accountLocked(user.isAccountLocked())
                 .credentialsExpired(false)
-                .disabled(!user.isActivated())
+                .disabled(!user.isActive())
                 .build();
     }
 }

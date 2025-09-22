@@ -1,0 +1,29 @@
+spring:
+  # Configuration for unit tests (no database)
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+  # Disable JPA for unit tests
+  jpa:
+    enabled: false
+
+  # Disable Liquibase for unit tests
+  liquibase:
+    enabled: false
+
+  # Simple cache for tests
+  cache:
+    type: simple
+
+  # Disable security for unit tests
+  security:
+    basic:
+      enabled: false
+
+logging:
+  level:
+    com.rapidobackup.console: DEBUG

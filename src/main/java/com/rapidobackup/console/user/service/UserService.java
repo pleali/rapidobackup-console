@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.rapidobackup.console.user.dto.UserDto;
 import com.rapidobackup.console.user.entity.User;
 import com.rapidobackup.console.user.entity.UserRole;
+import com.rapidobackup.console.user.entity.UserStatus;
 import com.rapidobackup.console.user.repository.UserRepository;
 
 @Service
@@ -26,49 +27,50 @@ public class UserService {
   public UserDto toDto(User user) {
     UserDto dto = new UserDto();
     dto.setId(user.getId());
-    dto.setLogin(user.getLogin());
+    dto.setLogin(user.getUsername());
     dto.setFirstName(user.getFirstName());
     dto.setLastName(user.getLastName());
     dto.setEmail(user.getEmail());
-    dto.setActivated(user.isActivated());
-    dto.setLangKey(user.getLangKey());
-    dto.setImageUrl(user.getImageUrl());
-    dto.setRole(user.getRole());
-    dto.setCreatedDate(user.getCreatedDate());
-    dto.setLastModifiedDate(user.getLastModifiedDate());
-    dto.setLastLogin(user.getLastLogin());
-    dto.setPasswordChangeRequired(user.isPasswordChangeRequired());
+    dto.setActivated(user.isActive());
+    dto.setLangKey(user.getPreferredLanguage());
+    dto.setImageUrl(null); // No imageUrl in current User entity
+    dto.setRole(user.getPrimaryRole());
+    dto.setCreatedDate(user.getCreatedAt());
+    dto.setLastModifiedDate(user.getUpdatedAt());
+    dto.setLastLogin(user.getLastLoginAt());
+    dto.setPasswordChangeRequired(user.getMustChangePassword() != null ? user.getMustChangePassword() : false);
 
-    if (user.getParent() != null) {
-      dto.setParentId(user.getParent().getId());
-      dto.setParentLogin(user.getParent().getLogin());
-    }
+    // Parent relationship not implemented in current User entity
+    // if (user.getParent() != null) {
+    //   dto.setParentId(user.getParent().getId());
+    //   dto.setParentLogin(user.getParent().getLogin());
+    // }
 
     return dto;
   }
 
   public UserDto findByLogin(String login) {
-    User user = userRepository.findByLogin(login)
+    User user = userRepository.findByUsername(login)
         .orElseThrow(() -> new RuntimeException("User not found: " + login));
     return toDto(user);
   }
 
   public User createUser(String login, String email, String password, String firstName, String lastName, String langKey) {
     User user = new User();
-    user.setLogin(login);
+    user.setUsername(login);
     user.setEmail(email);
-    user.setPassword(passwordEncoder.encode(password));
+    user.setPasswordHash(passwordEncoder.encode(password));
     user.setFirstName(firstName);
     user.setLastName(lastName);
-    user.setLangKey(langKey != null ? langKey : "en");
-    user.setRole(UserRole.CLIENT);
-    user.setActivated(true);
-    user.setCreatedDate(Instant.now());
+    user.setPreferredLanguage(langKey != null ? langKey : "en");
+    user.addRole(UserRole.USER); // Assign default USER role
+    user.setStatus(UserStatus.ACTIVE);
+    user.setCreatedAt(Instant.now());
     // lastModifiedBy and lastModifiedDate are set by JPA Auditing
     // user.setLastModifiedBy("system");
     // user.setCreatedBy("system");
 
-    user.setLastModifiedDate(Instant.now());
+    user.setUpdatedAt(Instant.now());
     
     return userRepository.save(user);
   }

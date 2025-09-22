@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="002_create_users_table" author="console">
+        <createTable tableName="users">
+            <!-- Primary Key -->
+            <column name="id" type="${uuidType}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Tenant Relationship -->
+            <column name="tenant_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Identification -->
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="employee_id" type="varchar(100)"/>
+            <column name="external_id" type="varchar(255)"/>
+
+            <!-- Personal Profile -->
+            <column name="first_name" type="varchar(100)"/>
+            <column name="last_name" type="varchar(100)"/>
+            <column name="display_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nickname" type="varchar(100)"/>
+            <column name="preferred_name" type="varchar(100)"/>
+
+            <!-- Professional Profile -->
+            <column name="job_title" type="varchar(255)"/>
+            <column name="department" type="varchar(255)"/>
+            <column name="division" type="varchar(255)"/>
+
+            <!-- Contact -->
+            <column name="phone_number" type="varchar(50)"/>
+            <column name="mobile_number" type="varchar(50)"/>
+            <column name="secondary_email" type="varchar(255)"/>
+
+            <!-- Preferences -->
+            <column name="timezone" type="varchar(50)"/>
+            <column name="locale" type="varchar(10)"/>
+            <column name="preferred_language" type="varchar(10)"/>
+
+            <!-- Security and Access -->
+            <column name="password_hash" type="varchar(100)"/>
+            <column name="profile_type" type="varchar(50)"/>
+            <column name="is_system_admin" type="boolean" defaultValueBoolean="false"/>
+            <column name="requires_mfa" type="boolean" defaultValueBoolean="false"/>
+            <column name="password_expires_at" type="timestamp"/>
+            <column name="must_change_password" type="boolean" defaultValueBoolean="false"/>
+
+            <!-- Account Status -->
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activation_token" type="varchar(255)"/>
+            <column name="activated_at" type="timestamp"/>
+            <column name="last_login_at" type="timestamp"/>
+            <column name="last_activity_at" type="timestamp"/>
+            <column name="suspension_reason" type="text"/>
+
+            <!-- Password Reset -->
+            <column name="reset_key" type="varchar(20)"/>
+            <column name="reset_date" type="timestamp"/>
+
+            <!-- Metadata -->
+            <column name="user_metadata" type="jsonb"/>
+            <column name="app_metadata" type="jsonb"/>
+
+            <!-- Timestamps -->
+            <column name="created_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="timestamp"/>
+
+            <!-- Audit -->
+            <column name="created_by" type="${uuidType}"/>
+            <column name="last_modified_by" type="${uuidType}"/>
+
+            <!-- Security -->
+            <column name="failed_login_attempts" type="integer" defaultValueNumeric="0"/>
+            <column name="account_locked_until" type="timestamp"/>
+        </createTable>
+
+        <!-- Foreign Key for tenant relationship -->
+        <addForeignKeyConstraint baseColumnNames="tenant_id"
+                                 baseTableName="users"
+                                 constraintName="fk_user_tenant"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenants"/>
+
+        <!-- Indexes -->
+        <createIndex indexName="idx_users_username" tableName="users">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_email" tableName="users">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_tenant_email" tableName="users" unique="true">
+            <column name="tenant_id"/>
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_tenant" tableName="users">
+            <column name="tenant_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_status" tableName="users">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_employee_id" tableName="users">
+            <column name="employee_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_external_id" tableName="users">
+            <column name="external_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_deleted_at" tableName="users">
+            <column name="deleted_at"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_last_login" tableName="users">
+            <column name="last_login_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="002_default_admin_user" author="console">
+        <insert tableName="users">
+            <column name="id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="email" value="admin@console.local"/>
+            <column name="username" value="admin"/>
+            <column name="display_name" value="System Administrator"/>
+            <column name="first_name" value="System"/>
+            <column name="last_name" value="Administrator"/>
+            <column name="password_hash" value="{bcrypt}$2a$10$rqyWOS5JqOD1OEiQbePB.OOgpMEyCRJOtM2KM/TeUE0ddBTvIkZbe"/>
+            <column name="is_system_admin" valueBoolean="true"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="timezone" value="UTC"/>
+            <column name="locale" value="en"/>
+            <column name="preferred_language" value="en"/>
+            <column name="must_change_password" valueBoolean="true"/>
+            <column name="activated_at" valueDate="${now}"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at" valueDate="${now}"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

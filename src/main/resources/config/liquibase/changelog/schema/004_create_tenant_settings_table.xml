@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="004_create_tenant_settings_table" author="console">
+        <createTable tableName="tenant_settings">
+            <!-- Primary Key -->
+            <column name="id" type="${uuidType}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Tenant Relationship -->
+            <column name="tenant_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Setting Definition -->
+            <column name="setting_key" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="setting_value" type="text"/>
+            <column name="value_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Metadata -->
+            <column name="category" type="varchar(100)"/>
+            <column name="description" type="text"/>
+            <column name="is_encrypted" type="boolean" defaultValueBoolean="false"/>
+            <column name="is_inherited" type="boolean" defaultValueBoolean="false"/>
+            <column name="source_tenant_id" type="${uuidType}"/>
+
+            <!-- Validation -->
+            <column name="validation_rules" type="jsonb"/>
+            <column name="default_value" type="text"/>
+            <column name="allowed_values" type="jsonb"/>
+
+            <!-- Timestamps -->
+            <column name="created_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Audit -->
+            <column name="created_by" type="${uuidType}"/>
+            <column name="last_modified_by" type="${uuidType}"/>
+        </createTable>
+
+        <!-- Foreign Key for tenant relationship -->
+        <addForeignKeyConstraint baseColumnNames="tenant_id"
+                                 baseTableName="tenant_settings"
+                                 constraintName="fk_tenant_setting_tenant"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenants"/>
+
+        <!-- Foreign Key for source tenant (inheritance) -->
+        <addForeignKeyConstraint baseColumnNames="source_tenant_id"
+                                 baseTableName="tenant_settings"
+                                 constraintName="fk_tenant_setting_source"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenants"/>
+
+        <!-- Unique constraint for tenant + setting_key -->
+        <addUniqueConstraint columnNames="tenant_id,setting_key"
+                             constraintName="uk_tenant_setting_key"
+                             tableName="tenant_settings"/>
+
+        <!-- Indexes -->
+        <createIndex indexName="idx_tenant_settings_tenant" tableName="tenant_settings">
+            <column name="tenant_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_settings_key" tableName="tenant_settings">
+            <column name="setting_key"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_settings_category" tableName="tenant_settings">
+            <column name="category"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_settings_value_type" tableName="tenant_settings">
+            <column name="value_type"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_settings_inherited" tableName="tenant_settings">
+            <column name="is_inherited"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

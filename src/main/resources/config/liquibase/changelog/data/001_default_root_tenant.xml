@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="001_default_root_tenant" author="console">
+        <insert tableName="tenants">
+            <column name="id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="parent_id" valueComputed="null"/>
+            <column name="name" value="RapidoBackup"/>
+            <column name="display_name" value="RapidoBackup - Root Organization"/>
+            <column name="slug" value="rapidobackup"/>
+            <column name="external_id" valueComputed="null"/>
+            <column name="path" value="rapidobackup"/>
+            <column name="level" value="0"/>
+            <column name="tenant_type" value="ADMIN"/>
+            <column name="industry" value="Technology"/>
+            <column name="size_category" value="ENTERPRISE"/>
+            <column name="timezone" value="UTC"/>
+            <column name="locale" value="en-US"/>
+            <column name="currency" value="USD"/>
+            <column name="country" value="US"/>
+            <column name="max_users" valueNumeric="1000"/>
+            <column name="max_agents" valueNumeric="10000"/>
+            <column name="max_storage_gb" valueNumeric="1000000"/>
+            <column name="used_storage_gb" valueNumeric="0"/>
+            <column name="billing_contact_email" value="billing@rapidobackup.com"/>
+            <column name="billing_address" value='{}' />
+            <column name="contract_number" valueComputed="null"/>
+            <column name="subscription_plan" value="INTERNAL"/>
+            <column name="subscription_expires_at" valueComputed="null"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="suspension_reason" valueComputed="null"/>
+            <column name="settings" value='{"theme": "default", "timezone": "UTC", "notifications": {"email": true, "sms": false}}'/>
+            <column name="custom_attributes" value='{}'/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at" valueDate="${now}"/>
+            <column name="activated_at" valueDate="${now}"/>
+            <column name="suspended_at" valueComputed="null"/>
+            <column name="deleted_at" valueComputed="null"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

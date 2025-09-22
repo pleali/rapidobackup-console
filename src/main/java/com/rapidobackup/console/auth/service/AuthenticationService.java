@@ -2,7 +2,6 @@ package com.rapidobackup.console.auth.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,22 +56,22 @@ public class AuthenticationService {
 
       // Get the authenticated user for additional processing
       User user = userRepository
-          .findByLogin(loginRequest.getLogin())
+          .findByUsername(loginRequest.getLogin())
           .orElseThrow(() -> new AuthenticationException("User not found after authentication"));
 
       // Check if password needs upgrade from MD5 to BCrypt
-      if (needsPasswordUpgrade(user.getPassword())) {
+      if (needsPasswordUpgrade(user.getPasswordHash())) {
         upgradePassword(user, loginRequest.getPassword());
       }
 
       handleSuccessfulLogin(user);
 
-      logger.info("User authenticated successfully: {}", user.getLogin());
+      logger.info("User authenticated successfully: {}", user.getUsername());
       return userService.toDto(user);
 
     } catch (org.springframework.security.core.AuthenticationException e) {
       // Handle Spring Security authentication exceptions
-      User user = userRepository.findByLogin(loginRequest.getLogin()).orElse(null);
+      User user = userRepository.findByUsername(loginRequest.getLogin()).orElse(null);
       if (user != null) {
         handleFailedLogin(user);
       }
@@ -93,7 +92,7 @@ public class AuthenticationService {
 
     if (attempts >= 5) {
       lockUntil = Instant.now().plus(30, ChronoUnit.MINUTES);
-      logger.warn("Account locked for user: {} due to {} failed attempts", user.getLogin(), attempts);
+      logger.warn("Account locked for user: {} due to {} failed attempts", user.getUsername(), attempts);
     }
 
     userRepository.updateFailedLoginAttempts(user.getId(), attempts, lockUntil);
@@ -110,19 +109,19 @@ public class AuthenticationService {
             .findById(java.util.UUID.fromString(userId))
             .orElseThrow(() -> new AuthenticationException("User not found"));
 
-    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+    if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
       throw new AuthenticationException("Current password is incorrect");
     }
 
-    user.setPassword(passwordEncoder.encode(newPassword));
-    user.setPasswordChangeRequired(false);
+    user.setPasswordHash(passwordEncoder.encode(newPassword));
+    user.setMustChangePassword(false);
     userRepository.save(user);
 
-    logger.info("Password changed for user: {} ({})", user.getLogin(), userId);
+    logger.info("Password changed for user: {} ({})", user.getUsername(), userId);
   }
 
   public void registerUser(SignupRequest signupRequest) {
-    if (userRepository.findByLogin(signupRequest.getLogin()).isPresent()) {
+    if (userRepository.findByUsername(signupRequest.getLogin()).isPresent()) {
       throw new AuthenticationException("Username is already taken");
     }
     
@@ -152,12 +151,12 @@ public class AuthenticationService {
     try {
       // Re-encode with BCrypt (DelegatingPasswordEncoder will add {bcrypt} prefix)
       String upgradedPassword = passwordEncoder.encode(plainTextPassword);
-      user.setPassword(upgradedPassword);
+      user.setPasswordHash(upgradedPassword);
       userRepository.save(user);
       
-      logger.info("Password upgraded from legacy format to BCrypt for user: {}", user.getLogin());
+      logger.info("Password upgraded from legacy format to BCrypt for user: {}", user.getUsername());
     } catch (Exception e) {
-      logger.error("Failed to upgrade password for user: {}", user.getLogin(), e);
+      logger.error("Failed to upgrade password for user: {}", user.getUsername(), e);
       // Don't throw exception to avoid breaking login flow
     }
   }

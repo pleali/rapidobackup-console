@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="006_create_user_roles_table" author="console">
+        <createTable tableName="user_roles">
+            <!-- User ID -->
+            <column name="user_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Role -->
+            <column name="role" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Timestamps -->
+            <column name="created_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Primary Key (composite) -->
+        <addPrimaryKey tableName="user_roles" columnNames="user_id,role" constraintName="pk_user_roles"/>
+
+        <!-- Foreign Key for user relationship -->
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_roles"
+                                 constraintName="fk_user_roles_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"
+                                 onDelete="CASCADE"/>
+
+        <!-- Indexes -->
+        <createIndex indexName="idx_user_roles_user" tableName="user_roles">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_user_roles_role" tableName="user_roles">
+            <column name="role"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,39 @@
+spring:
+  # PostgreSQL configuration for tests (configured by TestConfiguration)
+  datasource:
+    # These will be overridden by TestConfiguration
+    url: jdbc:postgresql://localhost:5432/testdb
+    driver-class-name: org.postgresql.Driver
+    username: test
+    password: test
+
+  jpa:
+    hibernate:
+      ddl-auto: none  # Use Liquibase instead
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # Enable Liquibase for consistent schema
+  liquibase:
+    enabled: true
+    change-log: classpath:config/liquibase/changelog/master.xml
+    contexts: test
+
+  cache:
+    type: simple
+
+  # Disable security for tests
+  security:
+    basic:
+      enabled: false
+
+logging:
+  level:
+    com.rapidobackup.console: DEBUG
+    org.springframework.cache: DEBUG
+    org.hibernate.SQL: DEBUG
+
+# Test specific configurations
+rapidobackup:
+  tenant:
+    max-hierarchy-depth: 5

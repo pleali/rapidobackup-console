@@ -15,18 +15,20 @@
     <property name="uuidType" value="uuid" dbms="h2, postgresql"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    
-    <!-- Schema definitions -->
+
+    <!-- Schema definitions (order matters for foreign keys) -->
     <include file="config/liquibase/changelog/schema/001_create_tenants_table.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/schema/002_create_users_table.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/schema/003_create_contacts_table.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/schema/004_create_tenant_settings_table.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/schema/005_create_audit_logs_table.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/schema/003_create_agents_table.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/schema/008_create_views.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/schema/006_create_user_roles_table.xml" relativeToChangelogFile="false"/>
 
-    <!-- Data inserts -->
+    <!-- Data inserts (order matters for foreign keys) -->
     <include file="config/liquibase/changelog/data/001_default_root_tenant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/data/002_default_admin_user.xml" relativeToChangelogFile="false"/>
+
+    <!-- Schema migration (after data) -->
+    <include file="config/liquibase/changelog/schema/007_migrate_users_roles.xml" relativeToChangelogFile="false"/>
     
 </databaseChangeLog>

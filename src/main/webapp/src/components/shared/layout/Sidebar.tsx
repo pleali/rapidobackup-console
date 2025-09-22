@@ -15,6 +15,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useCurrentUser, useIsAuthenticated, useLogout } from '@/hooks/useAuth';
+import { UserRole } from '@/types/UserRole';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -122,14 +123,14 @@ const Sidebar: React.FC = () => {
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-medium truncate">
-                      {user.fullName || `${user.firstName} ${user.lastName}` || user.login}
+                      {`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.login}
                     </p>
                     <div className="flex items-center space-x-2">
                       <p className="text-xs text-muted-foreground truncate">
                         {user.email}
                       </p>
                       <Badge variant="secondary" className="text-xs">
-                        {user.role}
+                        {user.role || UserRole.USER}
                       </Badge>
                     </div>
                   </div>
