@@ -67,6 +67,7 @@ public class SecurityConfig {
     return authenticationConfiguration.getAuthenticationManager();
   }
 
+
   @Bean
   @Order(1)
   public SecurityFilterChain agentApiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -105,7 +106,10 @@ public class SecurityConfig {
     return http.securityMatcher("/api/**")
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API endpoints
-        .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
+            .maximumSessions(1)
+            .maxSessionsPreventsLogin(false))
         .exceptionHandling(exceptions -> exceptions
             .authenticationEntryPoint(customAuthenticationEntryPoint)
             .accessDeniedHandler(customAccessDeniedHandler))

@@ -107,7 +107,16 @@ public class AuthController {
             // Create or get existing session to ensure cookies are set
             HttpSession session = request.getSession(true);
 
-            // Rely on Spring Security's built-in session management for SecurityContext
+            // EXPLICITLY save the SecurityContext to the session
+            // This is necessary because we do manual authentication in AuthenticationService
+            var currentContext = org.springframework.security.core.context.SecurityContextHolder.getContext();
+            if (currentContext != null && currentContext.getAuthentication() != null && currentContext.getAuthentication().isAuthenticated()) {
+                logger.debug("Manually saving SecurityContext to session after successful authentication");
+                // Use default HttpSessionSecurityContextRepository
+                var securityContextRepo = new org.springframework.security.web.context.HttpSessionSecurityContextRepository();
+                securityContextRepo.saveContext(currentContext, request,
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse());
+            }
 
             logger.debug("Session created/retrieved: {}", session.getId());
             logger.info("Successful login for user: {} with session: {}",
@@ -190,6 +199,7 @@ public class AuthController {
     @SecurityRequirement(name = "sessionAuth")
     public ResponseEntity<UserDto> getCurrentUser() {
         try {
+
             // Get current user UUID using type-safe helper method
             Optional<UUID> userIdOpt = getCurrentUserId();
 
@@ -332,8 +342,10 @@ public class AuthController {
      * @return Optional containing CustomUserPrincipal if authenticated and principal is of correct type
      */
     private Optional<CustomUserPrincipal> getCustomUserPrincipal() {
-        Principal principal = getCurrentPrincipal();
-        if (principal instanceof CustomUserPrincipal customPrincipal) {
+        var auth = org.springframework.security.core.context.SecurityContextHolder
+            .getContext()
+            .getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserPrincipal customPrincipal) {
             return Optional.of(customPrincipal);
         }
         return Optional.empty();
