@@ -1,0 +1,47 @@
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+name: rapidobackup
+services:
+  redis:
+    image: redis:7.2-alpine
+    # volumes:
+    #   - ~/volumes/jhipster/rapidobackup/redis/:/data
+    environment:
+      # Allow empty password for development
+      - ALLOW_EMPTY_PASSWORD=yes
+      # Enable Redis persistence (optional for development)
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:6379:6379
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+
+  # RedisInsight - Web UI for Redis management and monitoring
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    depends_on:
+      redis:
+        condition: service_healthy
+    # volumes:
+    #   - ~/volumes/jhipster/rapidobackup/redisinsight:/data
+    ports:
+      - 127.0.0.1:5540:5540
+    environment:
+      - RIPROXYENABLE=t
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8001/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

@@ -1,0 +1,43 @@
+# Development profile with Redis enabled
+# This profile extends the dev profile but enables Redis for sessions and cache
+# Usage: mvnw.cmd spring-boot:run -Dspring.profiles.active=dev,dev-redis
+
+spring:
+  # Enable Redis for sessions (overrides dev profile exclusion)
+  autoconfigure:
+    exclude: [] # Remove Redis exclusion from dev profile
+
+  session:
+    timeout: 30m
+    redis:
+      namespace: rapidobackup:dev-sessions
+      flush-mode: on_save
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000  # 30 minutes for development
+      key-prefix: "console:dev:"
+      use-key-prefix: true
+      cache-null-values: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 4  # Smaller pool for development
+          max-idle: 4
+          min-idle: 0
+
+logging:
+  level:
+    org.springframework.data.redis: DEBUG
+    org.springframework.session: DEBUG
+
+console:
+  cors:
+    allowed-origins: "*"  # Keep permissive CORS for development

@@ -98,8 +98,11 @@ docker-compose up -d postgres redis
 
 **Development:**
 ```powershell
-# Start backend (from root)
+# Start backend (from root) - Default: in-memory sessions, no Redis required
 .\mvnw.cmd spring-boot:run
+
+# Start backend with Redis (optional) - For testing Redis sessions/cache
+.\mvnw.cmd spring-boot:run -Dspring.profiles.active=dev,dev-redis
 
 # Start frontend (from frontend folder)
 npm start
@@ -117,14 +120,31 @@ npm start
 .\mvnw.cmd compiler:compile
 ```
 
+**Development Profiles:**
+- **`dev` (default)**: In-memory sessions and cache, no external dependencies
+- **`dev,dev-redis`**: Redis sessions and cache for testing production-like behavior
+- **`prod`**: Full production configuration with Redis
+
 **Docker Development:**
 ```powershell
 # Full stack
 docker-compose -f docker-compose.dev.yml up
 
-# Only infrastructure
-docker-compose up postgres redis
+# Only infrastructure (PostgreSQL + Redis)
+docker-compose -f src/main/docker/services.yml up
+
+# Only PostgreSQL (for dev profile without Redis)
+docker-compose -f src/main/docker/postgresql.yml up
+
+# Only Redis (for dev-redis testing)
+docker-compose -f src/main/docker/redis.yml up
 ```
+
+**Redis Management:**
+- **RedisInsight Web UI**: `http://localhost:8001` (included with Redis Docker)
+- **redis-cli**: `docker exec -it <redis-container> redis-cli`
+- **View sessions**: In RedisInsight, filter keys with `rapidobackup:sessions:*`
+- **View cache**: In RedisInsight, filter keys with `console:*`
 
 ## Project Structure
 
@@ -169,6 +189,12 @@ rb-console/
 **Key Configuration Files:**
 - `src/main/resources/application.yml`: Main configuration with JPA and R2DBC properties
 - `src/main/java/.../agent/config/R2dbcConfig.java`: Reactive database configuration
+- `src/main/java/.../config/RedisSessionConfig.java`: Conditional Redis session configuration
+
+**Session Management:**
+- **Development (`dev`)**: In-memory sessions, no Redis dependency
+- **Development with Redis (`dev,dev-redis`)**: Redis sessions for testing
+- **Production (`prod`)**: Redis sessions with optimized configuration
 
 **Liquibase Organization:**
 - **Schema separation**: Table definitions in `schema/`, data inserts in `data/`
