@@ -121,6 +121,24 @@ public class AuthenticationService {
     logger.info("Password changed for user: {} (ID: {})", user.getUsername(), userId);
   }
 
+  public void changePassword(java.util.UUID userId, String currentPassword, String newPassword) {
+    // Type-safe version using UUID directly (no string parsing needed)
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new AuthenticationException("User not found"));
+
+    if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+      throw new AuthenticationException("Current password is incorrect");
+    }
+
+    user.setPasswordHash(passwordEncoder.encode(newPassword));
+    user.setMustChangePassword(false);
+    userRepository.save(user);
+
+    logger.info("Password changed for user: {} (ID: {})", user.getUsername(), userId);
+  }
+
   public void registerUser(SignupRequest signupRequest) {
     if (userRepository.findByUsername(signupRequest.getLogin()).isPresent()) {
       throw new AuthenticationException("Username is already taken");

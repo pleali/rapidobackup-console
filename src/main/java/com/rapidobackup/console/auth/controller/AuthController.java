@@ -1,6 +1,8 @@
 package com.rapidobackup.console.auth.controller;
 
 import java.security.Principal;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.rapidobackup.console.auth.dto.LoginRequest;
 import com.rapidobackup.console.auth.dto.PasswordChangeRequest;
 import com.rapidobackup.console.auth.dto.SignupRequest;
+import com.rapidobackup.console.auth.principal.CustomUserPrincipal;
 import com.rapidobackup.console.auth.service.AuthenticationService;
 import com.rapidobackup.console.common.dto.MessageResponse;
 import com.rapidobackup.console.user.dto.UserDto;
@@ -187,15 +190,16 @@ public class AuthController {
     @SecurityRequirement(name = "sessionAuth")
     public ResponseEntity<UserDto> getCurrentUser() {
         try {
-            // Get current principal from Spring Security context
-            Principal principal = getCurrentPrincipal();
+            // Get current user UUID using type-safe helper method
+            Optional<UUID> userIdOpt = getCurrentUserId();
 
-            if (principal == null) {
+            if (userIdOpt.isEmpty()) {
+                logger.warn("Get current user failed - no authenticated user found");
                 return ResponseEntity.status(401).build();
             }
 
-            // Extract UUID from CustomUserPrincipal
-            String userId = principal.getName(); // Now returns UUID string
+            // Use type-safe UUID method (no string parsing needed)
+            UUID userId = userIdOpt.get();
             UserDto user = userService.findById(userId);
             return ResponseEntity.ok(user);
 
@@ -285,19 +289,20 @@ public class AuthController {
                 request.getSession(false) != null ? request.getSession(false).getId() : "null",
                 getCurrentPrincipalName());
 
-            // Get current principal from Spring Security context
-            Principal principal = getCurrentPrincipal();
+            // Get current user UUID using type-safe helper method
+            Optional<UUID> userIdOpt = getCurrentUserId();
 
-            if (principal == null) {
+            if (userIdOpt.isEmpty()) {
                 logger.warn("Change password failed - no authenticated user found");
                 return ResponseEntity.status(401).build();
             }
 
-            logger.info("Password change requested by user with ID: {}", principal.getName());
+            UUID userId = userIdOpt.get();
+            logger.info("Password change requested by user with ID: {}", userId);
 
-            // Use existing business logic - principal.getName() now returns UUID string
+            // Use type-safe UUID method (no string parsing needed)
             authenticationService.changePassword(
-                principal.getName(), // Now contains UUID string
+                userId,
                 passwordChangeRequest.getCurrentPassword(),
                 passwordChangeRequest.getNewPassword()
             );
@@ -321,7 +326,32 @@ public class AuthController {
     }
 
     /**
+     * Helper method to get the current CustomUserPrincipal if available.
+     * This provides type-safe access to the CustomUserPrincipal with UUID methods.
+     *
+     * @return Optional containing CustomUserPrincipal if authenticated and principal is of correct type
+     */
+    private Optional<CustomUserPrincipal> getCustomUserPrincipal() {
+        Principal principal = getCurrentPrincipal();
+        if (principal instanceof CustomUserPrincipal customPrincipal) {
+            return Optional.of(customPrincipal);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Helper method to get the current user's UUID.
+     * This avoids string parsing and provides type safety.
+     *
+     * @return Optional containing user UUID if authenticated
+     */
+    private Optional<UUID> getCurrentUserId() {
+        return getCustomUserPrincipal().map(CustomUserPrincipal::getUserId);
+    }
+
+    /**
      * Helper method to safely get the current principal name.
+     * Uses getName() which returns UUID string for logging purposes.
      */
     private String getCurrentPrincipalName() {
         Principal principal = getCurrentPrincipal();

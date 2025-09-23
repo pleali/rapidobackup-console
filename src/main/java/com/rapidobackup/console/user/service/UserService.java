@@ -63,6 +63,12 @@ public class UserService {
     return toDto(user);
   }
 
+  public UserDto findById(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+    return toDto(user);
+  }
+
   public User createUser(String login, String email, String password, String firstName, String lastName, String langKey) {
     User user = new User();
     user.setUsername(login);

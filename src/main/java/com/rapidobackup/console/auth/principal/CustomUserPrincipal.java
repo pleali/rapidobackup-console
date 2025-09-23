@@ -40,7 +40,14 @@ public class CustomUserPrincipal implements UserDetails {
 
     /**
      * Returns the user's UUID as a string.
-     * This method returns the UUID instead of the username to prepare for JWT migration.
+     *
+     * MANDATORY: This method is REQUIRED by the Principal interface and used by Spring Security.
+     * It returns the UUID instead of the username to prepare for JWT migration where the UUID
+     * will be stored in the token subject.
+     *
+     * Use this method for:
+     * - Spring Security compatibility (logging, security context)
+     * - When you need the UUID as a String
      *
      * @return the user's UUID as a string
      */
@@ -49,7 +56,15 @@ public class CustomUserPrincipal implements UserDetails {
     }
 
     /**
-     * Returns the user's UUID.
+     * Returns the user's UUID as a UUID object.
+     *
+     * RECOMMENDED: Use this method when you need the UUID as a UUID object for type safety.
+     * This avoids string parsing and provides better performance.
+     *
+     * Use this method for:
+     * - Database queries (findById operations)
+     * - Type-safe UUID operations
+     * - Performance-critical code (no string parsing)
      *
      * @return the user's UUID
      */
