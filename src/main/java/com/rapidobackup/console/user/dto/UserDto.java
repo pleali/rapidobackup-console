@@ -1,6 +1,7 @@
 package com.rapidobackup.console.user.dto;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 import com.rapidobackup.console.user.entity.UserRole;
@@ -15,7 +16,7 @@ public class UserDto {
   private boolean activated;
   private String langKey;
   private String imageUrl;
-  private UserRole role;
+  private Set<UserRole> roles;
   private UUID parentId;
   private String parentLogin;
   private Instant createdDate;
@@ -89,12 +90,12 @@ public class UserDto {
     this.imageUrl = imageUrl;
   }
 
-  public UserRole getRole() {
-    return role;
+  public Set<UserRole> getRoles() {
+    return roles;
   }
 
-  public void setRole(UserRole role) {
-    this.role = role;
+  public void setRoles(Set<UserRole> roles) {
+    this.roles = roles;
   }
 
   public UUID getParentId() {

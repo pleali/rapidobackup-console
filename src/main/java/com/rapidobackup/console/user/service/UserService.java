@@ -35,7 +35,7 @@ public class UserService {
     dto.setActivated(user.isActive());
     dto.setLangKey(user.getPreferredLanguage());
     dto.setImageUrl(null); // No imageUrl in current User entity
-    dto.setRole(user.getPrimaryRole());
+    dto.setRoles(user.getRoles());
     dto.setCreatedDate(user.getCreatedAt());
     dto.setLastModifiedDate(user.getUpdatedAt());
     dto.setLastLogin(user.getLastLoginAt());
