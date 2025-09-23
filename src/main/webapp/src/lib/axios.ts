@@ -17,7 +17,7 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
     // If we get a 401 error, redirect to login page (session expired)
-    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
+    if (error.response?.status === 401 && !(error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/change-password'))) {
       // Clear any local state if needed
       localStorage.clear();
       window.location.href = '/login?reason=session_expired';
