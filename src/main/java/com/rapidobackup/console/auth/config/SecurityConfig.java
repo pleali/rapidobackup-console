@@ -29,6 +29,15 @@ import com.rapidobackup.console.web.filter.SpaWebFilter;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
+  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+  private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+  public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                       CustomAccessDeniedHandler customAccessDeniedHandler) {
+    this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+    this.customAccessDeniedHandler = customAccessDeniedHandler;
+  }
+
   @Bean
   public PasswordEncoder passwordEncoder() {
     Map<String, PasswordEncoder> encoders = new HashMap<>();
@@ -65,6 +74,9 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
+        .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            .accessDeniedHandler(customAccessDeniedHandler))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/api/agent-polling/**", "/ws/agent/**")
@@ -80,6 +92,9 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
+        .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            .accessDeniedHandler(customAccessDeniedHandler))
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
         .build();
   }
@@ -91,6 +106,9 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API endpoints
         .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
+        .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            .accessDeniedHandler(customAccessDeniedHandler))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(
@@ -118,6 +136,9 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
+        .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            .accessDeniedHandler(customAccessDeniedHandler))
         .authorizeHttpRequests(auth -> auth.requestMatchers("/ws/**").authenticated())
         .build();
   }
@@ -129,6 +150,9 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .addFilterAfter(new SpaWebFilter(), BasicAuthenticationFilter.class )
         .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
+        .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            .accessDeniedHandler(customAccessDeniedHandler))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(

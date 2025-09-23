@@ -37,6 +37,18 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+        HttpStatus.BAD_REQUEST, ex.getMessage());
+    problemDetail.setType(URI.create(PROBLEM_BASE_URL + "/invalid-argument"));
+    problemDetail.setTitle("Invalid Argument");
+
+    logger.warn("Invalid argument: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(Exception.class)
   public ProblemDetail handleGenericException(Exception ex) {
     ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
