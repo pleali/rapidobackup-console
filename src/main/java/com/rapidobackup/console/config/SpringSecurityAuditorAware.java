@@ -10,9 +10,11 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.rapidobackup.console.auth.principal.CustomUserPrincipal;
+
 /**
  * Implementation of AuditorAware to provide the current user's UUID for JPA auditing.
- * Extracts the user UUID from the JWT token subject stored in SecurityContext.
+ * Extracts the user UUID from the CustomUserPrincipal stored in SecurityContext.
  */
 @Component
 public class SpringSecurityAuditorAware implements AuditorAware<UUID> {
@@ -23,17 +25,8 @@ public class SpringSecurityAuditorAware implements AuditorAware<UUID> {
             .map(SecurityContext::getAuthentication)
             .filter(Authentication::isAuthenticated)
             .map(Authentication::getPrincipal)
-            .filter(String.class::isInstance)
-            .map(String.class::cast)
-            .flatMap(this::parseUUID);
-    }
-    
-    private Optional<UUID> parseUUID(String uuidString) {
-        try {
-            return Optional.of(UUID.fromString(uuidString));
-        } catch (IllegalArgumentException e) {
-            // Log warning and return empty if UUID parsing fails
-            return Optional.empty();
-        }
+            .filter(CustomUserPrincipal.class::isInstance)
+            .map(CustomUserPrincipal.class::cast)
+            .map(CustomUserPrincipal::getUserId);
     }
 }

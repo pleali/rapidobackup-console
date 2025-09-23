@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.rapidobackup.console.auth.principal.CustomUserPrincipal;
 import com.rapidobackup.console.user.entity.User;
 import com.rapidobackup.console.user.repository.UserRepository;
 
@@ -31,16 +32,17 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User account is locked: " + username);
         }
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPasswordHash())
-                .authorities(user.getRoles().stream()
+        return new CustomUserPrincipal(
+                user.getId(),
+                user.getUsername(),
+                user.getPasswordHash(),
+                user.getRoles().stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                    .collect(java.util.stream.Collectors.toList()))
-                .accountExpired(false)
-                .accountLocked(user.isAccountLocked())
-                .credentialsExpired(false)
-                .disabled(!user.isActive())
-                .build();
+                    .collect(java.util.stream.Collectors.toList()),
+                true, // accountNonExpired
+                !user.isAccountLocked(), // accountNonLocked
+                true, // credentialsNonExpired
+                user.isActive() // enabled
+        );
     }
 }

@@ -104,6 +104,7 @@ public class AuthenticationService {
   }
 
   public void changePassword(String userId, String currentPassword, String newPassword) {
+    // userId is now a UUID string from CustomUserPrincipal.getName()
     User user =
         userRepository
             .findById(java.util.UUID.fromString(userId))
@@ -117,7 +118,7 @@ public class AuthenticationService {
     user.setMustChangePassword(false);
     userRepository.save(user);
 
-    logger.info("Password changed for user: {} ({})", user.getUsername(), userId);
+    logger.info("Password changed for user: {} (ID: {})", user.getUsername(), userId);
   }
 
   public void registerUser(SignupRequest signupRequest) {

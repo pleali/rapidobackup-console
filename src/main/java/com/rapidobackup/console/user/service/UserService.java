@@ -1,6 +1,7 @@
 package com.rapidobackup.console.user.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,13 @@ public class UserService {
   public UserDto findByLogin(String login) {
     User user = userRepository.findByUsername(login)
         .orElseThrow(() -> new RuntimeException("User not found: " + login));
+    return toDto(user);
+  }
+
+  public UserDto findById(String userId) {
+    UUID uuid = UUID.fromString(userId);
+    User user = userRepository.findById(uuid)
+        .orElseThrow(() -> new RuntimeException("User not found: " + userId));
     return toDto(user);
   }
 

@@ -194,8 +194,9 @@ public class AuthController {
                 return ResponseEntity.status(401).build();
             }
 
-            // Use existing business logic
-            UserDto user = userService.findByLogin(principal.getName());
+            // Extract UUID from CustomUserPrincipal
+            String userId = principal.getName(); // Now returns UUID string
+            UserDto user = userService.findById(userId);
             return ResponseEntity.ok(user);
 
         } catch (Exception e) {
@@ -292,11 +293,11 @@ public class AuthController {
                 return ResponseEntity.status(401).build();
             }
 
-            logger.info("Password change requested by user: {}", principal.getName());
+            logger.info("Password change requested by user with ID: {}", principal.getName());
 
-            // Use existing business logic
+            // Use existing business logic - principal.getName() now returns UUID string
             authenticationService.changePassword(
-                principal.getName(),
+                principal.getName(), // Now contains UUID string
                 passwordChangeRequest.getCurrentPassword(),
                 passwordChangeRequest.getNewPassword()
             );

@@ -203,11 +203,18 @@ rb-console/
 ## Security Model
 
 **Integrated Authentication:**
-- Spring Security with JWT (no external OAuth)
-- User login: email/password → JWT tokens
+- Spring Security with session-based authentication (preparing for JWT migration)
+- UUID-based principal for consistent user identification
+- User login: email/password → session cookies
 - Agent authentication: API keys with expiration
-- Refresh token mechanism
 - Role-based access control (RBAC)
+- Comprehensive ProblemDetail error responses for all security errors
+
+**Authentication Implementation:**
+- `CustomUserPrincipal`: UUID-based principal replacing username-based identification
+- `CustomAuthenticationEntryPoint`: Handles 401 errors with ProblemDetail responses
+- `CustomAccessDeniedHandler`: Handles 403 errors with ProblemDetail responses
+- `GlobalExceptionHandler`: Catches additional security and validation exceptions
 
 **Agent Security:**
 - mTLS for sensitive operations
@@ -282,3 +289,25 @@ npm run test:e2e                 # Playwright E2E
 - **frontend**: path is @src/main/webapp/
 - **frontend**: use mcp server Shadcn for ui
 - **important** : tu ne dois pas corriger le code généré par openapitools
+
+## Security Implementation Notes
+
+**UUID-Based Authentication (Current Implementation):**
+- System uses UUID as the primary identifier in authentication flow
+- `CustomUserPrincipal.getName()` returns user UUID string (not username)
+- `AuthController` methods extract UUID from principal for user operations
+- `SpringSecurityAuditorAware` directly extracts UUID from CustomUserPrincipal
+- This design prepares for JWT migration where UUID will be stored in token subject
+
+**ProblemDetail Error Handling:**
+- All Spring Security errors (401/403) return structured ProblemDetail responses
+- Custom handlers configured for each SecurityFilterChain in SecurityConfig
+- GlobalExceptionHandler provides fallback for additional exception types
+- Consistent error response format: `application/problem+json` with proper HTTP status codes
+
+**Key Files Modified for UUID Authentication:**
+- `auth/principal/CustomUserPrincipal.java`: Custom UserDetails implementation with UUID
+- `auth/service/CustomUserDetailsService.java`: Returns CustomUserPrincipal instead of default User
+- `auth/controller/AuthController.java`: Extracts UUID from principal for user operations
+- `auth/service/AuthenticationService.java`: Uses UUID for password change operations
+- `config/SpringSecurityAuditorAware.java`: Extracts UUID directly from CustomUserPrincipal
