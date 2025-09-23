@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.AfterEach;
 
 import com.rapidobackup.console.AbstractIntegrationTest;
 import com.rapidobackup.console.tenant.entity.Tenant;
@@ -42,6 +43,17 @@ class TenantHierarchyPerformanceTest extends AbstractIntegrationTest {
     void setUp() {
         // Clear any existing data
         tenantRepository.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Ensure cleanup after each test to prevent resource leaks
+        try {
+            tenantRepository.deleteAll();
+        } catch (Exception e) {
+            // Log but don't fail the test on cleanup issues
+            System.err.println("Warning: Failed to clean up test data: " + e.getMessage());
+        }
     }
 
     @Test
