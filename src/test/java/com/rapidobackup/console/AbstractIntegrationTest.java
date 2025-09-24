@@ -24,8 +24,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public abstract class AbstractIntegrationTest {
 
+    // Testcontainers automatically manages container lifecycle via @Container annotation
+    // The resource leak warning can be suppressed as Ryuk handles cleanup automatically
+    @SuppressWarnings("resource")
     @Container
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:15")
+    static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test")
