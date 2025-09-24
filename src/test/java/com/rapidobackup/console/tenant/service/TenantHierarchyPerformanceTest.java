@@ -37,7 +37,6 @@ class TenantHierarchyPerformanceTest extends AbstractIntegrationTest {
     @Autowired
     private TenantRepository tenantRepository;
 
-    private static final int MAX_CHILDREN_PER_LEVEL = 10;
 
     @BeforeEach
     void setUp() {
