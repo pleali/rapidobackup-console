@@ -43,12 +43,17 @@ PostgreSQL + Redis
 ## Technology Stack
 
 **Backend:**
-- Spring Boot 3.x with Spring Security
+- Spring Boot 3.5.6 with Spring Security
 - Spring WebFlux (reactive) + R2DBC for agent module
-- JPA/Hibernate for other modules + Liquibase (DB migrations)
-- JWT authentication (integrated, no external OAuth)
+- Spring Data JPA/Hibernate for other modules + Liquibase (DB migrations)
+- Session-based authentication (preparing for JWT migration) with UUID-based principals
 - WebSocket + Long Polling for agent communication
-- MapStruct for DTOs
+- Spring Session (Redis/In-memory) for session management
+- Spring Data Redis for caching
+- SpringDoc OpenAPI 3 for API documentation
+- Spring Boot Actuator for monitoring
+- PostgreSQL with HikariCP connection pooling
+- R2DBC PostgreSQL with connection pooling for reactive access
 
 **Frontend:**
 - React 18 + TypeScript
@@ -59,11 +64,12 @@ PostgreSQL + Redis
 - Recharts for dashboards
 
 **Development Environment (Windows + VS Code):**
-- Java 17+ (OpenJDK)
-- Node.js 18+
+- Java 21 (OpenJDK)
+- Node.js 22.15.0+
 - Docker Desktop for Windows
 - PostgreSQL (via Docker)
 - Redis (via Docker)
+- Maven wrapper (mvnw.cmd)
 
 ## Agent Communication
 
@@ -102,7 +108,7 @@ docker-compose up -d postgres redis
 .\mvnw.cmd spring-boot:run
 
 # Start backend with Redis (optional) - For testing Redis sessions/cache
-.\mvnw.cmd spring-boot:run -Dspring.profiles.active=dev,dev-redis
+.\mvnw.cmd spring-boot:run "-Dspring.profiles.active=dev,dev-redis"
 
 # Start frontend (from frontend folder)
 npm start
@@ -117,13 +123,15 @@ npm start
 .\mvnw.cmd spotless:apply
 
 # Java compilation only (skip frontend)
-.\mvnw.cmd compiler:compile
+.\mvnw.cmd compile:compile
 ```
 
 **Development Profiles:**
 - **`dev` (default)**: In-memory sessions and cache, no external dependencies
 - **`dev,dev-redis`**: Redis sessions and cache for testing production-like behavior
 - **`prod`**: Full production configuration with Redis
+
+> **📋 Detailed Profile Documentation**: See `docs/PROFILES.md` for complete profile configuration, usage examples, and troubleshooting guide.
 
 **Docker Development:**
 ```powershell
