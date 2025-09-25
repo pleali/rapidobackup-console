@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
+import com.rapidobackup.console.contact.dto.ContactDto;
 import com.rapidobackup.console.user.entity.UserRole;
 
 public class UserDto {
@@ -23,6 +24,7 @@ public class UserDto {
   private Instant lastModifiedDate;
   private Instant lastLogin;
   private boolean passwordChangeRequired;
+  private ContactDto contact;
 
   public UserDto() {}
 
@@ -146,6 +148,14 @@ public class UserDto {
     this.passwordChangeRequired = passwordChangeRequired;
   }
 
+  public ContactDto getContact() {
+    return contact;
+  }
+
+  public void setContact(ContactDto contact) {
+    this.contact = contact;
+  }
+
   public String getFullName() {
     if (displayName != null && !displayName.trim().isEmpty()) {
       return displayName;
@@ -154,5 +164,9 @@ public class UserDto {
       return preferredName;
     }
     return username;
+  }
+
+  public boolean hasContact() {
+    return contact != null;
   }
 }
