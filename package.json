@@ -4,16 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "//": "=== HELP ===",
+    "//HELP": "=== HELP ===",
     "help": "echo '\n=== RapidoBackup Console Scripts ===\n🚀 Development:\n  dev: Start development server with API generation\n  preview: Preview production build locally\n\n🏗️ Build:\n  build: Build for production with TypeScript compilation\n  webapp:build: Clean and build webapp\n\n🔧 API Generation:\n  api:generate: Generate TypeScript client from OpenAPI spec\n  api:generate:if-changed: Generate only if API spec changed\n  api:watch: Watch API spec and regenerate on changes\n\n🧹 Cleanup:\n  clean-www: Clean static files\n  cleanup: Clean all build artifacts\n  api:clean: Clean generated API client\n\n⚙️ Services:\n  services:up: Start Docker services (PostgreSQL + Redis)\n\n📋 Code Quality:\n  lint: Run ESLint on all files'",
 
-    "//": "=== DEVELOPMENT ===",
+    "//DEVELOPMENT": "=== DEVELOPMENT ===",
     "dev": "npm run api:generate:if-changed && vite",
     "//dev": "Start development server with conditional API generation",
     "preview": "vite preview",
     "//preview": "Preview production build locally",
 
-    "//": "=== BUILD ===",
+    "//BUILD": "=== BUILD ===",
     "build": "npm run api:generate:if-changed && tsc -b && vite build",
     "//build": "Build for production with TypeScript compilation and API generation",
     "vite-build": "npm run build",
@@ -25,7 +25,7 @@
     "webapp:build:prod": "npm run vite-build",
     "//webapp:build:prod": "Production webapp build",
 
-    "//": "=== API GENERATION ===",
+    "//API": "=== API GENERATION ===",
     "api:generate": "openapi-generator-cli generate",
     "//api:generate": "Generate TypeScript client from OpenAPI specification",
     "api:generate:if-changed": "powershell -Command \"& { if (Test-Path 'src/main/resources/openapi/api.yml') { $apiHash = (Get-FileHash 'src/main/resources/openapi/api.yml' -Algorithm MD5).Hash; $hashFile = '.api-hash'; if (!(Test-Path $hashFile) -or $apiHash -ne (Get-Content $hashFile -Raw -ErrorAction SilentlyContinue).Trim()) { Write-Host 'API spec changed, regenerating client...'; npm run api:generate; $apiHash | Out-File $hashFile -NoNewline } else { Write-Host 'API spec unchanged, skipping generation.' } } else { Write-Host 'API spec not found, skipping generation.' } }\"",
@@ -35,17 +35,17 @@
     "api:clean": "rimraf src/main/webapp/src/lib/generated",
     "//api:clean": "Remove generated API client files",
 
-    "//": "=== CLEANUP ===",
+    "//CLEANUP": "=== CLEANUP ===",
     "clean-www": "rimraf target/classes/static/",
     "//clean-www": "Remove compiled static web assets",
     "cleanup": "rimraf target/",
     "//cleanup": "Remove all Maven build artifacts",
 
-    "//": "=== SERVICES ===",
+    "//SERVICES": "=== SERVICES ===",
     "services:up": "docker compose -f src/main/docker/services.yml up --wait",
     "//services:up": "Start PostgreSQL and Redis services via Docker Compose",
 
-    "//": "=== CODE QUALITY ===",
+    "//QUALITY": "=== CODE QUALITY ===",
     "lint": "eslint .",
     "//lint": "Run ESLint on all TypeScript and JavaScript files",
     "prepare": "husky",
