@@ -30,14 +30,12 @@
         <liquibase-plugin.username/>
         <profile.api-docs/>
         <profile.e2e/>
+
         <profile.no-liquibase/>
         <profile.test/>
         <profile.tls/>
         
         <spring-boot.version>${project.parent.version}</spring-boot.version>
-
-        <!-- OpenAPI Generation Properties -->
-        <openapi.client.skip>true</openapi.client.skip>
     </properties>
 
     <dependencies>
@@ -291,40 +289,6 @@
                     <skip>false</skip>
                 </configuration>
             </plugin>
-
-            <!-- OpenAPI Generator for TypeScript client only -->
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.10.0</version>
-                <executions>
-                    <execution>
-                        <id>generate-typescript-client</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <phase>process-sources</phase>
-                        <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/api.yml</inputSpec>
-                            <generatorName>typescript-axios</generatorName>
-                            <output>${project.basedir}/src/main/webapp/src/lib/generated</output>
-                            <configOptions>
-                                <npmName>@rapidobackup/console-api-client</npmName>
-                                <npmVersion>1.0.0</npmVersion>
-                                <supportsES6>true</supportsES6>
-                                <withInterfaces>true</withInterfaces>
-                                <modelPropertyNaming>camelCase</modelPropertyNaming>
-                                <enumPropertyNaming>UPPERCASE</enumPropertyNaming>
-                            </configOptions>
-                            <typeMappings>
-                                <typeMapping>DateTime=string</typeMapping>
-                            </typeMappings>
-                            <skip>${openapi.client.skip}</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
