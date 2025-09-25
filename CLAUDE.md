@@ -345,3 +345,4 @@ npm run test:e2e                 # Playwright E2E
 - `auth/controller/AuthController.java`: Extracts UUID from principal for user operations
 - `auth/service/AuthenticationService.java`: Uses UUID for password change operations
 - `config/SpringSecurityAuditorAware.java`: Extracts UUID directly from CustomUserPrincipal
+- **important**: on git commit, no claude signature
