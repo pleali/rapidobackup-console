@@ -244,18 +244,18 @@ public class AuthController {
     })
     public ResponseEntity<MessageResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
         try {
-            logger.info("Signup attempt for user: {}", signupRequest.getLogin());
+            logger.info("Signup attempt for user: {}", signupRequest.getUsername());
 
             // Use existing business logic
             authenticationService.registerUser(signupRequest);
 
-            logger.info("Successful registration for user: {}", signupRequest.getLogin());
+            logger.info("Successful registration for user: {}", signupRequest.getUsername());
 
             MessageResponse response = new MessageResponse("User registered successfully", "success");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            logger.error("Signup failed for user: {}", signupRequest.getLogin(), e);
+            logger.error("Signup failed for user: {}", signupRequest.getUsername(), e);
             throw e; // Let global exception handler deal with this
         }
     }

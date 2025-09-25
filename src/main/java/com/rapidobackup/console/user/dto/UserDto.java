@@ -9,9 +9,9 @@ import com.rapidobackup.console.user.entity.UserRole;
 public class UserDto {
 
   private UUID id;
-  private String login;
-  private String firstName;
-  private String lastName;
+  private String username;
+  private String displayName;
+  private String preferredName;
   private String email;
   private boolean activated;
   private String langKey;
@@ -34,28 +34,28 @@ public class UserDto {
     this.id = id;
   }
 
-  public String getLogin() {
-    return login;
+  public String getUsername() {
+    return username;
   }
 
-  public void setLogin(String login) {
-    this.login = login;
+  public void setUsername(String username) {
+    this.username = username;
   }
 
-  public String getFirstName() {
-    return firstName;
+  public String getDisplayName() {
+    return displayName;
   }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
   }
 
-  public String getLastName() {
-    return lastName;
+  public String getPreferredName() {
+    return preferredName;
   }
 
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+  public void setPreferredName(String preferredName) {
+    this.preferredName = preferredName;
   }
 
   public String getEmail() {
@@ -147,9 +147,12 @@ public class UserDto {
   }
 
   public String getFullName() {
-    if (firstName != null && lastName != null) {
-      return firstName + " " + lastName;
+    if (displayName != null && !displayName.trim().isEmpty()) {
+      return displayName;
     }
-    return login;
+    if (preferredName != null && !preferredName.trim().isEmpty()) {
+      return preferredName;
+    }
+    return username;
   }
 }

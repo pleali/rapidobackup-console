@@ -8,7 +8,7 @@ public class SignupRequest {
 
   @NotBlank
   @Size(min = 3, max = 50)
-  private String login;
+  private String username;
 
   @NotBlank
   @Email
@@ -19,23 +19,24 @@ public class SignupRequest {
   @Size(min = 6, max = 100)
   private String password;
 
-  @Size(max = 50)
-  private String firstName;
+  @NotBlank
+  @Size(max = 255)
+  private String displayName;
 
-  @Size(max = 50)
-  private String lastName;
+  @Size(max = 100)
+  private String preferredName;
 
   @Size(min = 2, max = 10)
   private String langKey = "en";
 
   public SignupRequest() {}
 
-  public String getLogin() {
-    return login;
+  public String getUsername() {
+    return username;
   }
 
-  public void setLogin(String login) {
-    this.login = login;
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public String getEmail() {
@@ -54,20 +55,20 @@ public class SignupRequest {
     this.password = password;
   }
 
-  public String getFirstName() {
-    return firstName;
+  public String getDisplayName() {
+    return displayName;
   }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
   }
 
-  public String getLastName() {
-    return lastName;
+  public String getPreferredName() {
+    return preferredName;
   }
 
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+  public void setPreferredName(String preferredName) {
+    this.preferredName = preferredName;
   }
 
   public String getLangKey() {
@@ -81,10 +82,10 @@ public class SignupRequest {
   @Override
   public String toString() {
     return "SignupRequest{" +
-        "login='" + login + '\'' +
+        "username='" + username + '\'' +
         ", email='" + email + '\'' +
-        ", firstName='" + firstName + '\'' +
-        ", lastName='" + lastName + '\'' +
+        ", displayName='" + displayName + '\'' +
+        ", preferredName='" + preferredName + '\'' +
         ", langKey='" + langKey + '\'' +
         '}';
   }

@@ -45,8 +45,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       "SELECT DISTINCT u FROM User u LEFT JOIN u.roles r WHERE "
           + "(:searchTerm IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
           + "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
-          + "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
-          + "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND "
+          + "LOWER(u.displayName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(u.preferredName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND "
           + "(:role IS NULL OR r = :role) AND "
           + "(:status IS NULL OR u.status = :status)")
   Page<User> findUsersWithFilters(

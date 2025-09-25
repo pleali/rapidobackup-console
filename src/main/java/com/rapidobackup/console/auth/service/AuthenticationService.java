@@ -140,24 +140,24 @@ public class AuthenticationService {
   }
 
   public void registerUser(SignupRequest signupRequest) {
-    if (userRepository.findByUsername(signupRequest.getLogin()).isPresent()) {
+    if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
       throw new AuthenticationException("Username is already taken");
     }
-    
+
     if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
       throw new AuthenticationException("Email is already registered");
     }
-    
+
     userService.createUser(
-        signupRequest.getLogin(),
+        signupRequest.getUsername(),
         signupRequest.getEmail(),
         signupRequest.getPassword(),
-        signupRequest.getFirstName(),
-        signupRequest.getLastName(),
+        signupRequest.getDisplayName(),
+        signupRequest.getPreferredName(),
         signupRequest.getLangKey()
     );
-    
-    logger.info("User registered successfully: {}", signupRequest.getLogin());
+
+    logger.info("User registered successfully: {}", signupRequest.getUsername());
   }
 
 
