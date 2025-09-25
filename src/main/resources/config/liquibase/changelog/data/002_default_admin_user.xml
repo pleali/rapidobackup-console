@@ -13,8 +13,6 @@
             <column name="email" value="admin@console.local"/>
             <column name="username" value="admin"/>
             <column name="display_name" value="System Administrator"/>
-            <column name="first_name" value="System"/>
-            <column name="last_name" value="Administrator"/>
             <column name="password_hash" value="{bcrypt}$2a$10$rqyWOS5JqOD1OEiQbePB.OOgpMEyCRJOtM2KM/TeUE0ddBTvIkZbe"/>
             <column name="is_system_admin" valueBoolean="true"/>
             <column name="status" value="ACTIVE"/>

@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="001_create_tenants_table" author="console">
+    <changeSet id="002_create_tenants_table" author="console">
         <createTable tableName="tenants">
             <!-- Primary Key -->
             <column name="id" type="${uuidType}">
@@ -60,8 +60,6 @@
             <column name="used_storage_gb" type="bigint" defaultValue="0"/>
 
             <!-- Billing -->
-            <column name="billing_contact_email" type="varchar(255)"/>
-            <column name="billing_address" type="jsonb"/>
             <column name="contract_number" type="varchar(100)"/>
             <column name="subscription_plan" type="varchar(50)"/>
             <column name="subscription_expires_at" type="timestamp"/>

@@ -27,8 +27,6 @@
             <column name="max_agents" valueNumeric="10000"/>
             <column name="max_storage_gb" valueNumeric="1000000"/>
             <column name="used_storage_gb" valueNumeric="0"/>
-            <column name="billing_contact_email" value="billing@rapidobackup.com"/>
-            <column name="billing_address" value='{}' />
             <column name="contract_number" valueComputed="null"/>
             <column name="subscription_plan" value="INTERNAL"/>
             <column name="subscription_expires_at" valueComputed="null"/>

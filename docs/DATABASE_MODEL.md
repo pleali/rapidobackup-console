@@ -1,293 +1,345 @@
-# RapidoBackup Console - Modèle de Base de Données
+# RapidoBackup Console - Database Model
 
-## Vue d'ensemble
+## Overview
 
-Ce document décrit le modèle de base de données pour RapidoBackup Console, une console d'administration multi-tenant inspirée des meilleures pratiques d'AWS, Azure, Okta, Google Workspace, Salesforce et Auth0.
+This document describes the database model for RapidoBackup Console, a multi-tenant administration console inspired by best practices from AWS, Azure, Okta, Google Workspace, Salesforce, and Auth0.
 
-## Architecture Multi-Tenant
+## Multi-Tenant Architecture
 
-Le système supporte une architecture multi-tenant hiérarchique avec les caractéristiques suivantes :
+The system supports a hierarchical multi-tenant architecture with the following characteristics:
 
-- **Hiérarchie illimitée** : Support de niveaux de tenants illimités
-- **Isolation des données** : Chaque tenant a ses propres données
-- **Héritage de configuration** : Les sous-tenants peuvent hériter des paramètres parents
-- **Gestion des quotas** : Limites configurables par tenant
+- **Unlimited hierarchy**: Support for unlimited tenant levels
+- **Data isolation**: Each tenant has its own data
+- **Configuration inheritance**: Sub-tenants can inherit parent settings
+- **Quota management**: Configurable limits per tenant
 
-## Tables Principales
+## Core Tables
 
 ### 1. Tenants (`tenants`)
 
-Table centrale pour la gestion des organisations hiérarchiques.
+Central table for hierarchical organization management.
 
-**Champs principaux :**
-- `id` (UUID, PK) - Identifiant unique
-- `name` (VARCHAR) - Nom de l'organisation
-- `display_name` (VARCHAR) - Nom d'affichage
-- `slug` (VARCHAR, UNIQUE) - Identifiant URL-safe
-- `parent_tenant_id` (UUID, FK) - Référence au tenant parent
-- `level` (INTEGER) - Niveau dans la hiérarchie (0 = root)
-- `path` (LTREE/VARCHAR) - Chemin hiérarchique complet
-- `tenant_type` (ENUM) - Type d'organisation (ADMIN, GROSSISTE, PARTENAIRE, CLIENT)
+**Key fields:**
 
-**Fonctionnalités :**
-- **Soft delete** avec `deleted_at`
-- **Métadonnées JSON** extensibles (`settings`, `custom_attributes`)
-- **Gestion des quotas** (max_users, max_agents, max_storage_gb)
-- **Configuration de facturation** complète
-- **Support multi-langue** et multi-devise
+- `id` (UUID, PK) - Unique identifier
+- `name` (VARCHAR) - Organization name
+- `display_name` (VARCHAR) - Display name
+- `slug` (VARCHAR, UNIQUE) - URL-safe identifier
+- `parent_id` (UUID, FK) - Reference to parent tenant
+- `level` (INTEGER) - Hierarchy level (0 = root)
+- `path` (VARCHAR) - Complete hierarchical path
+- `tenant_type` (ENUM) - Organization type (ADMIN, WHOLESALER, PARTNER, CLIENT)
 
-**Relations :**
-- Auto-référence pour la hiérarchie parent-enfant
-- Un-vers-plusieurs avec `users`
-- Un-vers-plusieurs avec `contacts`
-- Un-vers-plusieurs avec `tenant_settings`
+**Features:**
 
-### 2. Utilisateurs (`users`)
+- **Soft delete** with `deleted_at`
+- **Extensible JSON metadata** (`settings`, `custom_attributes`)
+- **Quota management** (max_users, max_agents, max_storage_gb)
+- **Complete billing configuration**
+- **Multi-language and multi-currency support**
 
-Gestion complète des utilisateurs avec profils riches.
+**Relationships:**
 
-**Champs principaux :**
-- `id` (UUID, PK) - Identifiant unique
-- `tenant_id` (UUID, FK) - Tenant propriétaire
-- `email` (VARCHAR, NOT NULL) - Email unique par tenant
-- `username` (VARCHAR, UNIQUE) - Nom d'utilisateur global unique
-- `display_name` (VARCHAR) - Nom d'affichage
+- Self-reference for parent-child hierarchy
+- One-to-many with `users`
+- One-to-many with `tenant_contact_roles` (contacts with roles)
+- One-to-many with `tenant_settings`
 
-**Profil professionnel :**
-- `job_title`, `department`, `division` - Informations organisationnelles
-- `employee_id` - Identifiant employé interne
-- `external_id` - Identifiant pour intégrations SSO/SAML
+### 2. Users (`users`)
 
-**Sécurité :**
-- `password_hash` - Hash bcrypt du mot de passe
-- `role` (ENUM) - Rôle utilisateur (ADMIN, MANAGER, USER)
-- `status` (ENUM) - État du compte (PENDING, ACTIVE, SUSPENDED, LOCKED, DELETED)
-- `requires_mfa` - Authentification multi-facteurs
-- `failed_login_attempts` - Compteur de tentatives échouées
+Comprehensive user management with rich profiles.
 
-**Métadonnées :**
-- `user_metadata` (JSONB) - Données modifiables par l'utilisateur
-- `app_metadata` (JSONB) - Données admin uniquement
+**Key fields:**
 
-### 3. Contacts (`contacts`)
+- `id` (UUID, PK) - Unique identifier
+- `tenant_id` (UUID, FK) - Owner tenant
+- `email` (VARCHAR, NOT NULL) - Email unique per tenant
+- `username` (VARCHAR, UNIQUE) - Global unique username
+- `display_name` (VARCHAR) - Display name
 
-Système de contacts flexible et réutilisable.
+**Professional profile:**
 
-**Caractéristiques :**
-- **Polyvalent** : Peut être lié à un utilisateur OU à un tenant
-- **Types multiples** : PRIMARY, BILLING, TECHNICAL, EMERGENCY
-- **Adresse complète** : Support international complet
-- **Consentements GDPR** : Tracking des consentements marketing
-- **Vérification** : Email et téléphone vérifiables
+- `job_title`, `division` - Organizational information
+- `employee_id` - Internal employee identifier
+- `external_id` - Identifier for SSO/SAML integrations
 
-**Contrainte d'intégrité :**
-```sql
-CHECK (
-    (user_id IS NOT NULL AND tenant_id IS NULL) OR
-    (user_id IS NULL AND tenant_id IS NOT NULL)
-)
+**Security:**
+
+- `password_hash` - bcrypt password hash
+- `status` (ENUM) - Account status (PENDING, ACTIVE, SUSPENDED, LOCKED, DELETED)
+- `requires_mfa` - Multi-factor authentication
+- `failed_login_attempts` - Failed attempts counter
+
+**Metadata:**
+
+- `user_metadata` (JSONB) - User-modifiable data
+- `app_metadata` (JSONB) - Admin-only data
+
+**Relationships:**
+
+- One-to-one with `user_contact` (optional personal contact)
+- Many-to-one with `tenants` (owner tenant)
+
+### 3. Contacts (`contacts`) - Normalized Architecture
+
+Independent and reusable contact entity using a hybrid liaison model.
+
+**Design principles:**
+
+- **Pure entity**: No direct references to user or tenant
+- **Reusability**: A contact can serve multiple entities
+- **Normalization**: Avoids contact data duplication
+
+**Contact types:**
+- `PRIMARY` - Primary contact
+- `BILLING` - Billing contact
+- `TECHNICAL` - Technical support
+- `MANAGEMENT` - Management contact
+
+**Complete information:**
+- Personal data (name, title, department)
+- Multiple coordinates (email, phones, address)
+- Verification and GDPR consents
+- Extensible metadata (custom fields)
+
+### 4. Contact Relationships - Hybrid Architecture
+
+The system uses two specialized liaison tables:
+
+#### `user_contact` - 1-to-1 Relationship
 ```
+User ←→ user_contact ←→ Contact
+```
+- A user can have **one optional personal contact**
+- Direct relationship for simplicity
 
-### 4. Paramètres Tenant (`tenant_settings`)
+#### `tenant_contact_roles` - 1-to-Many with Roles
+```
+Tenant ←→ tenant_contact_roles ←→ Contact
+                ↓
+        contact_type, is_primary, is_active
+```
+- A tenant can have **multiple contacts** with different roles
+- Supported types: PRIMARY, BILLING, TECHNICAL, MANAGEMENT
+- Active/inactive contact management (soft delete)
+- One primary contact per type possible
 
-Configuration flexible par tenant avec valeurs typées.
+**Model advantages:**
+- **Native DELETE CASCADE**: Clean liaison removal
+- **Maximum flexibility**: Multi-role contacts for tenants
+- **Extensibility**: Easy to add Agent, Partner, etc.
+- **Integrity**: No complex constraints, clear relationships
 
-**Types de valeurs supportés :**
-- `STRING` - Valeurs textuelles
-- `NUMBER` - Valeurs numériques (BigDecimal)
-- `BOOLEAN` - Valeurs booléennes
-- `JSON` - Objets JSON complexes
+### 5. Tenant Settings (`tenant_settings`)
 
-**Organisation :**
-- `category` - Catégorie (SECURITY, BILLING, FEATURES, BRANDING)
-- `key` - Clé de configuration
-- Contrainte unique : `(tenant_id, category, key)`
+Flexible per-tenant configuration with typed values.
 
-**Fonctionnalités :**
-- **Chiffrement** : Support des valeurs chiffrées
-- **Héritage** : Configuration héritée du parent
+**Supported value types:**
 
-### 5. Logs d'Audit (`audit_logs`)
+- `STRING` - Text values
+- `NUMBER` - Numeric values (BigDecimal)
+- `BOOLEAN` - Boolean values
+- `JSON` - Complex JSON objects
 
-Traçabilité complète des actions système.
+**Organization:**
 
-**Événements trackés :**
-- Connexions utilisateur
-- Modifications de données
-- Actions administratives
-- Erreurs système
+- `category` - Category (SECURITY, BILLING, FEATURES, BRANDING)
+- `key` - Configuration key
+- Unique constraint: `(tenant_id, category, key)`
 
-**Métadonnées contextuelles :**
-- `ip_address` - Adresse IP (IPv6 compatible)
-- `user_agent` - Agent utilisateur
-- `session_id` - Identifiant de session
-- `request_id` - Identifiant de requête
+**Features:**
 
-**Données de changement :**
-- `old_values` (JSONB) - Anciennes valeurs
-- `new_values` (JSONB) - Nouvelles valeurs
-- `metadata` (JSONB) - Métadonnées additionnelles
+- **Encryption**: Support for encrypted values
+- **Inheritance**: Configuration inherited from parent
 
-## Vues Matérialisées
+### 6. Audit Logs (`audit_logs`)
+
+Complete traceability of system actions.
+
+**Tracked events:**
+
+- User connections
+- Data modifications
+- Administrative actions
+- System errors
+
+**Contextual metadata:**
+
+- `ip_address` - IP address (IPv6 compatible)
+- `user_agent` - User agent
+- `session_id` - Session identifier
+- `request_id` - Request identifier
+
+**Change data:**
+
+- `old_values` (JSONB) - Old values
+- `new_values` (JSONB) - New values
+- `metadata` (JSONB) - Additional metadata
+
+## Materialized Views
 
 ### 1. `v_tenant_hierarchy`
 
-Vue récursive pour navigation hiérarchique des tenants.
-
-```sql
-WITH RECURSIVE tenant_tree AS (
-    SELECT *, 0 as depth, ARRAY[id] as path_array
-    FROM tenants WHERE parent_tenant_id IS NULL
-    UNION ALL
-    SELECT t.*, tt.depth + 1, tt.path_array || t.id
-    FROM tenants t
-    JOIN tenant_tree tt ON t.parent_tenant_id = tt.id
-)
-SELECT * FROM tenant_tree;
-```
+Recursive view for hierarchical tenant navigation.
 
 ### 2. `v_active_users`
 
-Vue optimisée des utilisateurs actifs avec informations tenant.
+Optimized view of active users with tenant information.
 
-### 3. `v_contacts_with_details`
+### 3. `v_tenant_contacts`
 
-Vue enrichie des contacts avec détails utilisateur/tenant.
+Enriched view of tenant contacts with roles and statuses.
 
-### 4. `v_tenant_stats`
+### 4. `v_user_contacts`
 
-Statistiques agrégées par tenant (utilisateurs, quotas, etc.).
+View of user contacts with complete information.
 
-## Enums et Types
+### 5. `v_tenant_stats`
+
+Aggregated statistics per tenant (users, quotas, etc.).
+
+## Enums and Types
 
 ### Tenant
-- `TenantType` : ADMIN, GROSSISTE, PARTENAIRE, CLIENT
+
+- `TenantType` : ADMIN, WHOLESALER, PARTNER, CLIENT
 - `TenantStatus` : ACTIVE, SUSPENDED, PENDING_CLOSURE, CLOSED
 - `TenantSizeCategory` : SMALL, MEDIUM, LARGE, ENTERPRISE
 - `SubscriptionPlan` : STARTER, PROFESSIONAL, ENTERPRISE, CUSTOM
 
 ### User
-- `UserRole` : ADMIN, MANAGER, USER
+
 - `UserStatus` : PENDING, ACTIVE, SUSPENDED, LOCKED, DELETED
 
 ### Contact
-- `ContactType` : PRIMARY, BILLING, TECHNICAL, EMERGENCY
+
+- `ContactType` : PRIMARY, BILLING, TECHNICAL, MANAGEMENT
 - `ContactMethod` : EMAIL, PHONE, SMS
 
 ### Settings
+
 - `SettingValueType` : STRING, NUMBER, BOOLEAN, JSON
 
 ### Audit
+
 - `AuditSeverity` : INFO, WARNING, ERROR, CRITICAL
 - `AuditResult` : SUCCESS, FAILURE, PARTIAL
 
-## Index de Performance
+## Performance Indexes
 
-### Tenants
-- `idx_tenants_parent` - Requêtes hiérarchiques
-- `idx_tenants_slug` - Recherche par slug
-- `idx_tenants_path` (GIST) - Requêtes sur le chemin LTREE
+Key indexes for optimal performance:
 
-### Users
-- `idx_users_tenant` - Filtrage par tenant
-- `idx_users_email` - Recherche par email
-- `idx_users_username` - Recherche par username
-- `idx_users_metadata` (GIN) - Recherche dans les métadonnées JSON
+- **Hierarchical queries**: `idx_tenants_path` (GIST) for LTREE path queries
+- **JSON metadata**: `idx_users_metadata` (GIN) for JSON search
+- **Contact relationships**: Specialized indexes on liaison tables for efficient role-based queries
 
-### Audit Logs
-- `idx_audit_tenant_date` - Logs par tenant et date
-- `idx_audit_user_date` - Logs par utilisateur et date
-- `idx_audit_event` - Logs par type d'événement
-
-## Fonctionnalités Avancées
+## Advanced Features
 
 ### 1. Soft Delete
-Toutes les entités principales supportent la suppression logique :
-- Annotation `@SQLDelete` pour les entités JPA
-- Clause `@Where` pour filtrer automatiquement
-- Champ `deleted_at` pour traçabilité
 
-### 2. Audit Automatique
-Pattern Builder pour création facile de logs :
+All main entities support logical deletion:
 
-```java
-AuditLog.builder()
-    .tenant(tenant)
-    .user(user)
-    .eventType("USER_CREATED")
-    .action("CREATE")
-    .target("USER", userId, username)
-    .newValues(userData)
-    .build();
-```
+- `@SQLDelete` annotation for JPA entities
+- `@Where` clause for automatic filtering
+- `deleted_at` field for traceability
 
-### 3. Métadonnées JSON
-Support natif PostgreSQL JSONB :
-- Index GIN pour recherche performante
-- Validation côté application
-- Extensibilité sans migration
+### 2. Automatic Auditing
 
-### 4. Validation Multi-Niveau
-- Contraintes base de données
-- Validation JPA avec Bean Validation
-- Règles métier dans les services
+Builder pattern for easy log creation with complete context tracking.
 
-## Sécurité
+### 3. JSON Metadata
 
-### 1. Isolation des Données
-- Filtrage automatique par tenant
-- Foreign keys avec contraintes d'intégrité
-- Vérifications au niveau service
+Native PostgreSQL JSONB support:
 
-### 2. Chiffrement
-- Mots de passe avec bcrypt
-- Support chiffrement pour paramètres sensibles
-- Tokens sécurisés pour activation/reset
+- GIN indexes for high-performance search
+- Application-side validation
+- Extensibility without migration
 
-### 3. Audit Complet
-- Traçabilité de toutes les actions
-- Contexte de sécurité (IP, session)
-- Rétention configurable
+### 4. Multi-Level Validation
 
-## Migration et Évolution
+- Database constraints
+- JPA validation with Bean Validation
+- Business rules in services
+
+## Security
+
+### 1. Data Isolation
+
+- Automatic tenant-based filtering
+- Foreign keys with integrity constraints
+- Service-level verifications
+
+### 2. Encryption
+
+- Password hashing with bcrypt
+- Encryption support for sensitive settings
+- Secure tokens for activation/reset
+
+### 3. Complete Auditing
+
+- Traceability of all actions
+- Security context (IP, session)
+- Configurable retention
+
+## Migration and Evolution
 
 ### 1. Liquibase
-Structure complète avec :
-- Migrations de schéma versionnées
-- Données de référence
-- Index et contraintes
-- Vues et fonctions
 
-### 2. Extensibilité
-- Métadonnées JSON pour nouveaux champs
-- Pattern de configuration flexible
-- Support multi-base de données (PostgreSQL/H2)
+Complete structure with:
 
-## Exemples d'Utilisation
+- Versioned schema migrations
+- Reference data
+- Indexes and constraints
+- Views and functions
 
-### Création d'un Tenant
-```java
-Tenant tenant = new Tenant("Acme Corp", "acme-corp", TenantType.CLIENT);
-tenant.setDisplayName("Acme Corporation");
-tenant.setParent(parentTenant);
-tenant.setMaxUsers(100);
-tenant.setSubscriptionPlan(SubscriptionPlan.PROFESSIONAL);
+### 2. Extensibility
+
+- JSON metadata for new fields
+- Flexible configuration pattern
+- Multi-database support (PostgreSQL/H2)
+
+## Relationship Diagram
+
+```
+┌─────────────┐    ┌──────────────────┐    ┌─────────────┐
+│   Tenants   │◄──►│ tenant_contact_  │◄──►│  Contacts   │
+│             │    │     roles        │    │ (pure entity)│
+│ - hierarchy │    │ - contact_type   │    │ - complete  │
+│ - settings  │    │ - is_primary     │    │   data      │
+│ - quotas    │    │ - is_active      │    │ - verification│
+└─────┬───────┘    └──────────────────┘    └──────┬──────┘
+      │                                           │
+      │ 1-to-many                                 │
+      ▼                                           │ 1-to-1
+┌─────────────┐    ┌──────────────────┐           │
+│    Users    │◄──►│  user_contact    │◄──────────┘
+│             │    │                  │
+│ - profiles  │    │ - direct         │
+│ - security  │    │   relation       │
+│ - metadata  │    │                  │
+└─────────────┘    └──────────────────┘
 ```
 
-### Création d'un Utilisateur
-```java
-User user = new User("john.doe", "john@acme.com", "John Doe", tenant);
-user.setFirstName("John");
-user.setLastName("Doe");
-user.setRole(UserRole.MANAGER);
-user.setJobTitle("IT Manager");
-```
+## Typical Use Cases
 
-### Configuration de Paramètres
-```java
-TenantSetting setting = new TenantSetting(tenant, "SECURITY", "session_timeout");
-setting.setNumberValue(480); // 8 heures
-setting.setDescription("Session timeout in minutes");
-```
+### Tenant Contact Management
 
-Cette architecture fournit une base solide, extensible et performante pour RapidoBackup Console, inspirée des meilleures pratiques de l'industrie.
+**Example: Acme Corp Company**
+- **Primary Contact**: CEO for strategic decisions
+- **Billing Contact**: Accountant for invoicing
+- **Technical Contact**: CTO for technical support
+- **Management Contact**: HR for user management
+
+### Personal User Contact
+
+**Example: Employee John Doe**
+- **Single contact**: His personal coordinates
+- Can differ from tenant's professional contact
+
+### Model Flexibility
+
+- A **Contact can serve multiple tenants** (external consultant)
+- A **Tenant can have multiple contacts of the same type** (billing team)
+- **Easy evolution**: Add Agent, Partner without refactoring
+
+This architecture provides a solid, extensible, and high-performance foundation for RapidoBackup Console, inspired by industry best practices.

@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="002_create_users_table" author="console">
+    <changeSet id="003_create_users_table" author="console">
         <createTable tableName="users">
             <!-- Primary Key -->
             <column name="id" type="${uuidType}">
@@ -29,8 +29,6 @@
             <column name="external_id" type="varchar(255)"/>
 
             <!-- Personal Profile -->
-            <column name="first_name" type="varchar(100)"/>
-            <column name="last_name" type="varchar(100)"/>
             <column name="display_name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
@@ -39,13 +37,7 @@
 
             <!-- Professional Profile -->
             <column name="job_title" type="varchar(255)"/>
-            <column name="department" type="varchar(255)"/>
             <column name="division" type="varchar(255)"/>
-
-            <!-- Contact -->
-            <column name="phone_number" type="varchar(50)"/>
-            <column name="mobile_number" type="varchar(50)"/>
-            <column name="secondary_email" type="varchar(255)"/>
 
             <!-- Preferences -->
             <column name="timezone" type="varchar(50)"/>

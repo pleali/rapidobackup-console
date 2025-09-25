@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="005_create_user_contact_table" author="console">
+        <createTable tableName="user_contact">
+            <!-- Primary Key - One contact per user -->
+            <column name="user_id" type="${uuidType}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Contact Reference -->
+            <column name="contact_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Timestamps -->
+            <column name="created_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Audit -->
+            <column name="created_by" type="${uuidType}"/>
+            <column name="last_modified_by" type="${uuidType}"/>
+        </createTable>
+
+        <!-- Foreign Keys -->
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_contact"
+                                 constraintName="fk_user_contact_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseColumnNames="contact_id"
+                                 baseTableName="user_contact"
+                                 constraintName="fk_user_contact_contact"
+                                 referencedColumnNames="id"
+                                 referencedTableName="contacts"
+                                 onDelete="RESTRICT"/>
+
+        <!-- Indexes -->
+        <createIndex indexName="idx_user_contact_contact" tableName="user_contact">
+            <column name="contact_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

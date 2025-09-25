@@ -7,7 +7,7 @@ public enum ContactType {
     PRIMARY,
 
     /**
-     * Billing contact for financial matters
+     * Billing a contact that will get updates about important changes in usage reporting in the platform. There can be several Billing contacts per tenant.
      */
     BILLING,
 
@@ -17,7 +17,7 @@ public enum ContactType {
     TECHNICAL,
 
     /**
-     * Emergency contact for urgent situations
+     * Management contact for overseeing account and service-related matters. There can be several Management contacts per tenant.
      */
-    EMERGENCY
+    MANAGEMENT
 }

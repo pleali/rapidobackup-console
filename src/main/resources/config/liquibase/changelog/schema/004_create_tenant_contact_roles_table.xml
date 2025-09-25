@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="004_create_tenant_contact_roles_table" author="console">
+        <createTable tableName="tenant_contact_roles">
+            <!-- Primary Key -->
+            <column name="id" type="${uuidType}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Relationships -->
+            <column name="tenant_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contact_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Contact Type and Role -->
+            <column name="contact_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_primary" type="boolean" defaultValueBoolean="false"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+
+            <!-- Metadata -->
+            <column name="notes" type="text"/>
+
+            <!-- Timestamps -->
+            <column name="created_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Audit -->
+            <column name="created_by" type="${uuidType}"/>
+            <column name="last_modified_by" type="${uuidType}"/>
+        </createTable>
+
+        <!-- Foreign Keys -->
+        <addForeignKeyConstraint baseColumnNames="tenant_id"
+                                 baseTableName="tenant_contact_roles"
+                                 constraintName="fk_tenant_contact_role_tenant"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenants"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseColumnNames="contact_id"
+                                 baseTableName="tenant_contact_roles"
+                                 constraintName="fk_tenant_contact_role_contact"
+                                 referencedColumnNames="id"
+                                 referencedTableName="contacts"
+                                 onDelete="RESTRICT"/>
+
+        <!-- Indexes -->
+        <createIndex indexName="idx_tenant_contact_roles_tenant" tableName="tenant_contact_roles">
+            <column name="tenant_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_contact_roles_contact" tableName="tenant_contact_roles">
+            <column name="contact_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_contact_roles_type" tableName="tenant_contact_roles">
+            <column name="contact_type"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_contact_roles_primary" tableName="tenant_contact_roles">
+            <column name="is_primary"/>
+        </createIndex>
+
+        <createIndex indexName="idx_tenant_contact_roles_active" tableName="tenant_contact_roles">
+            <column name="is_active"/>
+        </createIndex>
+
+        <!-- Unique constraint to prevent duplicate tenant-contact-type combinations -->
+        <addUniqueConstraint tableName="tenant_contact_roles"
+                             columnNames="tenant_id,contact_id,contact_type"
+                             constraintName="uk_tenant_contact_role_type"/>
+    </changeSet>
+
+</databaseChangeLog>

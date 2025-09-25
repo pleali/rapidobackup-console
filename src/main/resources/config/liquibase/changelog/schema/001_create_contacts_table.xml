@@ -6,16 +6,11 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="003_create_contacts_table" author="console">
+    <changeSet id="001_create_contacts_table" author="console">
         <createTable tableName="contacts">
             <!-- Primary Key -->
             <column name="id" type="${uuidType}">
                 <constraints primaryKey="true" nullable="false"/>
-            </column>
-
-            <!-- Tenant Relationship -->
-            <column name="tenant_id" type="${uuidType}">
-                <constraints nullable="false"/>
             </column>
 
             <!-- Contact Information -->
@@ -61,17 +56,7 @@
             <column name="last_modified_by" type="${uuidType}"/>
         </createTable>
 
-        <!-- Foreign Key for tenant relationship -->
-        <addForeignKeyConstraint baseColumnNames="tenant_id"
-                                 baseTableName="contacts"
-                                 constraintName="fk_contact_tenant"
-                                 referencedColumnNames="id"
-                                 referencedTableName="tenants"/>
-
         <!-- Indexes -->
-        <createIndex indexName="idx_contacts_tenant" tableName="contacts">
-            <column name="tenant_id"/>
-        </createIndex>
 
         <createIndex indexName="idx_contacts_type" tableName="contacts">
             <column name="contact_type"/>
