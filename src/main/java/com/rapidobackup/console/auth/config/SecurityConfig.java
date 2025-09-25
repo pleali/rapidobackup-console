@@ -124,9 +124,9 @@ public class SecurityConfig {
                     .requestMatchers("/api/admin/**")
                     .hasRole("ADMIN")
                     .requestMatchers("/api/management/**")
-                    .hasAnyRole("ADMIN", "GROSSISTE")
+                    .hasAnyRole("ADMIN", "WHOLESALER")
                     .requestMatchers("/api/partner/**")
-                    .hasAnyRole("ADMIN", "GROSSISTE", "PARTENAIRE")
+                    .hasAnyRole("ADMIN", "WHOLESALER", "PARTENAIRE")
                     .anyRequest()
                     .authenticated())
         .build();

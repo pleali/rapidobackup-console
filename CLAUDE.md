@@ -225,7 +225,7 @@ rb-console/
 - No inbound firewall ports required
 
 **User Management:**
-- Hierarchical: Admin → Grossiste → Partenaire → Client
+- Hierarchical: Admin → Wholesaler → Partner → Customer
 - Fine-grained RBAC permissions
 - Users access only assigned agents
 - Complete audit trail
