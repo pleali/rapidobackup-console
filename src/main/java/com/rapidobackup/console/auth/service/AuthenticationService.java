@@ -148,13 +148,14 @@ public class AuthenticationService {
       throw new AuthenticationException("Email is already registered");
     }
 
-    userService.createUser(
+    userService.createUserWithContact(
         signupRequest.getUsername(),
-        signupRequest.getEmail(),
         signupRequest.getPassword(),
-        signupRequest.getDisplayName(),
-        signupRequest.getPreferredName(),
-        signupRequest.getLangKey()
+        signupRequest.getLangKey(),
+        signupRequest.getEmail(),
+        signupRequest.getFirstName(),
+        signupRequest.getLastName()
+
     );
 
     logger.info("User registered successfully: {}", signupRequest.getUsername());

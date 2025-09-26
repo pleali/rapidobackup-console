@@ -1,8 +1,21 @@
 package com.rapidobackup.console.user.entity;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rapidobackup.console.contact.entity.Contact;
 import com.rapidobackup.console.tenant.entity.Tenant;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -19,26 +32,13 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.type.SqlTypes;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"username"}),
-    @UniqueConstraint(columnNames = {"tenant_id", "email"})
+    @UniqueConstraint(columnNames = {"username"})
 })
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
@@ -62,48 +62,15 @@ public class User {
 
     // Identification
     @NotBlank
-    @Email
-    @Size(max = 255)
-    @Column(name = "email", nullable = false)
-    private String email;
-
-    @NotBlank
     @Size(min = 3, max = 100)
     @Column(name = "username", unique = true, nullable = false)
     private String username;
-
-    @Size(max = 100)
-    @Column(name = "employee_id")
-    private String employeeId;
 
     @Size(max = 255)
     @Column(name = "external_id")
     private String externalId;
 
-    // Personal Profile
-    @NotBlank
-    @Size(max = 255)
-    @Column(name = "display_name", nullable = false)
-    private String displayName;
-
-    @Size(max = 100)
-    @Column(name = "nickname")
-    private String nickname;
-
-    @Size(max = 100)
-    @Column(name = "preferred_name")
-    private String preferredName;
-
-    // Professional Profile
-    @Size(max = 255)
-    @Column(name = "division")
-    private String division;
-
-    // Préférences
-
-    @Size(max = 10)
-    @Column(name = "locale")
-    private String locale;
+    // Préférences moved to Contact entity
 
 
     // Sécurité et Accès
@@ -201,13 +168,10 @@ public class User {
 
     public User() {}
 
-    public User(String username, String email, String displayName, Tenant tenant) {
+    public User(String username, Tenant tenant) {
         this.username = username;
-        this.email = email;
-        this.displayName = displayName;
         this.tenant = tenant;
     }
-
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
@@ -226,9 +190,6 @@ public class User {
     }
 
     // Helper methods
-    public String getFullName() {
-        return displayName != null ? displayName : username;
-    }
 
     public boolean isActive() {
         return status == UserStatus.ACTIVE;
@@ -300,13 +261,6 @@ public class User {
         this.contact = contact;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getUsername() {
         return username;
@@ -316,13 +270,6 @@ public class User {
         this.username = username;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
 
     public String getExternalId() {
         return externalId;
@@ -332,47 +279,13 @@ public class User {
         this.externalId = externalId;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getPreferredName() {
-        return preferredName;
-    }
-
-    public void setPreferredName(String preferredName) {
-        this.preferredName = preferredName;
-    }
 
 
-    public String getDivision() {
-        return division;
-    }
-
-    public void setDivision(String division) {
-        this.division = division;
-    }
 
 
-    public String getLocale() {
-        return locale;
-    }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
+
+    // getLocale() and setLocale() moved to Contact entity
 
 
     public String getPasswordHash() {
@@ -603,13 +516,16 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-            "id=" + id +
-            ", username='" + username + '\'' +
-            ", email='" + email + '\'' +
-            ", displayName='" + displayName + '\'' +
-            ", roles=" + roles +
-            ", status=" + status +
-            '}';
+        return "User [id=" + id + ", tenant=" + tenant + ", contact=" + contact + ", username=" + username
+                + ", externalId=" + externalId + ", passwordHash=" + passwordHash + ", roles=" + roles
+                + ", profileType=" + profileType + ", isSystemAdmin=" + isSystemAdmin + ", requiresMfa=" + requiresMfa
+                + ", passwordExpiresAt=" + passwordExpiresAt + ", mustChangePassword=" + mustChangePassword
+                + ", status=" + status + ", activationToken=" + activationToken + ", activatedAt=" + activatedAt
+                + ", lastLoginAt=" + lastLoginAt + ", lastActivityAt=" + lastActivityAt + ", suspensionReason="
+                + suspensionReason + ", resetKey=" + resetKey + ", resetDate=" + resetDate + ", userMetadata="
+                + userMetadata + ", appMetadata=" + appMetadata + ", createdAt=" + createdAt + ", updatedAt="
+                + updatedAt + ", deletedAt=" + deletedAt + ", createdBy=" + createdBy + ", lastModifiedBy="
+                + lastModifiedBy + ", failedLoginAttempts=" + failedLoginAttempts + ", accountLockedUntil="
+                + accountLockedUntil + "]";
     }
 }

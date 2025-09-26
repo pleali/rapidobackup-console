@@ -22,7 +22,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByUsername(String username);
 
-  Optional<User> findByEmail(String email);
+  @Query("SELECT u FROM User u LEFT JOIN u.contact c WHERE c.email = :email")
+  Optional<User> findByEmail(@Param("email") String email);
 
   Optional<User> findByActivationToken(String activationToken);
 
@@ -42,11 +43,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   long countByTenantId(UUID tenantId);
 
   @Query(
-      "SELECT DISTINCT u FROM User u LEFT JOIN u.roles r WHERE "
+      "SELECT DISTINCT u FROM User u LEFT JOIN u.roles r LEFT JOIN u.contact c WHERE "
           + "(:searchTerm IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
-          + "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
-          + "LOWER(u.displayName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
-          + "LOWER(u.preferredName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND "
+          + "LOWER(c.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(c.fullName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(c.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(c.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(c.preferredName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND "
           + "(:role IS NULL OR r = :role) AND "
           + "(:status IS NULL OR u.status = :status)")
   Page<User> findUsersWithFilters(
@@ -75,5 +78,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByUsername(String username);
 
-  boolean existsByEmail(String email);
+  @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u LEFT JOIN u.contact c WHERE c.email = :email")
+  boolean existsByEmail(@Param("email") String email);
+
+  @Query("SELECT u FROM User u LEFT JOIN FETCH u.contact WHERE u.id = :id")
+  Optional<User> findByIdWithContact(@Param("id") UUID id);
 }

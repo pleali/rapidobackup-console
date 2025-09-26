@@ -1,8 +1,16 @@
 package com.rapidobackup.console.contact.entity;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rapidobackup.console.tenant.entity.Tenant;
-import com.rapidobackup.console.user.entity.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,13 +27,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Entity
 @Table(name = "contacts")
@@ -76,6 +77,14 @@ public class Contact {
     @Column(name = "full_name")
     private String fullName;
 
+    @Size(max = 100)
+    @Column(name = "nickname")
+    private String nickname;
+
+    @Size(max = 100)
+    @Column(name = "preferred_name")
+    private String preferredName;
+
     // Contact professionnel
     @Size(max = 255)
     @Column(name = "company_name")
@@ -88,6 +97,14 @@ public class Contact {
     @Size(max = 255)
     @Column(name = "department")
     private String department;
+
+    @Size(max = 100)
+    @Column(name = "employee_id")
+    private String employeeId;
+
+    @Size(max = 255)
+    @Column(name = "division")
+    private String division;
 
     // Communications
     @Email
@@ -357,6 +374,22 @@ public class Contact {
         this.fullName = fullName;
     }
 
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getPreferredName() {
+        return preferredName;
+    }
+
+    public void setPreferredName(String preferredName) {
+        this.preferredName = preferredName;
+    }
+
     public String getCompanyName() {
         return companyName;
     }
@@ -379,6 +412,22 @@ public class Contact {
 
     public void setDepartment(String department) {
         this.department = department;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public String getDivision() {
+        return division;
+    }
+
+    public void setDivision(String division) {
+        this.division = division;
     }
 
     public String getEmail() {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="004_default_admin_contact" author="console">
+        <!-- Insert default contact for admin user -->
+        <insert tableName="contacts">
+            <column name="id" value="00000000-0000-0000-0000-000000000002"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="contact_type" value="PRIMARY"/>
+            <column name="is_primary" valueBoolean="true"/>
+            <column name="first_name" value="System"/>
+            <column name="last_name" value="Administrator"/>
+            <column name="full_name" value="System Administrator"/>
+            <column name="nickname" value="admin"/>
+            <column name="preferred_name" value="System Administrator"/>
+            <column name="email" value="admin@console.local"/>
+            <column name="job_title" value="System Administrator"/>
+            <column name="department" value="Information Technology"/>
+            <column name="division" value="System Administration"/>
+            <column name="preferred_language" value="en"/>
+            <column name="timezone" value="UTC"/>
+            <column name="email_verified" valueBoolean="true"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at" valueDate="${now}"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

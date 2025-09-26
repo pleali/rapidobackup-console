@@ -31,11 +31,15 @@
             <column name="last_name" type="varchar(100)"/>
             <column name="suffix" type="varchar(20)"/>
             <column name="full_name" type="varchar(255)"/>
+            <column name="nickname" type="varchar(100)"/>
+            <column name="preferred_name" type="varchar(100)"/>
 
             <!-- Contact professionnel -->
             <column name="company_name" type="varchar(255)"/>
             <column name="job_title" type="varchar(255)"/>
             <column name="department" type="varchar(255)"/>
+            <column name="employee_id" type="varchar(100)"/>
+            <column name="division" type="varchar(255)"/>
 
             <!-- Communications -->
             <column name="email" type="varchar(255)"/>
@@ -108,6 +112,15 @@
 
         <createIndex indexName="idx_contacts_full_name" tableName="contacts">
             <column name="full_name"/>
+        </createIndex>
+
+        <createIndex indexName="idx_contacts_employee_id" tableName="contacts">
+            <column name="employee_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_contacts_first_last_name" tableName="contacts">
+            <column name="first_name"/>
+            <column name="last_name"/>
         </createIndex>
     </changeSet>
 

@@ -20,8 +20,12 @@ public class SignupRequest {
   private String password;
 
   @NotBlank
-  @Size(max = 255)
-  private String displayName;
+  @Size(max = 100)
+  private String firstName;
+
+  @NotBlank
+  @Size(max = 100)
+  private String lastName;
 
   @Size(max = 100)
   private String preferredName;
@@ -55,12 +59,20 @@ public class SignupRequest {
     this.password = password;
   }
 
-  public String getDisplayName() {
-    return displayName;
+  public String getFirstName() {
+    return firstName;
   }
 
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 
   public String getPreferredName() {
@@ -84,7 +96,8 @@ public class SignupRequest {
     return "SignupRequest{" +
         "username='" + username + '\'' +
         ", email='" + email + '\'' +
-        ", displayName='" + displayName + '\'' +
+        ", firstName='" + firstName + '\'' +
+        ", lastName='" + lastName + '\'' +
         ", preferredName='" + preferredName + '\'' +
         ", langKey='" + langKey + '\'' +
         '}';

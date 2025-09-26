@@ -27,7 +27,9 @@
 
     <!-- Data inserts (order matters for foreign keys) -->
     <include file="config/liquibase/changelog/data/001_default_root_tenant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/data/004_default_admin_contact.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/data/002_default_admin_user.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/data/003_default_admin_roles.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/data/005_link_admin_user_contact.xml" relativeToChangelogFile="false"/>
     
 </databaseChangeLog>

@@ -11,15 +11,9 @@ public class UserDto {
 
   private UUID id;
   private String username;
-  private String displayName;
-  private String preferredName;
-  private String email;
   private boolean activated;
-  private String langKey;
   private String imageUrl;
   private Set<UserRole> roles;
-  private UUID parentId;
-  private String parentLogin;
   private Instant createdDate;
   private Instant lastModifiedDate;
   private Instant lastLogin;
@@ -44,29 +38,6 @@ public class UserDto {
     this.username = username;
   }
 
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public String getPreferredName() {
-    return preferredName;
-  }
-
-  public void setPreferredName(String preferredName) {
-    this.preferredName = preferredName;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
 
   public boolean isActivated() {
     return activated;
@@ -76,13 +47,6 @@ public class UserDto {
     this.activated = activated;
   }
 
-  public String getLangKey() {
-    return langKey;
-  }
-
-  public void setLangKey(String langKey) {
-    this.langKey = langKey;
-  }
 
   public String getImageUrl() {
     return imageUrl;
@@ -98,22 +62,6 @@ public class UserDto {
 
   public void setRoles(Set<UserRole> roles) {
     this.roles = roles;
-  }
-
-  public UUID getParentId() {
-    return parentId;
-  }
-
-  public void setParentId(UUID parentId) {
-    this.parentId = parentId;
-  }
-
-  public String getParentLogin() {
-    return parentLogin;
-  }
-
-  public void setParentLogin(String parentLogin) {
-    this.parentLogin = parentLogin;
   }
 
   public Instant getCreatedDate() {
@@ -156,15 +104,6 @@ public class UserDto {
     this.contact = contact;
   }
 
-  public String getFullName() {
-    if (displayName != null && !displayName.trim().isEmpty()) {
-      return displayName;
-    }
-    if (preferredName != null && !preferredName.trim().isEmpty()) {
-      return preferredName;
-    }
-    return username;
-  }
 
   public boolean hasContact() {
     return contact != null;

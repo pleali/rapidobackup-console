@@ -20,11 +20,15 @@ public class ContactDto {
   private String lastName;
   private String suffix;
   private String fullName;
+  private String nickname;
+  private String preferredName;
 
   // Professional information
   private String companyName;
   private String jobTitle;
   private String department;
+  private String employeeId;
+  private String division;
 
   // Communication
   private String email;
@@ -183,6 +187,22 @@ public class ContactDto {
     this.fullName = fullName;
   }
 
+  public String getNickname() {
+    return nickname;
+  }
+
+  public void setNickname(String nickname) {
+    this.nickname = nickname;
+  }
+
+  public String getPreferredName() {
+    return preferredName;
+  }
+
+  public void setPreferredName(String preferredName) {
+    this.preferredName = preferredName;
+  }
+
   public String getCompanyName() {
     return companyName;
   }
@@ -205,6 +225,22 @@ public class ContactDto {
 
   public void setDepartment(String department) {
     this.department = department;
+  }
+
+  public String getEmployeeId() {
+    return employeeId;
+  }
+
+  public void setEmployeeId(String employeeId) {
+    this.employeeId = employeeId;
+  }
+
+  public String getDivision() {
+    return division;
+  }
+
+  public void setDivision(String division) {
+    this.division = division;
   }
 
   public String getEmail() {

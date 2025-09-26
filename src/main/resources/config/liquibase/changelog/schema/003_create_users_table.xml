@@ -22,27 +22,10 @@
             <column name="contact_id" type="${uuidType}"/>
 
             <!-- Identification -->
-            <column name="email" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="username" type="varchar(100)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="employee_id" type="varchar(100)"/>
             <column name="external_id" type="varchar(255)"/>
-
-            <!-- Personal Profile -->
-            <column name="display_name" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="nickname" type="varchar(100)"/>
-            <column name="preferred_name" type="varchar(100)"/>
-
-            <!-- Professional Profile -->
-            <column name="division" type="varchar(255)"/>
-
-            <!-- Preferences -->
-            <column name="locale" type="varchar(10)"/>
 
             <!-- Security and Access -->
             <column name="password_hash" type="varchar(100)"/>
@@ -108,25 +91,12 @@
             <column name="username"/>
         </createIndex>
 
-        <createIndex indexName="idx_users_email" tableName="users">
-            <column name="email"/>
-        </createIndex>
-
-        <createIndex indexName="idx_users_tenant_email" tableName="users" unique="true">
-            <column name="tenant_id"/>
-            <column name="email"/>
-        </createIndex>
-
         <createIndex indexName="idx_users_tenant" tableName="users">
             <column name="tenant_id"/>
         </createIndex>
 
         <createIndex indexName="idx_users_status" tableName="users">
             <column name="status"/>
-        </createIndex>
-
-        <createIndex indexName="idx_users_employee_id" tableName="users">
-            <column name="employee_id"/>
         </createIndex>
 
         <createIndex indexName="idx_users_external_id" tableName="users">

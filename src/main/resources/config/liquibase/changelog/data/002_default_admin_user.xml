@@ -10,13 +10,10 @@
         <insert tableName="users">
             <column name="id" value="00000000-0000-0000-0000-000000000001"/>
             <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
-            <column name="email" value="admin@console.local"/>
             <column name="username" value="admin"/>
-            <column name="display_name" value="System Administrator"/>
             <column name="password_hash" value="{bcrypt}$2a$10$rqyWOS5JqOD1OEiQbePB.OOgpMEyCRJOtM2KM/TeUE0ddBTvIkZbe"/>
             <column name="is_system_admin" valueBoolean="true"/>
             <column name="status" value="ACTIVE"/>
-            <column name="locale" value="en"/>
             <column name="must_change_password" valueBoolean="true"/>
             <column name="activated_at" valueDate="${now}"/>
             <column name="created_at" valueDate="${now}"/>
