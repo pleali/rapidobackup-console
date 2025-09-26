@@ -16,9 +16,7 @@
             <column name="password_hash" value="{bcrypt}$2a$10$rqyWOS5JqOD1OEiQbePB.OOgpMEyCRJOtM2KM/TeUE0ddBTvIkZbe"/>
             <column name="is_system_admin" valueBoolean="true"/>
             <column name="status" value="ACTIVE"/>
-            <column name="timezone" value="UTC"/>
             <column name="locale" value="en"/>
-            <column name="preferred_language" value="en"/>
             <column name="must_change_password" valueBoolean="true"/>
             <column name="activated_at" valueDate="${now}"/>
             <column name="created_at" valueDate="${now}"/>

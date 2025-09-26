@@ -39,13 +39,10 @@
             <column name="preferred_name" type="varchar(100)"/>
 
             <!-- Professional Profile -->
-            <column name="job_title" type="varchar(255)"/>
             <column name="division" type="varchar(255)"/>
 
             <!-- Preferences -->
-            <column name="timezone" type="varchar(50)"/>
             <column name="locale" type="varchar(10)"/>
-            <column name="preferred_language" type="varchar(10)"/>
 
             <!-- Security and Access -->
             <column name="password_hash" type="varchar(100)"/>

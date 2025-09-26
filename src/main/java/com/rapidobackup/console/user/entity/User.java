@@ -96,25 +96,15 @@ public class User {
 
     // Professional Profile
     @Size(max = 255)
-    @Column(name = "job_title")
-    private String jobTitle;
-
-    @Size(max = 255)
     @Column(name = "division")
     private String division;
 
     // Préférences
-    @Size(max = 50)
-    @Column(name = "timezone")
-    private String timezone;
 
     @Size(max = 10)
     @Column(name = "locale")
     private String locale;
 
-    @Size(max = 10)
-    @Column(name = "preferred_language")
-    private String preferredLanguage;
 
     // Sécurité et Accès
     @JsonIgnore
@@ -366,13 +356,6 @@ public class User {
         this.preferredName = preferredName;
     }
 
-    public String getJobTitle() {
-        return jobTitle;
-    }
-
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
 
     public String getDivision() {
         return division;
@@ -382,13 +365,6 @@ public class User {
         this.division = division;
     }
 
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public void setTimezone(String timezone) {
-        this.timezone = timezone;
-    }
 
     public String getLocale() {
         return locale;
@@ -398,13 +374,6 @@ public class User {
         this.locale = locale;
     }
 
-    public String getPreferredLanguage() {
-        return preferredLanguage;
-    }
-
-    public void setPreferredLanguage(String preferredLanguage) {
-        this.preferredLanguage = preferredLanguage;
-    }
 
     public String getPasswordHash() {
         return passwordHash;

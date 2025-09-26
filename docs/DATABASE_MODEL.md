@@ -60,9 +60,13 @@ Comprehensive user management with rich profiles.
 
 **Professional profile:**
 
-- `job_title`, `division` - Organizational information
+- `division` - Organizational division
 - `employee_id` - Internal employee identifier
 - `external_id` - Identifier for SSO/SAML integrations
+
+**Preferences:**
+
+- `locale` - User interface locale (e.g., en-US, fr-FR)
 
 **Security:**
 
