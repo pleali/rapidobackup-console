@@ -35,14 +35,10 @@ public class Contact {
     @GeneratedValue
     private UUID id;
 
-    // Liens possibles (mutuellement exclusifs)
+    // Relation vers tenant (obligatoire)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id")
+    @JoinColumn(name = "tenant_id", nullable = false)
+    @NotNull
     @JsonIgnore
     private Tenant tenant;
 
@@ -275,10 +271,6 @@ public class Contact {
         return Boolean.TRUE.equals(emailVerified) || Boolean.TRUE.equals(phoneVerified);
     }
 
-    public boolean belongsToUser() {
-        return user != null;
-    }
-
     public boolean belongsToTenant() {
         return tenant != null;
     }
@@ -292,13 +284,6 @@ public class Contact {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public Tenant getTenant() {
         return tenant;

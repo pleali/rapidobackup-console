@@ -1,6 +1,7 @@
 package com.rapidobackup.console.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rapidobackup.console.contact.entity.Contact;
 import com.rapidobackup.console.tenant.entity.Tenant;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -13,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -51,6 +53,12 @@ public class User {
     @NotNull
     @JsonIgnore
     private Tenant tenant;
+
+    // Relation optionnelle vers contact (0-1)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contact_id")
+    @JsonIgnore
+    private Contact contact;
 
     // Identification
     @NotBlank
@@ -292,6 +300,14 @@ public class User {
 
     public void setTenant(Tenant tenant) {
         this.tenant = tenant;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 
     public String getEmail() {

@@ -14,6 +14,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rapidobackup.console.contact.entity.Contact;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -80,6 +81,11 @@ public class Tenant {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Tenant> children = new HashSet<>();
+
+    // Relation vers les contacts (1-n)
+    @OneToMany(mappedBy = "tenant", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Contact> contacts = new HashSet<>();
 
     @Column(name = "level", nullable = false)
     private Integer level = 0;
@@ -310,6 +316,14 @@ public class Tenant {
 
     public void setChildren(Set<Tenant> children) {
         this.children = children;
+    }
+
+    public Set<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(Set<Contact> contacts) {
+        this.contacts = contacts != null ? contacts : new HashSet<>();
     }
 
     public Integer getLevel() {

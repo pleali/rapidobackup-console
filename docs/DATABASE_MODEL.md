@@ -42,7 +42,7 @@ Central table for hierarchical organization management.
 
 - Self-reference for parent-child hierarchy
 - One-to-many with `users`
-- One-to-many with `tenant_contact_roles` (contacts with roles)
+- One-to-many with `contacts` (tenant contacts)
 - One-to-many with `tenant_settings`
 
 ### 2. Users (`users`)
@@ -53,6 +53,7 @@ Comprehensive user management with rich profiles.
 
 - `id` (UUID, PK) - Unique identifier
 - `tenant_id` (UUID, FK) - Owner tenant
+- `contact_id` (UUID, FK) - Optional personal contact
 - `email` (VARCHAR, NOT NULL) - Email unique per tenant
 - `username` (VARCHAR, UNIQUE) - Global unique username
 - `display_name` (VARCHAR) - Display name
@@ -77,18 +78,18 @@ Comprehensive user management with rich profiles.
 
 **Relationships:**
 
-- One-to-one with `user_contact` (optional personal contact)
+- One-to-one with `contacts` (optional personal contact)
 - Many-to-one with `tenants` (owner tenant)
 
-### 3. Contacts (`contacts`) - Normalized Architecture
+### 3. Contacts (`contacts`) - Direct Relationship Architecture
 
-Independent and reusable contact entity using a hybrid liaison model.
+Contact entity with direct relationship to tenants.
 
 **Design principles:**
 
-- **Pure entity**: No direct references to user or tenant
-- **Reusability**: A contact can serve multiple entities
-- **Normalization**: Avoids contact data duplication
+- **Tenant-owned**: Each contact belongs to a specific tenant
+- **Optional user association**: Users can optionally reference a contact
+- **Comprehensive data**: Complete contact information and preferences
 
 **Contact types:**
 - `PRIMARY` - Primary contact
@@ -96,39 +97,51 @@ Independent and reusable contact entity using a hybrid liaison model.
 - `TECHNICAL` - Technical support
 - `MANAGEMENT` - Management contact
 
+**Key fields:**
+- `id` (UUID, PK) - Unique identifier
+- `tenant_id` (UUID, FK, NOT NULL) - Owner tenant
+- `contact_type` (ENUM, NOT NULL) - Contact type
+- `is_primary` (BOOLEAN) - Primary contact flag
+
 **Complete information:**
-- Personal data (name, title, department)
-- Multiple coordinates (email, phones, address)
-- Verification and GDPR consents
-- Extensible metadata (custom fields)
+- Personal data (salutation, first_name, middle_name, last_name, suffix)
+- Professional data (company_name, job_title, department)
+- Communications (email, phone_primary, phone_secondary, phone_mobile, fax)
+- Address (complete postal address with country code)
+- Preferences (preferred_contact_method, preferred_language, timezone)
+- GDPR consents (marketing_consent, newsletter_consent, consent_date)
+- Verification (email_verified, phone_verified, verified_at)
+- Extensible metadata (notes, tags, custom_fields as JSONB)
 
-### 4. Contact Relationships - Hybrid Architecture
+**Relationships:**
+- Many-to-one with `tenants` (owner tenant - required)
+- One-to-one with `users` (optional user reference)
 
-The system uses two specialized liaison tables:
+### 4. Contact Relationships - Direct Architecture
 
-#### `user_contact` - 1-to-1 Relationship
-```
-User ←→ user_contact ←→ Contact
-```
-- A user can have **one optional personal contact**
-- Direct relationship for simplicity
+The system uses direct relationships for simplicity:
 
-#### `tenant_contact_roles` - 1-to-Many with Roles
+#### Tenant → Contacts (1-to-Many)
 ```
-Tenant ←→ tenant_contact_roles ←→ Contact
-                ↓
-        contact_type, is_primary, is_active
+Tenant ←→ Contacts (tenant_id FK)
 ```
-- A tenant can have **multiple contacts** with different roles
-- Supported types: PRIMARY, BILLING, TECHNICAL, MANAGEMENT
-- Active/inactive contact management (soft delete)
-- One primary contact per type possible
+- A tenant can have **multiple contacts**
+- Each contact belongs to exactly one tenant
+- Contact types: PRIMARY, BILLING, TECHNICAL, MANAGEMENT
+
+#### User → Contact (0-to-1)
+```
+User ←→ Contact (contact_id FK)
+```
+- A user can optionally reference **one contact**
+- Direct foreign key relationship for simplicity
+- Contact must belong to user's tenant
 
 **Model advantages:**
-- **Native DELETE CASCADE**: Clean liaison removal
-- **Maximum flexibility**: Multi-role contacts for tenants
-- **Extensibility**: Easy to add Agent, Partner, etc.
-- **Integrity**: No complex constraints, clear relationships
+- **Simple architecture**: No liaison tables needed
+- **Clear ownership**: Contacts belong to tenants
+- **Flexible user association**: Optional personal contact reference
+- **Data integrity**: Direct foreign key constraints
 
 ### 5. Tenant Settings (`tenant_settings`)
 
@@ -188,11 +201,11 @@ Optimized view of active users with tenant information.
 
 ### 3. `v_tenant_contacts`
 
-Enriched view of tenant contacts with roles and statuses.
+Enriched view of tenant contacts with complete information.
 
 ### 4. `v_user_contacts`
 
-View of user contacts with complete information.
+View of users with their associated contact information.
 
 ### 5. `v_tenant_stats`
 
@@ -231,7 +244,7 @@ Key indexes for optimal performance:
 
 - **Hierarchical queries**: `idx_tenants_path` (GIST) for LTREE path queries
 - **JSON metadata**: `idx_users_metadata` (GIN) for JSON search
-- **Contact relationships**: Specialized indexes on liaison tables for efficient role-based queries
+- **Contact relationships**: Indexes on tenant_id and contact_id foreign keys for efficient queries
 
 ## Advanced Features
 
@@ -301,23 +314,23 @@ Complete structure with:
 ## Relationship Diagram
 
 ```
-┌─────────────┐    ┌──────────────────┐    ┌─────────────┐
-│   Tenants   │◄──►│ tenant_contact_  │◄──►│  Contacts   │
-│             │    │     roles        │    │ (pure entity)│
-│ - hierarchy │    │ - contact_type   │    │ - complete  │
-│ - settings  │    │ - is_primary     │    │   data      │
-│ - quotas    │    │ - is_active      │    │ - verification│
-└─────┬───────┘    └──────────────────┘    └──────┬──────┘
-      │                                           │
-      │ 1-to-many                                 │
-      ▼                                           │ 1-to-1
-┌─────────────┐    ┌──────────────────┐           │
-│    Users    │◄──►│  user_contact    │◄──────────┘
-│             │    │                  │
-│ - profiles  │    │ - direct         │
-│ - security  │    │   relation       │
-│ - metadata  │    │                  │
-└─────────────┘    └──────────────────┘
+┌─────────────┐    1-to-many    ┌─────────────┐
+│   Tenants   │◄────────────────│  Contacts   │
+│             │                 │             │
+│ - hierarchy │                 │ - tenant_id │
+│ - settings  │                 │ - complete  │
+│ - quotas    │                 │   data      │
+└─────┬───────┘                 └──────┬──────┘
+      │                                │
+      │ 1-to-many                      │ 0-to-1
+      ▼                                ▼
+┌─────────────┐    contact_id    ┌─────────────┐
+│    Users    │─────────────────►│   Contact   │
+│             │ (optional FK)    │ (optional)  │
+│ - profiles  │                 │ - personal  │
+│ - security  │                 │   contact   │
+│ - metadata  │                 │             │
+└─────────────┘                 └─────────────┘
 ```
 
 ## Typical Use Cases
@@ -338,8 +351,9 @@ Complete structure with:
 
 ### Model Flexibility
 
-- A **Contact can serve multiple tenants** (external consultant)
-- A **Tenant can have multiple contacts of the same type** (billing team)
-- **Easy evolution**: Add Agent, Partner without refactoring
+- **Tenant ownership**: Each contact belongs to exactly one tenant
+- **Multiple contacts per tenant**: A tenant can have multiple contacts of different types
+- **Optional user contact**: Users can optionally reference a personal contact
+- **Easy evolution**: Simple architecture allows for future extensions
 
 This architecture provides a solid, extensible, and high-performance foundation for RapidoBackup Console, inspired by industry best practices.

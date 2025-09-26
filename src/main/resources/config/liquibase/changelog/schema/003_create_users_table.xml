@@ -18,6 +18,9 @@
                 <constraints nullable="false"/>
             </column>
 
+            <!-- Contact Relationship (optional) -->
+            <column name="contact_id" type="${uuidType}"/>
+
             <!-- Identification -->
             <column name="email" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -95,6 +98,14 @@
                                  referencedColumnNames="id"
                                  referencedTableName="tenants"/>
 
+        <!-- Foreign Key for contact relationship -->
+        <addForeignKeyConstraint baseColumnNames="contact_id"
+                                 baseTableName="users"
+                                 constraintName="fk_user_contact"
+                                 referencedColumnNames="id"
+                                 referencedTableName="contacts"
+                                 onDelete="SET NULL"/>
+
         <!-- Indexes -->
         <createIndex indexName="idx_users_username" tableName="users">
             <column name="username"/>
@@ -131,6 +142,10 @@
 
         <createIndex indexName="idx_users_last_login" tableName="users">
             <column name="last_login_at"/>
+        </createIndex>
+
+        <createIndex indexName="idx_users_contact_id" tableName="users">
+            <column name="contact_id"/>
         </createIndex>
     </changeSet>
 
