@@ -11,13 +11,13 @@ public class UserDto {
 
   private UUID id;
   private String username;
-  private boolean activated;
+  private boolean activated; // Computed from status
   private String imageUrl;
   private Set<UserRole> roles;
-  private Instant createdDate;
-  private Instant lastModifiedDate;
-  private Instant lastLogin;
-  private boolean passwordChangeRequired;
+  private Instant createdAt;
+  private Instant updatedAt;
+  private Instant lastLoginAt;
+  private boolean mustChangePassword;
   private ContactDto contact;
 
   public UserDto() {}
@@ -64,36 +64,36 @@ public class UserDto {
     this.roles = roles;
   }
 
-  public Instant getCreatedDate() {
-    return createdDate;
+  public Instant getCreatedAt() {
+    return createdAt;
   }
 
-  public void setCreatedDate(Instant createdDate) {
-    this.createdDate = createdDate;
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
   }
 
-  public Instant getLastModifiedDate() {
-    return lastModifiedDate;
+  public Instant getUpdatedAt() {
+    return updatedAt;
   }
 
-  public void setLastModifiedDate(Instant lastModifiedDate) {
-    this.lastModifiedDate = lastModifiedDate;
+  public void setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
-  public Instant getLastLogin() {
-    return lastLogin;
+  public Instant getLastLoginAt() {
+    return lastLoginAt;
   }
 
-  public void setLastLogin(Instant lastLogin) {
-    this.lastLogin = lastLogin;
+  public void setLastLoginAt(Instant lastLoginAt) {
+    this.lastLoginAt = lastLoginAt;
   }
 
-  public boolean isPasswordChangeRequired() {
-    return passwordChangeRequired;
+  public boolean isMustChangePassword() {
+    return mustChangePassword;
   }
 
-  public void setPasswordChangeRequired(boolean passwordChangeRequired) {
-    this.passwordChangeRequired = passwordChangeRequired;
+  public void setMustChangePassword(boolean mustChangePassword) {
+    this.mustChangePassword = mustChangePassword;
   }
 
   public ContactDto getContact() {
@@ -109,3 +109,4 @@ public class UserDto {
     return contact != null;
   }
 }
+ 
